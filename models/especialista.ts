@@ -1,9 +1,10 @@
-import {DataTypes} from 'sequelize';
+import {DataTypes, Sequelize} from 'sequelize';
 import db from '../db/connection';
 import Evento from './eventos';
 
 
 const Especialista = db.define('Especialistas',{
+    
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true        
@@ -14,10 +15,6 @@ const Especialista = db.define('Especialistas',{
     },
     apellidos:{
         type:DataTypes.STRING
-    },
-    fecha_alta:{
-        type:DataTypes.DATE,
-        allowNull:false
     },
     telefono:{
         type:DataTypes.STRING,
@@ -83,11 +80,18 @@ const Especialista = db.define('Especialistas',{
     },
     web:{
         type:DataTypes.STRING
-    }
-
+    },
+},{
+    paranoid:true // soft delete
 })
+
+
+
+
 
 Especialista.hasMany(Evento);
 Evento.belongsTo(Especialista);
+
+
 
 export default Especialista;
