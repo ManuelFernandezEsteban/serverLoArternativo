@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import Actividad from "../models/actividades";
-import Especialista from "../models/especialista";
+import Especialista from '../models/especialista';
 import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
+import { generarJWT } from '../helpers/generar-JWT';
  
 
 
@@ -24,7 +25,9 @@ export const getEspecialistas = async (req: Request, res: Response) => {
         }
     }
     const { count, rows } = await Especialista.findAndCountAll({
+        attributes:{exclude:['password']},
         include: [Actividad, Plan],
+
         where: {
             actividadeId: especialidad
         },
@@ -42,8 +45,12 @@ export const getEspecialistas = async (req: Request, res: Response) => {
 export const getEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-    const especialista = await Especialista.findByPk(id);
+    const especialista = await Especialista.findByPk(id,{
+        attributes:{exclude:['password']}
+    });
+
     if (especialista) {
+        //especialista.set({password:''});
         res.json({
             especialista
         })
@@ -63,12 +70,16 @@ export const postEspecialista = async (req: Request, res: Response) => {
     try {
         //Encriptar contraseña y guardar especialista
         const salt = bcrypt.genSaltSync();
-        const especialista = Especialista.build(body);
+        const especialista = await Especialista.create(body);
         especialista.set({ password: bcrypt.hashSync(body.password, salt) })
-        const especialistaBD = await especialista.save();
-        especialistaBD.set({ password: '' });
-        console.log(especialistaBD);
-        res.json(especialistaBD);
+        await especialista.save();
+        especialista.set({ password:''})
+        const token= generarJWT(especialista.id);
+        
+        res.json({
+            especialista,
+            token
+        });
 
     } catch (error) {
         console.log(error);
@@ -83,7 +94,15 @@ export const postEspecialista = async (req: Request, res: Response) => {
 export const putEspecialista = async (req: Request, res: Response) => {
 
     const { body } = req;
-    const { id } = req.params
+    const { id } = req.params;
+    const idEspecilistaAutenticado = req.especialistaAutenticado;   
+
+    if (idEspecilistaAutenticado!==id){
+        return res.status(500).json({ 
+            msg: 'El token no es válido',
+        })
+    }
+
 
     try {
 
@@ -112,7 +131,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
                 await especialista.update({ password: bcrypt.hashSync(body.password, salt) });
             }
             especialista.set({ password: '' });
-            res.json(especialista);
+            res.json({especialista});
 
         }else{
             return res.status(404).json({
@@ -124,7 +143,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     catch (error) {
         console.log(error);
-        res.status(500).json({
+        res.status(500).json({ 
             msg: error,
         })
     }
@@ -145,8 +164,7 @@ export const deleteEspecialista = async (req: Request, res: Response) => {
 
     await especialista.destroy();
 
-    res.json({
-        msg: 'deleteEspecialista',
+    res.json({        
         id
     })
 } 

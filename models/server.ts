@@ -6,6 +6,7 @@ import actividadesRoutes from '../routes/actividades.route';
 import planesRoutes from '../routes/planes.route';
 import sponsorsRoutes from '../routes/sponsor.route';
 import eventosRoutes from '../routes/eventos.route'
+import authRoutes from '../routes/auth.route'
 import db from '../db/connection';
 
 
@@ -19,7 +20,8 @@ class Server{
         actividades:'/api/actividades',
         planes:'/api/planes',
         sponsors:'/api/sponsors',
-        eventos:'/api/eventos'
+        eventos:'/api/eventos',
+        auth:'/api/auth'
     }
 
     constructor(){
@@ -77,6 +79,7 @@ class Server{
         this.app.use(this.apiPaths.planes,planesRoutes);
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);
+        this.app.use(this.apiPaths.auth,authRoutes);
     }
 
     listen(){

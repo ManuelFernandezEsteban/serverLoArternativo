@@ -7,6 +7,7 @@ import { getEspecialista,
          deleteEspecialista } from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
 import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
+import { validarJWT } from '../middlewares/validar-JWT';
 
 
 
@@ -34,7 +35,7 @@ router.post('/',[
   
     ] ,validarCampos, postEspecialista);
 
-router.put('/:id',[
+router.put('/:id',[validarJWT,
     check('id').custom(existeUsuario),
     check('nombre','El nombre es obligatorio').not().isEmpty(),
     check('apellidos','Los apellidos son obligatorios').not().isEmpty(),
@@ -45,8 +46,9 @@ router.put('/:id',[
     check('PlaneId').custom(esPlanValido),
 ], validarCampos,putEspecialista);
 
-router.delete('/:id',[
+router.delete('/:id',[  validarJWT,  
     check('id').custom(existeUsuario),
+    
 ],validarCampos,deleteEspecialista);
 
 export default router;

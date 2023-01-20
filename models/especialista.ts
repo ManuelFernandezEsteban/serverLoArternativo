@@ -6,8 +6,9 @@ import Evento from './eventos';
 const Especialista = db.define('Especialistas',{
     
     id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true        
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     nombre:{
         type:DataTypes.STRING,
@@ -84,10 +85,6 @@ const Especialista = db.define('Especialistas',{
 },{
     paranoid:true // soft delete
 })
-
-
-
-
 
 Especialista.hasMany(Evento);
 Evento.belongsTo(Especialista);

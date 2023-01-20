@@ -3,7 +3,8 @@ import db from "../db/connection";
 
 const Evento = db.define('Eventos',{
     id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey:true
     },
     evento:{
@@ -17,10 +18,10 @@ const Evento = db.define('Eventos',{
     },
     descripcion:{
         type:DataTypes.STRING
-    },
+    },/*
     actividad:{
         type:DataTypes.INTEGER
-    },
+    },*/
     direccion:{
         type:DataTypes.STRING
     },
