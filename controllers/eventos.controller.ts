@@ -48,36 +48,36 @@ export const getEventosEspecialista = async (req: Request, res: Response) => {
 
 export const getEventosActividad = async (req: Request, res: Response) => {
 
-    const {actividad} = req.params;
+    const { actividad } = req.params;
     let { limit = 5, desde = 0 } = req.query;
 
-    if (limit){
-        if (isNaN(parseInt(limit as string))){
-            limit=5
-        }       
-         
+    if (limit) {
+        if (isNaN(parseInt(limit as string))) {
+            limit = 5
+        }
+
     }
-    if (desde){
-        if (isNaN(parseInt(desde as string))){
-            desde=0
+    if (desde) {
+        if (isNaN(parseInt(desde as string))) {
+            desde = 0
         }
     }
 
-    const {count, rows} = await Evento.findAndCountAll({
+    const { count, rows } = await Evento.findAndCountAll({
 
-        where:{
-            actividadeId:actividad
+        where: {
+            actividadeId: actividad
         },
-        include:[{
+        include: [{
             model: Especialista,
-            where:{
-                PlaneId:2
+            where: {
+                PlaneId: 2
             }
-        }] 
-            
+        }]
+
         ,
-        limit:Number(limit),
-        offset:Number(desde)
+        limit: Number(limit),
+        offset: Number(desde)
     })
     const eventos = rows
     res.json({
@@ -114,9 +114,41 @@ export const postEvento = async (req: Request, res: Response) => {
 
 }
 
-export const putEvento = async(req:Request,res:Response)=>{
+export const putEvento = async (req: Request, res: Response) => {
 
-    res.json({
-        msg:'Put-evento'
-    })
+    const now = new Date(Date.now());
+    const fecha = new Date(req.body.fecha);
+    const { id } = req.params;
+    const { body } = req;
+
+    if (now > fecha) {
+        return res.status(401).json({
+            msg: 'Fecha invalida'
+        })
+    }
+    try { 
+
+        const evento = await Evento.findByPk(id);
+        if (evento) {
+
+            await evento.update(body);
+
+            res.json({
+                evento
+            })
+        }else{
+            return res.status(404).json({
+                msg: `El evento con id ${id} no existe`
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            msg: error
+        })
+    }
+
+    
 }
