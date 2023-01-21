@@ -5,6 +5,7 @@ import Especialista from '../models/especialista';
 import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
+import Evento from "../models/eventos";
  
 
 
@@ -46,7 +47,9 @@ export const getEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     const especialista = await Especialista.findByPk(id,{
-        attributes:{exclude:['password']}
+      
+        attributes:{exclude:['password']},
+        
     });
 
     if (especialista) {
