@@ -6,7 +6,8 @@ import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
 import Evento from "../models/eventos";
- 
+import { body } from "express-validator";
+
 
 
 
@@ -14,19 +15,19 @@ export const getEspecialistas = async (req: Request, res: Response) => {
     const { especialidad } = req.params;
     let { limit = 5, desde = 0 } = req.query;
 
-    if (limit){
-        if (isNaN(parseInt(limit as string))){
-            limit=5
-        }       
-         
+    if (limit) {
+        if (isNaN(parseInt(limit as string))) {
+            limit = 5
+        }
+
     }
-    if (desde){
-        if (isNaN(parseInt(desde as string))){
-            desde=0
+    if (desde) {
+        if (isNaN(parseInt(desde as string))) {
+            desde = 0
         }
     }
     const { count, rows } = await Especialista.findAndCountAll({
-        attributes:{exclude:['password']},
+        attributes: { exclude: ['password'] },
         include: [Actividad, Plan],
 
         where: {
@@ -37,20 +38,20 @@ export const getEspecialistas = async (req: Request, res: Response) => {
     })
     const especilistas = rows;
 
-    res.json({        
+    res.json({
         especilistas,
-        count 
+        count
     })
 }
 
 export const getEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-    const especialista = await Especialista.findByPk(id,{
-      
-        attributes:{exclude:['password']},
+    const especialista = await Especialista.findByPk(id, {
+
+        attributes: { exclude: ['password'] },
         include: [Actividad, Plan],
-        
+
     });
 
     if (especialista) {
@@ -77,9 +78,9 @@ export const postEspecialista = async (req: Request, res: Response) => {
         const especialista = await Especialista.create(body);
         especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        especialista.set({ password:''})
-        const token= generarJWT(especialista.id);
-        
+        especialista.set({ password: '' })
+        const token = generarJWT(especialista.id);
+
         res.json({
             especialista,
             token
@@ -99,10 +100,10 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     const { body } = req;
     const { id } = req.params;
-    const idEspecilistaAutenticado = req.especialistaAutenticado;   
+    const idEspecilistaAutenticado = req.especialistaAutenticado;
 
-    if (idEspecilistaAutenticado!==id){
-        return res.status(500).json({ 
+    if (idEspecilistaAutenticado !== id) {
+        return res.status(500).json({
             msg: 'El token no es válido',
         })
     }
@@ -135,9 +136,9 @@ export const putEspecialista = async (req: Request, res: Response) => {
                 await especialista.update({ password: bcrypt.hashSync(body.password, salt) });
             }
             especialista.set({ password: '' });
-            res.json({especialista});
+            res.json({ especialista });
 
-        }else{
+        } else {
             return res.status(404).json({
                 msg: `El id ${id} no se encuentra en la BD`
             })
@@ -147,7 +148,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     catch (error) {
         console.log(error);
-        res.status(500).json({ 
+        res.status(500).json({
             msg: error,
         })
     }
@@ -159,16 +160,51 @@ export const deleteEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     const especialista = await Especialista.findByPk(id);
+    try {
+        if (!especialista) {
+            return res.status(404).json({
+                msg: 'No existe un especialista con el id ' + id
+            })
+        }
 
-    if (!especialista) {
-        return res.status(404).json({
-            msg: 'No existe un especialista con el id ' + id
+        await especialista.destroy();
+
+        res.json({
+            id
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: error,
         })
     }
 
-    await especialista.destroy();
 
-    res.json({        
-        id
-    })
-} 
+}
+
+export const patchEspecialista = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {body}  = req;
+    const {PlaneId} = body;
+
+    try {
+        const especialista = await Especialista.findByPk(id);
+        if (!especialista) {
+            return res.status(404).json({
+                msg: 'No existe un especialista con el id ' + id
+            })
+        } else {
+            especialista.update({PlaneId:PlaneId});
+        }
+        res.json({
+            especialista
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: error,
+        }) 
+    }
+
+
+}

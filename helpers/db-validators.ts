@@ -10,10 +10,20 @@ export const esActividadValida = async (ActividadeId: number = 0) => {
 }
 
 export const esPlanValido = async (PlaneId: number = 0) => {
-    const existePlan = await Plan.findByPk(PlaneId);
-    if (!existePlan) {
-        throw new Error('No existe un plan con id ' + PlaneId)
+    try {
+        if (isNaN(PlaneId)){
+            throw new Error('No es un plan válido')
+        }
+
+        const existePlan = await Plan.findByPk(PlaneId);
+        console.log(PlaneId)
+        if (!existePlan) {
+            throw new Error('No existe un plan con id ' + PlaneId)
+        }
+    } catch (error) {
+        throw new Error('No es un plan válido')
     }
+
 }
 
 
@@ -45,7 +55,7 @@ export const existeUsuario = async (id: number = 0) => {
 export const planPermitido = async (especialista: string) => {
     const plan = await Especialista.findByPk(especialista, {
         attributes: ['PlaneId']
-    })    
+    })
     if (plan?.dataValues.PlaneId === 1) {
 
         throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);

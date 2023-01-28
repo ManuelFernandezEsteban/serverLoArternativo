@@ -4,7 +4,8 @@ import { getEspecialista,
          postEspecialista, 
          getEspecialistas, 
          putEspecialista, 
-         deleteEspecialista } from '../controllers/especialista.controller';
+         deleteEspecialista, 
+         patchEspecialista} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
 import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -51,6 +52,20 @@ router.delete('/:id',[  validarJWT,
     check('id').custom(existeUsuario),
     
 ],validarCampos,deleteEspecialista);
+
+router.patch('/modificarPlan/:id',[
+    validarJWT,
+    check('id').custom(existeUsuario),
+    check('PlaneId','El plan es obligatorio').not().isEmpty(),
+    check('PlaneId').custom(esPlanValido),
+], validarCampos,patchEspecialista);
+
+router.delete('/:id',[  validarJWT,  
+    check('id').custom(existeUsuario),
+    
+],validarCampos,deleteEspecialista);
+
+
 
 export default router;
 
