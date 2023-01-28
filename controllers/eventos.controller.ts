@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
@@ -63,13 +64,21 @@ export const getEventosActividad = async (req: Request, res: Response) => {
         }
     }
 
+    const fecha_limite = new Date(Date.now());
+    fecha_limite.setDate(fecha_limite.getDate() + 15);
+
+    console.log(fecha_limite);
+
+
     const { count, rows } = await Evento.findAndCountAll({
 
         where: {
-            actividadeId: actividad
+            actividadeId: actividad,
+            fecha: { [Op.lte]: fecha_limite }
         },
         include: [{
             model: Especialista,
+            attributes: { exclude: ['password'] },
             where: {
                 PlaneId: 2
             }
@@ -95,6 +104,29 @@ export const postEvento = async (req: Request, res: Response) => {
     if (now > fecha) {
         return res.status(401).json({
             msg: 'Fecha invalida'
+        })
+    }
+
+    const resultado = await Especialista.findByPk(body.EspecialistaId, {
+        attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+    })
+
+
+    const { count } = await Evento.findAndCountAll({
+
+        include: [{
+            model: Especialista,
+            attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+        }],
+        where: {
+            especialistaId: body.EspecialistaId,
+            fecha: { [Op.between]: [resultado?.dataValues.fecha_pago_actual, resultado?.dataValues.fecha_fin_suscripcion] },
+        }
+    })
+
+    if (count >= 2) {
+        return res.status(401).json({
+            msg: 'El especialista ya ha publicado dos eventos este mes'
         })
     }
 
@@ -126,7 +158,7 @@ export const putEvento = async (req: Request, res: Response) => {
             msg: 'Fecha invalida'
         })
     }
-    try { 
+    try {
 
         const evento = await Evento.findByPk(id);
         if (evento) {
@@ -136,7 +168,7 @@ export const putEvento = async (req: Request, res: Response) => {
             res.json({
                 evento
             })
-        }else{
+        } else {
             return res.status(404).json({
                 msg: `El evento con id ${id} no existe`
             })
@@ -150,5 +182,35 @@ export const putEvento = async (req: Request, res: Response) => {
         })
     }
 
-    
+
+}
+
+export const deleteEvento = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
+
+    const evento = await Evento.findByPk(id);
+
+    if (evento) {
+        try {
+            evento.destroy();
+
+            res.json({
+                evento
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                msg: error
+            })
+        }
+
+    } else {
+        return res.status(404).json({
+            msg: `El evento con id ${id} no existe`
+        })
+    }
+
+
+
 }

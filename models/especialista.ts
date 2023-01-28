@@ -82,6 +82,12 @@ const Especialista = db.define('Especialistas',{
     web:{
         type:DataTypes.STRING
     },
+    fecha_pago_actual:{
+        type:DataTypes.DATE
+    },
+    fecha_fin_suscripcion:{
+        type:DataTypes.DATE
+    }
 },{
     paranoid:true // soft delete
 })

@@ -5,20 +5,21 @@ import { Request, Response } from "express";
 
 export const validarJWT = (req:Request,res:Response,next:()=>void)=>{
 
-    const token = req.header('x-token');
+    const token = req.header('x-token');   
 
     if (!token){
         return res.status(401).json({
-            msg:'No viene token en la petición'
+            msg:'No viene token en la petición!'
         })
     }
-
     try {
 
-        const {id} = jwt.verify(token,process.env.SECRETPRIVATEKEY||'');      
-              
+        const respuesta = jwt.verify(token,process.env.SECRETPRIVATEKEY!);  
 
-        req.especialistaAutenticado=id;
+        console.log(respuesta.id);
+
+        req.especialistaAutenticado=respuesta.id;
+        
         next(); 
     } catch (error) {
         console.log(error)

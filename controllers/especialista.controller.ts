@@ -49,6 +49,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
     const especialista = await Especialista.findByPk(id,{
       
         attributes:{exclude:['password']},
+        include: [Actividad, Plan],
         
     });
 

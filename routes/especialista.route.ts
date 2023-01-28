@@ -35,7 +35,8 @@ router.post('/',[
   
     ] ,validarCampos, postEspecialista);
 
-router.put('/:id',[validarJWT,
+router.put('/:id',[
+    validarJWT,
     check('id').custom(existeUsuario),
     check('nombre','El nombre es obligatorio').not().isEmpty(),
     check('apellidos','Los apellidos son obligatorios').not().isEmpty(),

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
-import { getEvento, getEventosActividad, getEventosEspecialista, postEvento, putEvento } from '../controllers/eventos.controller';
+import { deleteEvento, getEvento, getEventosActividad, getEventosEspecialista, postEvento, putEvento } from '../controllers/eventos.controller';
 import { validarCampos } from "../middlewares/validar-campos";
 import { existeUsuario, planPermitido, esActividadValida } from '../helpers/db-validators';
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -44,6 +44,8 @@ router.put('/:id',[validarJWT,
     check('EspecialistaId').custom(planPermitido),
     check('ActividadeId').custom(esActividadValida)
 
-],validarCampos,putEvento)
+],validarCampos,putEvento);
+
+router.delete('/:id',deleteEvento);
 
 export default router;

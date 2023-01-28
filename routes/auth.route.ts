@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { login } from '../controllers/auth.controller';
+import { login, renewToken } from '../controllers/auth.controller';
 import { validarCampos } from '../middlewares/validar-campos';
+import { validarJWT } from '../middlewares/validar-JWT';
 
 const router = Router();
+
+router.get('/renovar',validarJWT,validarCampos,renewToken);
+
+
 
 router.post('/login',[
     check('email','El email es obligatorio').not().isEmpty(),
@@ -12,4 +17,4 @@ router.post('/login',[
 ],validarCampos,login);
 
 
-export default router;
+export default router; 
