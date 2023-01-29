@@ -1,3 +1,4 @@
+import { body } from 'express-validator';
 import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import Plan from '../models/planes';
@@ -41,6 +42,16 @@ export const existeEmail = async (email: string = '') => {
     }
 
 }
+export const existeEspecialistaEvento = async (EspecialistaId: string = '') => {
+
+    const existeEspecialista = await Especialista.findByPk(EspecialistaId);
+
+    if (!existeEspecialista) {
+        throw new Error('No existe un especialista con el id ' + EspecialistaId);
+
+    }
+}
+
 
 export const existeUsuario = async (id: number = 0) => {
 
@@ -51,6 +62,19 @@ export const existeUsuario = async (id: number = 0) => {
 
     }
 }
+
+export const planPermitidoEvento = async (EspecialistaId: string='') => {
+    const plan = await Especialista.findByPk(EspecialistaId, {
+        attributes: ['fecha_fin_suscripcion']
+    })
+    console.log(EspecialistaId);
+    if (!(plan?.dataValues.fecha_fin_suscripcion ) || (plan?.dataValues.fecha_fin_suscripcion<Date.now()) ){
+
+        throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
+
+    }
+}
+
 
 export const planPermitido = async (especialista: string) => {
     const plan = await Especialista.findByPk(especialista, {

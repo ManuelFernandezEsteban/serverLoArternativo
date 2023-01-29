@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from "express";
+import { body } from 'express-validator';
 
 
 
 export const validarJWT = (req:Request,res:Response,next:()=>void)=>{
 
-    const token = req.header('x-token');   
-
+    const token = req.header('x-token'); 
     if (!token){
         return res.status(401).json({
             msg:'No viene token en la petición!'

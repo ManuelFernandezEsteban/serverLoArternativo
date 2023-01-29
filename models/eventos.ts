@@ -5,7 +5,7 @@ const Evento = db.define('Eventos',{
     id:{
         type:DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey:true
+        primaryKey:true,        
     },
     evento:{
         type:DataTypes.STRING

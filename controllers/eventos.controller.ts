@@ -101,6 +101,9 @@ export const postEvento = async (req: Request, res: Response) => {
     const fecha = new Date(req.body.fecha);
     const { body } = req;
 
+    console.log(body);
+    
+
     if (now > fecha) {
         return res.status(401).json({
             msg: 'Fecha invalida'
