@@ -54,9 +54,9 @@ export const existeUsuario = async (id: number = 0) => {
 
 export const planPermitido = async (especialista: string) => {
     const plan = await Especialista.findByPk(especialista, {
-        attributes: ['PlaneId']
+        attributes: ['fecha_fin_suscripcion']
     })
-    if (plan?.dataValues.PlaneId === 1) {
+    if (!(plan?.dataValues.fecha_fin_suscripcion ) || (plan?.dataValues.fecha_fin_suscripcion<Date.now()) ){
 
         throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
 

@@ -5,10 +5,6 @@ import Especialista from '../models/especialista';
 import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
-import Evento from "../models/eventos";
-import { body } from "express-validator";
-
-
 
 
 export const getEspecialistas = async (req: Request, res: Response) => {
@@ -193,8 +189,21 @@ export const patchEspecialista = async (req: Request, res: Response) => {
             return res.status(404).json({
                 msg: 'No existe un especialista con el id ' + id
             })
-        } else {
-            especialista.update({PlaneId:PlaneId});
+        } else {         
+            //Plata
+            if (PlaneId===1){
+                especialista.update({PlaneId:PlaneId});
+
+            }else{
+                //oro
+                let fecha_fin = new Date(Date.now());
+                fecha_fin.setMonth(fecha_fin.getMonth()+1)
+                especialista.update({
+                    PlaneId:PlaneId,
+                    fecha_pago_actual:new Date(Date.now()),
+                    fecha_fin_suscripcion:fecha_fin
+                })
+            }
         }
         res.json({
             especialista
