@@ -9,11 +9,23 @@ const Plan = db.define('Planes',{
         primaryKey:true
     },
     nombre:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(20)
     },
     precio:{
         type:DataTypes.FLOAT
     },
+    createdAt:{
+        type:DataTypes.DATE
+    },
+    updatedAt:{
+        type:DataTypes.DATE
+    },
+    deletedAt:{
+        type:DataTypes.DATE
+    }
+
+},{
+    paranoid:true // soft delete
 });
 
 Plan.hasMany(Especialista);

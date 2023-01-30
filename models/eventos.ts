@@ -8,7 +8,7 @@ const Evento = db.define('Eventos',{
         primaryKey:true,        
     },
     evento:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     precio:{
         type:DataTypes.FLOAT
@@ -17,55 +17,61 @@ const Evento = db.define('Eventos',{
         type:DataTypes.DATE
     },
     descripcion:{
-        type:DataTypes.STRING
-    },/*
-    actividad:{
-        type:DataTypes.INTEGER
-    },*/
+        type:DataTypes.TEXT
+    },
     direccion:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     provincia:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     localidad:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     codigo_postal:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(6)
     },
     pais:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(30)
     },
     pdf:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(80)
     },
     online:{
         type:DataTypes.BOOLEAN
     },
     imagen:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(80)
     },
     telefono:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(20)
     },
     email:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     twitter:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     facebook:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     instagram:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     you_tube:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     web:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
+    },
+    createdAt:{
+        type:DataTypes.DATE
+    },
+    updatedAt:{
+        type:DataTypes.DATE
+    },
+    deletedAt:{
+        type:DataTypes.DATE
     }
 
 },{

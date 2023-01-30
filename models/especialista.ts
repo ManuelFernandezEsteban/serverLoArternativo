@@ -11,81 +11,81 @@ const Especialista = db.define('Especialistas',{
         primaryKey:true
     },
     nombre:{
-        type:DataTypes.STRING,
+        type:DataTypes.STRING(30),
         allowNull:false
     },
     apellidos:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(80)
     },
     telefono:{
-        type:DataTypes.STRING,
+        type:DataTypes.STRING(20),
         allowNull:false
     },    
     email:{
-        type:DataTypes.STRING,
+        type:DataTypes.STRING(80),
         allowNull:false,
         unique:true
     },
     password:{
-        type:DataTypes.STRING,
+        type:DataTypes.STRING(200),
         allowNull:false
     },
     descripcion_terapia:{
-        type:DataTypes.STRING
-    },
-   /* actividad:{
-        type:DataTypes.INTEGER,
-        allowNull:false
-    },*/
+        type:DataTypes.TEXT
+    },   
     direccion:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     provincia:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     localidad:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     codigo_postal:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(6)
     },
     pais:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(30)
     },
     video:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(150)
     },
     imagen:{
-        type:DataTypes.STRING
-    },
-    /*
-    plan_contratado:{
-        type:DataTypes.INTEGER,
-        allowNull:false
-    },*/
+        type:DataTypes.STRING(150)
+    },    
     token_pago:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(200)
     },
     
     twitter:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     facebook:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     instagram:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     you_tube:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     web:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(50)
     },
     fecha_pago_actual:{
         type:DataTypes.DATE
     },
     fecha_fin_suscripcion:{
+        type:DataTypes.DATE
+    },
+    createdAt:{
+        type:DataTypes.DATE
+    },
+    updatedAt:{
+        type:DataTypes.DATE
+    },
+    deletedAt:{
         type:DataTypes.DATE
     }
 },{

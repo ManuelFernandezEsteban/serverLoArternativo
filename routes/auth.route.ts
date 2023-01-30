@@ -12,9 +12,9 @@ router.get('/renovar',validarJWT,validarCampos,renewToken);
 
 router.post('/login',[
     check('email','El email es obligatorio').not().isEmpty(),
-    check('email','Debe ser un email válido').isEmail(),
-    check('password','La contraseña es obligatoria').not().isEmpty()
+    check('email','Debe ser un email válido').isEmail().trim().escape().normalizeEmail(),
+    check('password','La contraseña es obligatoria').not().isEmpty().isLength({min:8}).trim().escape()
 ],validarCampos,login);
 
 
-export default router; 
+export default router;  

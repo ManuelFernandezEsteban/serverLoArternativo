@@ -21,10 +21,10 @@ router.get('/eventoxactividad/:actividad',[
 
 router.post('/',[
     validarJWT,
-    check('evento','El nombre del evento es obligatorio').notEmpty(),
-    check('descripcion','La descripción del evento es obligatoria').notEmpty(),
-    check('online','El campo online es obligatorio').notEmpty(),
-    check('email','Debe ser un email válido').isEmail(),
+    check('evento','El nombre del evento es obligatorio').notEmpty().trim().escape(),
+    check('descripcion','La descripción del evento es obligatoria').notEmpty().trim().escape(),
+    check('online','El campo online es obligatorio').notEmpty().trim().escape(),
+    check('email','Debe ser un email válido').isEmail().trim().escape().normalizeEmail(),
     check('precio').notEmpty().isNumeric(),
     check('EspecialistaId').custom(existeEspecialistaEvento),
     check('EspecialistaId').custom(planPermitidoEvento),
@@ -33,10 +33,10 @@ router.post('/',[
 ],validarCampos,postEvento);
 
 router.put('/:id',[validarJWT,
-    check('evento','El nombre del evento es obligatorio').notEmpty(),
-    check('descripcion','La descripción del evento es obligatoria').notEmpty(),
+    check('evento','El nombre del evento es obligatorio').notEmpty().trim().escape(),
+    check('descripcion','La descripción del evento es obligatoria').notEmpty().trim().escape(),
     check('online','El campo online es obligatorio').notEmpty(),
-    check('email','Debe ser un email válido').isEmail(),
+    check('email','Debe ser un email válido').isEmail().trim().escape().normalizeEmail(),
     check('precio','El precio no puede ser vacío').notEmpty(),
     check('precio','El precio tiene que ser un número').isNumeric(),
     check('fecha','No puede ser vacía').notEmpty(),
@@ -49,4 +49,4 @@ router.put('/:id',[validarJWT,
 
 router.delete('/:id',deleteEvento);
 
-export default router;
+export default router;  

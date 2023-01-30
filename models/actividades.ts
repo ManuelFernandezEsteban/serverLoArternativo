@@ -9,11 +9,14 @@ const Actividad = db.define('Actividades',{
         primaryKey:true
     },
     nombre:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(20)
     },
     imagen:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(80)
     },
+    createdAt:{
+        type:DataTypes.DATE
+    }
 });
 
 Actividad.hasMany(Especialista );
