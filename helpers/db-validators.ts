@@ -1,6 +1,7 @@
 import { body } from 'express-validator';
 import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
+import NewsLetter from '../models/newsletter';
 import Plan from '../models/planes';
 
 export const esActividadValida = async (ActividadeId: number = 0) => {
@@ -88,8 +89,24 @@ export const planPermitido = async (especialista: string) => {
     }
 }
 
+export const existeEmailNews = async (email:string)=>{
+    const existe = await NewsLetter.findOne({
+        where: {
+            email: email
+        }
+    });
+    if (existe) {
 
+        throw new Error('Ya existe un usuario registrado con el email ' + email)
 
+    }
+}
+
+export const politicaAceptada = async (privacidad:boolean)=>{
+    if (!privacidad){
+        throw new Error('Debe aceptar la política de privacidad')
+    }
+}
 
 
 //exports = {esActividadValida,esPlanValido}

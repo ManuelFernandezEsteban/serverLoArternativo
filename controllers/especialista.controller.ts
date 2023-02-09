@@ -5,9 +5,10 @@ import Especialista from '../models/especialista';
 import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
+import { correoConfirmacionRegistro, correoConfirmacionSuscripcionOro } from '../helpers/send-mail';
 
 
-export const getEspecialistas = async (req: Request, res: Response) => {
+export const getEspecialistasPagination = async (req: Request, res: Response) => {
     const { especialidad } = req.params;
     let { limit = 5, desde = 0 } = req.query;
 
@@ -32,10 +33,29 @@ export const getEspecialistas = async (req: Request, res: Response) => {
         offset: Number(desde),
         limit: Number(limit)
     })
-    const especilistas = rows;
+    const especialistas = rows;
 
     res.json({
-        especilistas,
+        especialistas,
+        count
+    })
+}
+
+export const getEspecialistas= async (req: Request, res: Response) => {
+    const { especialidad } = req.params;
+    
+    const {rows,count} = await Especialista.findAndCountAll({
+        attributes: { exclude: ['password'] },
+        include: [Actividad, Plan],
+
+        where: {
+            actividadeId: especialidad
+        }        
+    })
+    const especialistas = rows;
+
+    res.json({
+        especialistas,
         count
     })
 }
@@ -43,6 +63,8 @@ export const getEspecialistas = async (req: Request, res: Response) => {
 export const getEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+
+    
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
@@ -76,6 +98,13 @@ export const postEspecialista = async (req: Request, res: Response) => {
         await especialista.save();
         especialista.set({ password: '' })
         const token = generarJWT(especialista.id);
+
+        await correoConfirmacionRegistro({
+            asunto:'Registro como especialista en el Portal Web Nativos Tierra',
+            nombreDestinatario:body.nombre,
+            mailDestinatario:body.email,
+            mensaje:`Hola, ${body.nombre} su resgistro ha sido completado`
+        })
 
         res.json({
             especialista,
@@ -192,17 +221,26 @@ export const patchEspecialista = async (req: Request, res: Response) => {
         } else {         
             //Plata
             if (PlaneId===1){
-                especialista.update({PlaneId:PlaneId});
+                await especialista.update({PlaneId:PlaneId});
 
             }else{
                 //oro
                 let fecha_fin = new Date(Date.now());
                 fecha_fin.setMonth(fecha_fin.getMonth()+1)
-                especialista.update({
+
+                await correoConfirmacionSuscripcionOro({
+                    asunto:'Suscripción a plan oro',
+                    nombreDestinatario:especialista.nombre,
+                    mailDestinatario:especialista.email,
+                    mensaje:`Hola, ${body.nombre} su suscripción ha sido completada`
+                })
+                
+                await especialista.update({
                     PlaneId:PlaneId,
                     fecha_pago_actual:new Date(Date.now()),
                     fecha_fin_suscripcion:fecha_fin
                 })
+                
             }
         }
         res.json({

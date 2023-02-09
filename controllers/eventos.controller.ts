@@ -63,7 +63,7 @@ export const getEventosActividad = async (req: Request, res: Response) => {
             desde = 0
         }
     }
-
+    const fecha_inicio = new Date(Date.now());
     const fecha_limite = new Date(Date.now());
     fecha_limite.setDate(fecha_limite.getDate() + 15);
 
@@ -74,7 +74,10 @@ export const getEventosActividad = async (req: Request, res: Response) => {
 
         where: {
             actividadeId: actividad,
-            fecha: { [Op.lte]: fecha_limite }
+            fecha: { [Op.lte]: fecha_limite, 
+                     [Op.gte]: fecha_inicio   },
+            
+
         },
         include: [{
             model: Especialista,
@@ -110,27 +113,37 @@ export const postEvento = async (req: Request, res: Response) => {
         })
     }
 
-    const resultado = await Especialista.findByPk(body.EspecialistaId, {
-        attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
-    })
+    if (body.EspecialistaID != '95b87e79-4300-4933-aa25-3579b0a4a266'){ // especialista para publicar eventos nativos tierra y revista
 
-
-    const { count } = await Evento.findAndCountAll({
-
-        include: [{
-            model: Especialista,
+        const resultado = await Especialista.findByPk(body.EspecialistaId, {
             attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
-        }],
-        where: {
-            especialistaId: body.EspecialistaId,
-            fecha: { [Op.between]: [resultado?.dataValues.fecha_pago_actual, resultado?.dataValues.fecha_fin_suscripcion] },
-        }
-    })
-
-    if (count >= 2) {
-        return res.status(401).json({
-            msg: 'El especialista ya ha publicado dos eventos este mes'
         })
+
+
+
+        if ((fecha<resultado?.dataValues.fecha_pago_actual) || (fecha>resultado?.dataValues.fecha_fin_suscripcion)){
+            return res.status(401).json({
+                msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
+            })
+        }
+
+        const { count } = await Evento.findAndCountAll({
+
+            include: [{
+                model: Especialista,
+                attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+            }],
+            where: {
+                especialistaId: body.EspecialistaId,
+                fecha: { [Op.between]: [resultado?.dataValues.fecha_pago_actual, resultado?.dataValues.fecha_fin_suscripcion] },
+            }
+        })
+
+        if (count >= 2) {
+            return res.status(401).json({
+                msg: 'El especialista ya ha publicado dos eventos este mes'
+            })
+        }
     }
 
     try {

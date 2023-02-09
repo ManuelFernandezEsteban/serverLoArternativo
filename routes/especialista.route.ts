@@ -5,7 +5,8 @@ import { getEspecialista,
          getEspecialistas, 
          putEspecialista, 
          deleteEspecialista, 
-         patchEspecialista} from '../controllers/especialista.controller';
+         patchEspecialista,
+         getEspecialistasPagination} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
 import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -17,6 +18,9 @@ const router = Router();
 router.get('/:especialidad',[
     check('especialidad').custom( esActividadValida ),
 ],validarCampos,getEspecialistas);
+router.get('/pagination/:especialidad',[
+    check('especialidad').custom( esActividadValida ),
+],validarCampos,getEspecialistasPagination);
 
 router.get('/especialista/:id',[
     check('id').custom(existeUsuario),
@@ -28,6 +32,7 @@ router.post('/',[
     check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
     check('apellidos','Los apellidos son obligatorios').not().isEmpty().trim().escape(),
     check('telefono','El teléfono es obligatorio').not().isEmpty().trim().escape(),
+    check('provincia','La provincia es obligatoria').not().isEmpty().trim().escape(),
     check('password','El password es obligatorio').not().isEmpty().trim().escape(),
     check('ActividadeId','La actividad es obligatoria').not().isEmpty().trim().escape(),
     check('ActividadeId').custom( esActividadValida ),    
@@ -42,6 +47,7 @@ router.put('/:id',[
     check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
     check('apellidos','Los apellidos son obligatorios').not().isEmpty().trim().escape(),
     check('telefono','El teléfono es obligatorio').not().isEmpty().trim().escape(),
+    check('provincia','La provincia es obligatoria').not().isEmpty().trim().escape(),
     check('ActividadeId','La actividad es obligatoria').not().isEmpty().trim().escape(),
     check('ActividadeId').custom( esActividadValida ),    
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
@@ -59,13 +65,6 @@ router.patch('/modificarPlan/:id',[
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
     check('PlaneId').custom(esPlanValido),
 ], validarCampos,patchEspecialista);
-
-router.delete('/:id',[  validarJWT,  
-    check('id').custom(existeUsuario),
-    
-],validarCampos,deleteEspecialista);
-
-
 
 export default router;
 

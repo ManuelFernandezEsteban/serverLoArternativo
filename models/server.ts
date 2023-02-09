@@ -7,6 +7,7 @@ import planesRoutes from '../routes/planes.route';
 import sponsorsRoutes from '../routes/sponsor.route';
 import eventosRoutes from '../routes/eventos.route'
 import authRoutes from '../routes/auth.route';
+import newsletterRoutes from '../routes/newsletter.routes';
 import uploadsRoutes from '../routes/uploads.route';
 import db from '../db/connection';
 
@@ -23,6 +24,7 @@ class Server{
         sponsors:'/api/sponsors',
         eventos:'/api/eventos',
         auth:'/api/auth',
+        newsletter:'/api/newsletter',
         uploads:'/api/uploads'
     }
 
@@ -82,6 +84,7 @@ class Server{
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);
         this.app.use(this.apiPaths.auth,authRoutes);
+        this.app.use(this.apiPaths.newsletter,newsletterRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
     }
 
