@@ -1,5 +1,6 @@
 import {DataTypes, Sequelize} from 'sequelize';
 import db from '../db/connection';
+import { MailInformation } from '../interfaces/mail-information.interface';
 import Evento from './eventos';
 
 

@@ -4,4 +4,5 @@ export interface MailInformation{
     nombreDestinatario:string;
     mailDestinatario:string;
     mensaje:string;
+    html:string
 }

@@ -273,3 +273,92 @@ export const mailPlanOro = (nombre: string): string => {
 
     return mensaje;
 }
+
+
+export const mailConsulta = (nombre: string , texto:string): string => {
+    const mensaje =
+        `
+        <!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            
+            <style>
+                *{
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                    font-family: Roboto, monospace;
+                }
+                body{
+                    height: 100vh;
+                }
+                header{
+                    width: 100%;
+                    height: 150px;    
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    background-color: #7BACD5;
+                    padding: 40px;
+                    gap: 40px;
+                }
+                header > span{
+                    font-size: 2rem;
+                    
+                }
+                
+                header > img{
+                    width: 100px;
+                    height: 100px;
+                }
+                .wrapper{
+                   width: 100%;         
+                   padding: 40px;           
+               }
+                
+                footer{
+                    width: 100%;
+                    padding: 40px;
+                    position: fixed;
+                    bottom: 0;
+                    height: 80px;
+                    background-color: #7BACD5;
+                }
+                
+            </style>
+            <title>Consulta desde Web</title>
+        </head>
+        
+        <body>
+        
+            <header>
+                <span>Nativos Tierra</span>
+            </header>
+        
+            <main>
+                <div class="wrapper">
+                    <h1>Nativos Tierra</h1>
+                    <p>Hola Nativos Tierra, ${nombre} tiene para ti el sguiente mensaje:</p>
+                    <p>
+                        ${texto}
+                    </p>                   
+                </div>
+            </main>
+        
+        
+            <footer>
+                Info legal, etc.
+            </footer>
+        
+        </body>
+        
+        </html>
+        
+        `;
+
+    return mensaje;
+}

@@ -8,6 +8,7 @@ import sponsorsRoutes from '../routes/sponsor.route';
 import eventosRoutes from '../routes/eventos.route'
 import authRoutes from '../routes/auth.route';
 import newsletterRoutes from '../routes/newsletter.routes';
+import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
 import db from '../db/connection';
 
@@ -25,6 +26,7 @@ class Server{
         eventos:'/api/eventos',
         auth:'/api/auth',
         newsletter:'/api/newsletter',
+        contacto:'/api/contacto',
         uploads:'/api/uploads'
     }
 
@@ -85,6 +87,7 @@ class Server{
         this.app.use(this.apiPaths.eventos,eventosRoutes);
         this.app.use(this.apiPaths.auth,authRoutes);
         this.app.use(this.apiPaths.newsletter,newsletterRoutes);
+        this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
     }
 

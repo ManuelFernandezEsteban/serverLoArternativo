@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import NewsLetter from "../models/newsletter";
+import { sendMail } from "../helpers/send-mail";
+import { mailSuscripcion } from '../helpers/plantilla-mail';
 
-import { correoConfirmacionSuscripcion } from "../helpers/send-mail";
 
 
 export const getUserNews = async (req: Request, res: Response) => {
@@ -45,23 +46,24 @@ export const getAllUserNews = async (req: Request, res: Response) => {
 
 export const postUserNews = async (req: Request, res: Response) => {
 
-    const {body} = req;
+    const { body } = req;
     try {
 
         const user = NewsLetter.build(body);
         user.save();
 
-        await correoConfirmacionSuscripcion({
-            asunto:'Suscripción a newsletter',
-            nombreDestinatario:body.nombre,
-            mailDestinatario:body.email,
-            mensaje:`Hola, ${body.nombre} su suscripción ha sido completada`
+        await sendMail({
+            asunto: 'Suscripción a newsletter',
+            nombreDestinatario: body.nombre,
+            mailDestinatario: body.email,
+            mensaje: `Hola, ${body.nombre} su suscripción ha sido completada`,
+            html: mailSuscripcion(body.nombre)
         })
 
         res.json({
             user
         })
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -69,8 +71,8 @@ export const postUserNews = async (req: Request, res: Response) => {
         })
     }
 }
- 
-export const deleteUserNews = async (req: Request, res: Response)=>{
+
+export const deleteUserNews = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const user = await NewsLetter.findByPk(id);
@@ -80,7 +82,7 @@ export const deleteUserNews = async (req: Request, res: Response)=>{
             res.json({
                 user
             })
-            
+
         } else {
             res.status(404).json({
                 msg: `No existe un usuario con id ${id}`

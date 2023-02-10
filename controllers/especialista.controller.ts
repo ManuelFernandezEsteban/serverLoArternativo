@@ -5,7 +5,8 @@ import Especialista from '../models/especialista';
 import Plan from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
-import { correoConfirmacionRegistro, correoConfirmacionSuscripcionOro } from '../helpers/send-mail';
+import { sendMail } from '../helpers/send-mail';
+import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 
 
 export const getEspecialistasPagination = async (req: Request, res: Response) => {
@@ -41,16 +42,16 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
     })
 }
 
-export const getEspecialistas= async (req: Request, res: Response) => {
+export const getEspecialistas = async (req: Request, res: Response) => {
     const { especialidad } = req.params;
-    
-    const {rows,count} = await Especialista.findAndCountAll({
+
+    const { rows, count } = await Especialista.findAndCountAll({
         attributes: { exclude: ['password'] },
         include: [Actividad, Plan],
 
         where: {
             actividadeId: especialidad
-        }        
+        }
     })
     const especialistas = rows;
 
@@ -64,7 +65,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
 
     const { id } = req.params;
 
-    
+
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
@@ -99,11 +100,12 @@ export const postEspecialista = async (req: Request, res: Response) => {
         especialista.set({ password: '' })
         const token = generarJWT(especialista.id);
 
-        await correoConfirmacionRegistro({
-            asunto:'Registro como especialista en el Portal Web Nativos Tierra',
-            nombreDestinatario:body.nombre,
-            mailDestinatario:body.email,
-            mensaje:`Hola, ${body.nombre} su resgistro ha sido completado`
+        await sendMail({
+            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+            nombreDestinatario: body.nombre,
+            mailDestinatario: body.email,
+            mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
+            html: mailRegistro(especialista.nombre)
         })
 
         res.json({
@@ -209,8 +211,8 @@ export const deleteEspecialista = async (req: Request, res: Response) => {
 
 export const patchEspecialista = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const {body}  = req;
-    const {PlaneId} = body;
+    const { body } = req;
+    const { PlaneId } = body;
 
     try {
         const especialista = await Especialista.findByPk(id);
@@ -218,29 +220,30 @@ export const patchEspecialista = async (req: Request, res: Response) => {
             return res.status(404).json({
                 msg: 'No existe un especialista con el id ' + id
             })
-        } else {         
+        } else {
             //Plata
-            if (PlaneId===1){
-                await especialista.update({PlaneId:PlaneId});
+            if (PlaneId === 1) {
+                await especialista.update({ PlaneId: PlaneId });
 
-            }else{
+            } else {
                 //oro
                 let fecha_fin = new Date(Date.now());
-                fecha_fin.setMonth(fecha_fin.getMonth()+1)
+                fecha_fin.setMonth(fecha_fin.getMonth() + 1)
 
-                await correoConfirmacionSuscripcionOro({
-                    asunto:'Suscripción a plan oro',
-                    nombreDestinatario:especialista.nombre,
-                    mailDestinatario:especialista.email,
-                    mensaje:`Hola, ${body.nombre} su suscripción ha sido completada`
+                await sendMail({
+                    asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                    nombreDestinatario: body.nombre,
+                    mailDestinatario: body.email,
+                    mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
+                    html: mailPlanOro(body.nombre)
                 })
-                
+
                 await especialista.update({
-                    PlaneId:PlaneId,
-                    fecha_pago_actual:new Date(Date.now()),
-                    fecha_fin_suscripcion:fecha_fin
+                    PlaneId: PlaneId,
+                    fecha_pago_actual: new Date(Date.now()),
+                    fecha_fin_suscripcion: fecha_fin
                 })
-                
+
             }
         }
         res.json({
@@ -250,7 +253,7 @@ export const patchEspecialista = async (req: Request, res: Response) => {
         console.log(error);
         res.status(500).json({
             msg: error,
-        }) 
+        })
     }
 
 
