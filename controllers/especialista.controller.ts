@@ -232,10 +232,10 @@ export const patchEspecialista = async (req: Request, res: Response) => {
 
                 await sendMail({
                     asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-                    nombreDestinatario: body.nombre,
-                    mailDestinatario: body.email,
-                    mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-                    html: mailPlanOro(body.nombre)
+                    nombreDestinatario: especialista.nombre,
+                    mailDestinatario: especialista.email,
+                    mensaje: `Hola, ${especialista.nombre} su resgistro ha sido completado`,
+                    html: mailPlanOro(especialista.nombre)
                 })
 
                 await especialista.update({

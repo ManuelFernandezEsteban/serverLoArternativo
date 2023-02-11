@@ -88,6 +88,9 @@ const Especialista = db.define('Especialistas',{
     },
     deletedAt:{
         type:DataTypes.DATE
+    },
+    resetToken:{
+        type:DataTypes.STRING(255)
     }
 },{
     paranoid:true // soft delete
