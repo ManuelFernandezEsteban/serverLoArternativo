@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import { check } from 'express-validator';
+import {upload} from './../libs/multer'
 import { cargarArchivo } from '../controllers/uploads.controller';
 
-import { validarCampos } from '../middlewares/validar-campos';
-import { validarJWT } from '../middlewares/validar-JWT';
+//import multer from 'multer';
 
 const router = Router();
 
 
-router.post('/',[validarJWT],cargarArchivo)
+router.post('/',upload, cargarArchivo)
 
 
 export default router;

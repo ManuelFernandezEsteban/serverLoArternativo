@@ -113,7 +113,7 @@ export const postEvento = async (req: Request, res: Response) => {
         })
     }
 
-    if (body.EspecialistaID != '95b87e79-4300-4933-aa25-3579b0a4a266'){ // especialista para publicar eventos nativos tierra y revista
+    if (body.ActividadeId != 10){ // especialista para publicar eventos nativos tierra y revista
 
         const resultado = await Especialista.findByPk(body.EspecialistaId, {
             attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']

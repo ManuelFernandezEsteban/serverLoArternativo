@@ -11,8 +11,6 @@ import { validarCampos } from '../middlewares/validar-campos';
 import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
 import { validarJWT } from '../middlewares/validar-JWT';
 
-
-
 const router = Router();
 
 router.get('/:especialidad',[
