@@ -3,92 +3,115 @@ import multerS3 from 'multer-s3';
 import aws from 'aws-sdk';
 import { Request } from 'express';
 
-export const upload = multer({
-    fileFilter:(req:Request,file,cb)=>{
-        //validar archivo
-        let error = null;
-        let isValid=true;
-/*        console.log('file data',file);
-        if (file.fieldname.toLowerCase() in ['jpg','jpeg','gif','svg','png','gif',]){
-            isValid = true;                   
-        }*/
-        cb(null,isValid);
-    },
+const filter = (req:Request,file:any,cb:any)=>{
+    //validar archivo
+    let error = null;
+    let isValid=false;
+    const partesFileName = file.originalname.split('.');
+    const type = partesFileName[partesFileName.length-1];
+    if ( ['jpg','jpeg','gif','svg','png','gif','mp3','mp4','pdf'].includes(type.toLowerCase())){
+        isValid = true;                   
+    }else{
+        error= Error('No es un tipo correcto');
+        cb(error,isValid);
+    }
+    cb(null,isValid);
+}
+
+const s3 =new aws.S3({
+    accessKeyId:process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY||'',
+    endpoint:'fra1.digitaloceanspaces.com',                                               
+})
+
+
+export const uploadAvatarEspecialista = multer({
+    fileFilter:filter,
     storage:multerS3({
-        s3:new aws.S3({
-            accessKeyId:process.env.AWS_ACCESS_KEY_ID || '',
-            secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY||'',
-            endpoint:'fra1.digitaloceanspaces.com',            
-                       
-        }),
+        s3:s3,
         bucket:'nativos-tierra-space',        
         contentType:multerS3.AUTO_CONTENT_TYPE,
         acl:'public-read',
+    
         key:(req:Request, file, callback):any => {
-            console.log('file data',file);
-            const fileName = file.originalname;
+            
+            const id = req.especialistaAutenticado;
+            const path = `especialistas/${id}`;
+            
+            //console.log('file data',file);            
+            const partesFileName = file.originalname.split('.');
+            const fileName = `${path}/avatar-${id}.${partesFileName[partesFileName.length-1]}`;
+            req.urlAvatar=fileName;
             callback(null,fileName);
         },
     })
-}).single('file');
+}).single('file')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-const {S3_ENDPOINT} = process.env;
-const spEndPoint = new aws.Endpoint(process.env.S3_ENDPOINT||'')
-
-export const s3 = new aws.S3({
-    endpoint:spEndPoint      
-});
-
-export const upload =  multer({
+export const uploadVideoEspecialista = multer({
+    fileFilter:filter,
     storage:multerS3({
         s3:s3,
-        bucket:'nativos-tierra-space',
+        bucket:'nativos-tierra-space',        
+        contentType:multerS3.AUTO_CONTENT_TYPE,
         acl:'public-read',
-        metadata:(req,file,cb)=>{
-            cb(null,{
-                fieldname:file.fieldname
-            })
+    
+        key:(req:Request, file, callback):any => {
+            
+            const id = req.especialistaAutenticado;
+            const path = `especialistas/${id}`;
+            
+            //console.log('file data',file);            
+            const partesFileName = file.originalname.split('.');
+            const fileName = `${path}/video-${id}.${partesFileName[partesFileName.length-1]}`;
+            req.urlVideo=fileName;
+            callback(null,fileName);
         },
-        key:(req,file,cb)=>{
-            console.log(file);
-            cb(null,file.originalname);
-        }
-
     })
-}).single('upload');
+}).single('file')
 
-export default {s3,upload}
-*/
+export const uploadEventoImagen = multer({
+    fileFilter:filter,
+    storage:multerS3({
+        s3:s3,
+        bucket:'nativos-tierra-space',        
+        contentType:multerS3.AUTO_CONTENT_TYPE,
+        acl:'public-read',
+    
+        key:(req:Request, file, callback):any => {
+            
+            const id = req.params.id
+            const path = `eventos/${id}`;
+            
+            //console.log('file data',file);            
+            const partesFileName = file.originalname.split('.');
+            const fileName = `${path}/imagen-${id}.${partesFileName[partesFileName.length-1]}`;
+            req.urlImagenEvento=fileName;
+            callback(null,fileName);
+        },
+    })
+}).single('file')
+
+export const uploadEventoInfo = multer({
+    fileFilter:filter,
+    storage:multerS3({
+        s3:s3,
+        bucket:'nativos-tierra-space',        
+        contentType:multerS3.AUTO_CONTENT_TYPE,
+        acl:'public-read',
+    
+        key:(req:Request, file, callback):any => {
+            
+            const id = req.params.id
+            const path = `eventos/${id}`;
+            
+            //console.log('file data',file);            
+            const partesFileName = file.originalname.split('.');
+            const fileName = `${path}/info-${id}.${partesFileName[partesFileName.length-1]}`;
+            req.urlInfoEvento=fileName;
+            callback(null,fileName);
+        },
+    })
+}).single('file')
+
+

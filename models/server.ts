@@ -10,6 +10,7 @@ import authRoutes from '../routes/auth.route';
 import newsletterRoutes from '../routes/newsletter.routes';
 import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
+import landingRoutes from '../routes/landing.routes'
 import db from '../db/connection';
 
 
@@ -18,6 +19,9 @@ class Server{
 
     private app:Application;
     private port:string;
+    private landingPaths={
+        landing:'/landing/'
+    }
     private apiPaths={
         especialistas:'/api/especialistas',
         actividades:'/api/actividades',
@@ -27,7 +31,8 @@ class Server{
         auth:'/api/auth',
         newsletter:'/api/newsletter',
         contacto:'/api/contacto',
-        uploads:'/api/uploads'
+        uploads:'/api/uploads',
+        
     }
 
     constructor(){
@@ -89,6 +94,7 @@ class Server{
         this.app.use(this.apiPaths.newsletter,newsletterRoutes);
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
+        this.app.use(this.landingPaths.landing,landingRoutes)
     }
 
     listen(){

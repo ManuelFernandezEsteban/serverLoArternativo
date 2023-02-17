@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
+import { createFolder } from '../helpers/createFolder';
 
 export const getEvento = async (req: Request, res: Response) => {
 
@@ -149,6 +150,7 @@ export const postEvento = async (req: Request, res: Response) => {
     try {
 
         const evento = await Evento.create(body);
+        createFolder(`eventos/${evento.id}`);
         res.json({
             evento
         })

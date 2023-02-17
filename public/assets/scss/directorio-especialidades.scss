@@ -1,0 +1,127 @@
+
+/*directorio especialidades*/
+
+.container-title {
+    width: 360px;
+    height: 40px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    background-color: $primaryColor;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width:$breakpointLaptop) {
+        width: 280px;
+        height: 30px;
+    }
+
+}
+
+.container-title>span {
+    color: $lightColor;
+    width: 100%;
+    height: 100%;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    text-align: center;
+}
+
+.container-especialidad:hover .container-title>span {
+
+    background-color: $primaryColorHover;
+
+}
+
+
+.container-especialidad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2.5px 2.5px 6px 0px rgba(0, 0, 0, 0.75);
+    cursor: pointer;
+}
+
+.container-image {
+
+    width: 360px;
+    height: 360px;
+
+    @media (max-width:$breakpointLaptop) {
+        width: 280px;
+        height: 280px;
+    }
+
+
+    img {
+
+        width: 360px;
+        height: 360px;
+        object-fit: cover;
+
+        @media (max-width:$breakpointLaptop) {
+            width: 280px;
+            height: 280px;
+        }
+
+    }
+}
+
+app-directorio {
+    width: 100%;
+    align-items: center;
+}
+
+.grid-directorio {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 60px;
+    width: 100%;
+    margin-top: 60px;
+    justify-content: center;
+    place-items: center;
+
+    @media (max-width:$breakpointLaptop) {
+        /*grid-template-columns: 280px 280px 280px;*/
+        gap: 20px;
+    }
+
+    @media (max-width:$breakpoint935) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width:600px) {
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+.rotate-center {
+	-webkit-animation: rotate-center 0.6s ease-in-out both;
+	        animation: rotate-center 0.6s ease-in-out both;
+}
+@-webkit-keyframes rotate-center {
+    0% {
+      -webkit-transform: rotate(0);
+              transform: rotate(0);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+    }
+  }
+  @keyframes rotate-center {
+    0% {
+      -webkit-transform: rotate(0);
+              transform: rotate(0);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+    }
+  }
+  
+/*fin directorio especialidades*/

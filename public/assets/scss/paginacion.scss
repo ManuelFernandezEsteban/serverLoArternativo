@@ -1,0 +1,20 @@
+.pagination{
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.pagination__prev,.pagination__next{
+    cursor: pointer;
+    font-family: $fontOptions;
+    font-size: $fsRegular;
+    color: $primaryColor;
+
+}
+
+.pagination__text{
+    font-family: $fontPrimary;
+    font-size: $fsRegular;
+    color: $accentColor;
+}
