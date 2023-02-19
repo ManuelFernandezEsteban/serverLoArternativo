@@ -50,6 +50,6 @@ export const deleteFolder = async (folder: string) => {
     s3.deleteObject({Bucket:process.env.SPACE_DO || '',Key:key||''},(err,data)=>{
         console.log(err);
         //console.log(data);
-    })
+    }) 
 
 }
