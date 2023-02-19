@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Especialista from "../models/especialista";
 import Evento from "../models/eventos";
-
+import { deleteFolder } from "../helpers/createFolder";
 
 export const avatarEspecialista = async (req:Request,res:Response)=>{   
 
@@ -107,5 +107,12 @@ export const eventoInfo = async (req:Request,res:Response)=>{
     res.json({        
         msg:'upload success',
     })
+
+}
+
+export const deleteEvento= async (req:Request,res:Response)=>{
+    
+    await deleteFolder(`eventos/${req.params.id}`)
+
 
 }

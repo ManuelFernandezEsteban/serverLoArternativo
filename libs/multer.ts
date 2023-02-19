@@ -3,6 +3,7 @@ import multerS3 from 'multer-s3';
 import aws from 'aws-sdk';
 import { Request } from 'express';
 
+
 const filter = (req:Request,file:any,cb:any)=>{
     //validar archivo
     let error = null;
@@ -36,7 +37,7 @@ export const uploadAvatarEspecialista = multer({
         key:(req:Request, file, callback):any => {
             
             const id = req.especialistaAutenticado;
-            const path = `especialistas/${id}`;
+            const path = `especialistas/${id}/profile`;
             
             //console.log('file data',file);            
             const partesFileName = file.originalname.split('.');
@@ -59,7 +60,7 @@ export const uploadVideoEspecialista = multer({
         key:(req:Request, file, callback):any => {
             
             const id = req.especialistaAutenticado;
-            const path = `especialistas/${id}`;
+            const path = `especialistas/${id}/profile`;
             
             //console.log('file data',file);            
             const partesFileName = file.originalname.split('.');
@@ -113,5 +114,7 @@ export const uploadEventoInfo = multer({
         },
     })
 }).single('file')
+
+
 
 

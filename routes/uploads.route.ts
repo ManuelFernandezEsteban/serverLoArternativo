@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { uploadAvatarEspecialista, uploadEventoImagen, uploadEventoInfo, uploadVideoEspecialista} from './../libs/multer'
-import { avatarEspecialista, eventoImagen, eventoInfo, videoEspecialista } from '../controllers/uploads.controller';
+import { avatarEspecialista, deleteEvento, eventoImagen, eventoInfo, videoEspecialista } from '../controllers/uploads.controller';
 
 //import multer from 'multer';
 import { validarJWT } from '../middlewares/validar-JWT';
+
+
 
 const router = Router();
 
@@ -15,5 +17,7 @@ router.post('/videoEspecialista',[validarJWT,uploadVideoEspecialista], videoEspe
 router.post('/eventoImagen/:id',[validarJWT,uploadEventoImagen],eventoImagen );
 
 router.post('/eventoInfo/:id',[validarJWT,uploadEventoInfo], eventoInfo);
+
+router.delete('/delete/:id',[validarJWT], deleteEvento);
 
 export default router;
