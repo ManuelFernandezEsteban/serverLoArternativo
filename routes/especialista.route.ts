@@ -4,29 +4,66 @@ import { getEspecialista,
          postEspecialista, 
          getEspecialistas, 
          putEspecialista, 
-         deleteEspecialista } from '../controllers/especialista.controller';
+         deleteEspecialista, 
+         patchEspecialista,
+         getEspecialistasPagination} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
+import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
+import { validarJWT } from '../middlewares/validar-JWT';
 
 const router = Router();
 
-router.get('/:especialidad',getEspecialistas);
+router.get('/:especialidad',[
+    check('especialidad').custom( esActividadValida ),
+],validarCampos,getEspecialistas);
+router.get('/pagination/:especialidad',[
+    check('especialidad').custom( esActividadValida ),
+],validarCampos,getEspecialistasPagination);
 
-router.get('/especialista/:id',getEspecialista)
+router.get('/especialista/:id',[
+    check('id').custom(existeUsuario),
+],validarCampos,getEspecialista)
 
 router.post('/',[
-    check('correo','El correo no es válido').not().isEmail(),       
-    check('nombre','El nombre es obligatorio').not().isEmpty(),
-    check('apellidos','Los apellidos son obligatorios').not().isEmpty(),
-    check('telefono','El teléfono es obligatorio').not().isEmpty(),
-    check('password','El password es obligatorio').not().isEmpty(),
-    check('ActividadeId','La actividad es obligatoria').not().isEmpty(),
-    check('ActividadeId','No es una actividad permitida').isIn([1,2,3,4,5,6,7,8,9]),
+    check('email','El correo no es válido').isEmail().trim().escape().normalizeEmail(),  
+    check('email').custom(existeEmail),   
+    check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
+    check('apellidos','Los apellidos son obligatorios').not().isEmpty().trim().escape(),
+    check('telefono','El teléfono es obligatorio').not().isEmpty().trim().escape(),
+    check('provincia','La provincia es obligatoria').not().isEmpty().trim().escape(),
+    check('password','El password es obligatorio').not().isEmpty().trim().escape(),
+    check('ActividadeId','La actividad es obligatoria').not().isEmpty().trim().escape(),
+    check('ActividadeId').custom( esActividadValida ),    
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
-    check('PlaneId','No es un plan permitido').isIn([1,2]),
+    check('PlaneId').custom(esPlanValido),
+  
     ] ,validarCampos, postEspecialista);
 
-router.put('/:id',putEspecialista);
+router.put('/:id',[
+    validarJWT,
+    check('id').custom(existeUsuario),
+    check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
+    check('apellidos','Los apellidos son obligatorios').not().isEmpty().trim().escape(),
+    check('telefono','El teléfono es obligatorio').not().isEmpty().trim().escape(),
+    check('provincia','La provincia es obligatoria').not().isEmpty().trim().escape(),
+    check('ActividadeId','La actividad es obligatoria').not().isEmpty().trim().escape(),
+    check('ActividadeId').custom( esActividadValida ),    
+    check('PlaneId','El plan es obligatorio').not().isEmpty(),
+    check('PlaneId').custom(esPlanValido),
+], validarCampos,putEspecialista);
 
-router.delete('/:id',deleteEspecialista);
+router.delete('/:id',[  validarJWT,  
+    check('id').custom(existeUsuario),
+    
+],validarCampos,deleteEspecialista);
+
+router.patch('/modificarPlan/:id',[
+    validarJWT,
+    check('id').custom(existeUsuario),
+    check('PlaneId','El plan es obligatorio').not().isEmpty(),
+    check('PlaneId').custom(esPlanValido),
+], validarCampos,patchEspecialista);
 
 export default router;
+
+

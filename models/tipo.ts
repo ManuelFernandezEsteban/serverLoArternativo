@@ -7,8 +7,14 @@ const Tipo = db.define('Tipos_sponsors',{
         primaryKey:true
     },
     nombre:{
-        type:DataTypes.STRING
+        type:DataTypes.STRING(20)
     },
+    createdAt:{
+        type:DataTypes.DATE
+    },
+    updatedAt:{
+        type:DataTypes.DATE
+    }
 });
 
 export default Tipo;

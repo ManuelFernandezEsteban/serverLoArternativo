@@ -1,0 +1,54 @@
+/* boton plantillas*/
+
+app-boton-plantilla {
+    width: 120px;
+    height: 120px;
+    position: fixed;
+    top: 350px;
+    right: 50px;
+
+    @media (max-width:$breakpointLaptop) {
+        width: 90px;
+        height: 90px;
+        border-radius: 90px;
+    }
+
+    @media (max-width:$breakpoint800) {
+        width: 70px;
+        height: 70px;
+        border-radius: 70px;
+        top: 200px;
+        right: 10px;
+    }
+
+}
+
+.boton-plantilla {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    border-radius: 120px;
+    width: 120px;
+    height: 120px;
+    background-color: $accentColor;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 8px 8px 31px -9px rgba(0, 0, 0, 0.75);
+
+    @media (max-width:$breakpointLaptop) {
+        width: 90px;
+        height: 90px;
+        border-radius: 90px;
+    }
+
+    @media (max-width:$breakpoint800) {
+        width: 70px;
+        height: 70px;
+        border-radius: 70px;
+
+    }
+}
+
+
+/* fin boton plantillas*/

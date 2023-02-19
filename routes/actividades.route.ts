@@ -7,4 +7,4 @@ router.get('/:id',getActividad);
 
 router.get('/',getActividades);
 
-export default router;
+export default router; 

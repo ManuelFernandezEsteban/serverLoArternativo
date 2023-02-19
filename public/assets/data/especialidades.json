@@ -1,0 +1,49 @@
+{
+    "especialidades": [
+        {
+            "id": 1,
+            "nombre": "Esoterismo",
+            "imagen": "./../../../../assets/images/especialidades/esoterismo.svg"
+        },
+        {
+            "id": 2,
+            "nombre": "Naturopatía",
+            "imagen": "./../../../../assets/images/especialidades/naturopatia.svg"
+        },
+        {
+            "id": 3,
+            "nombre": "Crecimiento personal",
+            "imagen": "./../../../../assets/images/especialidades/crecimiento_personal.svg"
+        },
+        {
+            "id": 4,
+            "nombre": "Terapia corporal",
+            "imagen": "./../../../../assets/images/especialidades/terapia_corporal.svg"
+        },
+        {
+            "id": 5,
+            "nombre": "Terapia energética",
+            "imagen": "./../../../../assets/images/especialidades/terapia_energetica.svg"
+        },
+        {
+            "id": 6,
+            "nombre": "Artesanía",
+            "imagen": "./../../../../assets/images/especialidades/artesania.svg"
+        },
+        {
+            "id": 7,
+            "nombre": "Productos bio",
+            "imagen": "./../../../../assets/images/especialidades/productos_bio.svg"
+        },
+        {
+            "id": 8,
+            "nombre": "Retiros",
+            "imagen": "./../../../../assets/images/especialidades/retiros.svg"
+        },
+        {
+            "id": 9,
+            "nombre": "Alquiler salas",
+            "imagen": "./../../../../assets/images/especialidades/alquiler_salas.svg"
+        }
+    ]
+}

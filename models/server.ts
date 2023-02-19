@@ -6,6 +6,11 @@ import actividadesRoutes from '../routes/actividades.route';
 import planesRoutes from '../routes/planes.route';
 import sponsorsRoutes from '../routes/sponsor.route';
 import eventosRoutes from '../routes/eventos.route'
+import authRoutes from '../routes/auth.route';
+import newsletterRoutes from '../routes/newsletter.routes';
+import contactoRoutes from '../routes/contacto.routes';
+import uploadsRoutes from '../routes/uploads.route';
+import landingRoutes from '../routes/landing.routes'
 import db from '../db/connection';
 
 
@@ -14,12 +19,20 @@ class Server{
 
     private app:Application;
     private port:string;
+    private landingPaths={
+        landing:'/landing/'
+    }
     private apiPaths={
         especialistas:'/api/especialistas',
         actividades:'/api/actividades',
         planes:'/api/planes',
         sponsors:'/api/sponsors',
-        eventos:'/api/eventos'
+        eventos:'/api/eventos',
+        auth:'/api/auth',
+        newsletter:'/api/newsletter',
+        contacto:'/api/contacto',
+        uploads:'/api/uploads',
+        
     }
 
     constructor(){
@@ -77,6 +90,11 @@ class Server{
         this.app.use(this.apiPaths.planes,planesRoutes);
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);
+        this.app.use(this.apiPaths.auth,authRoutes);
+        this.app.use(this.apiPaths.newsletter,newsletterRoutes);
+        this.app.use(this.apiPaths.contacto,contactoRoutes);
+        this.app.use(this.apiPaths.uploads,uploadsRoutes);
+        this.app.use(this.landingPaths.landing,landingRoutes)
     }
 
     listen(){
