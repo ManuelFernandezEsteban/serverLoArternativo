@@ -6,7 +6,7 @@
   "scripts": {
     "tsc": "tsc",
     "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
-    "prod": "tsc && node ./app.js",
+    "prod": "node ./app.js",
     "start":"npm run prod"
   },
   "keywords": [],
