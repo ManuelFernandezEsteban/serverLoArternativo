@@ -2,7 +2,7 @@
   "name": "rest-server-ts-mysql",
   "version": "1.0.0",
   "description": "",
-  "main": "app",
+  "main": "/",
   "scripts": {     
     "start":"node ./dist/app.js"
   },
