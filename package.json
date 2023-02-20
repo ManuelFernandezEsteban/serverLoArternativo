@@ -2,10 +2,11 @@
   "name": "rest-server-ts-mysql",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "tsc && node dist/app.js",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",
