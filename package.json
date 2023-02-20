@@ -4,9 +4,9 @@
   "description": "",
   "main": "app",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/app",
-    "lint": "eslint . --ext .ts"
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
+    "prod": "tsc && node ./build/app.js"
   },
   "keywords": [],
   "author": "",
