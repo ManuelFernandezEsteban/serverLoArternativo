@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "app",
-  "scripts": { 
-    "build":"tsc",
-    "start":"npm run build && node ./dist/app.js"
+  "scripts": {     
+    "start":"node ./dist/app.js"
   },
   "keywords": [],
   "author": "",
