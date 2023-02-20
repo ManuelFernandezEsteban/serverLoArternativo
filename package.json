@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "app",
-  "scripts": {
-    "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
-    "prod": "node ./app.js",
-    "start":"npm run prod"
+  "scripts": { 
+    "start":"node app.js"
   },
   "keywords": [],
   "author": "",
