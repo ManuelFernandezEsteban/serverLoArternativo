@@ -34,7 +34,14 @@ header {
     }
 
 }
-
+.fila{
+    h1{
+        flex: 4;
+    }
+    #social,#social-movil{
+        flex: 1;
+    }
+}
 
 .menu-icon span {
     display: block;
