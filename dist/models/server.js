@@ -84,7 +84,7 @@ class Server {
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
         this.app.use(this.apiPaths.new_password, (req, res) => {
-            this.app.use(express_1.default.static('public/new-password'));
+            this.app.use(express_1.default.static('public/new-password/index.html'));
         });
     }
     listen() {
