@@ -1,5 +1,6 @@
 import express, {Application} from 'express';
 import cors from 'cors';
+import path from 'path';
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
@@ -96,7 +97,8 @@ class Server{
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
         this.app.use(this.apiPaths.new_password,(req,res)=>{
-            res.send(req.params.tk)
+            let root = path.join(__dirname,'./public/new-password/index.html');            
+            res.sendFile(root);
         })
     }
 
