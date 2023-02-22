@@ -40,6 +40,7 @@ class Server {
             newsletter: '/api/newsletter',
             contacto: '/api/contacto',
             uploads: '/api/uploads',
+            new_password: '/auth/new-password/:tk'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -69,7 +70,7 @@ class Server {
         //lectura body
         this.app.use(express_1.default.json());
         //Carpeta pública
-        this.app.use(express_1.default.static('public'));
+        //this.app.use(express.static('public'));
     }
     routes() {
         this.app.use(this.apiPaths.especialistas, especialista_route_1.default);
@@ -82,6 +83,9 @@ class Server {
         this.app.use(this.apiPaths.contacto, contacto_routes_1.default);
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
+        this.app.use(this.apiPaths.new_password, (req, res) => {
+            res.sendFile('./public/index');
+        });
     }
     listen() {
         this.app.listen(this.port, () => {

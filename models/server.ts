@@ -32,7 +32,7 @@ class Server{
         newsletter:'/api/newsletter',
         contacto:'/api/contacto',
         uploads:'/api/uploads',
-        
+        new_password:'/auth/new-password/:tk'
     }
 
     constructor(){
@@ -78,7 +78,7 @@ class Server{
 
         //Carpeta pública
 
-        this.app.use(express.static('public'));
+        //this.app.use(express.static('public'));
 
     }
 
@@ -94,7 +94,10 @@ class Server{
         this.app.use(this.apiPaths.newsletter,newsletterRoutes);
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
-        this.app.use(this.landingPaths.landing,landingRoutes)
+        this.app.use(this.landingPaths.landing,landingRoutes);
+        this.app.use(this.apiPaths.new_password,(req,res)=>{
+            res.sendFile('./public/index')
+        })
     }
 
     listen(){
