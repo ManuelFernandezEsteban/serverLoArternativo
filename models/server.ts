@@ -96,7 +96,7 @@ class Server{
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
         this.app.use(this.apiPaths.new_password,(req,res)=>{
-            res.sendFile('./public/index')
+            res.send(req.params.tk)
         })
     }
 

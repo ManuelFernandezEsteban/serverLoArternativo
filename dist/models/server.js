@@ -84,7 +84,7 @@ class Server {
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
         this.app.use(this.apiPaths.new_password, (req, res) => {
-            res.sendFile('./public/index');
+            res.send(req.params.tk);
         });
     }
     listen() {
