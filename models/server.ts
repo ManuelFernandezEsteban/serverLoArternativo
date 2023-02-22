@@ -79,7 +79,7 @@ class Server{
 
         //Carpeta pública
 
-        //this.app.use(express.static('public'));
+        //
 
     }
 
@@ -97,9 +97,7 @@ class Server{
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
         this.app.use(this.apiPaths.new_password,(req,res)=>{
-            let root = path.join(__dirname,'./public/new-password/index.html');       
-            console.log(root)     
-            res.sendFile(root);
+            this.app.use(express.static('public/new-password'));
         })
     }
 

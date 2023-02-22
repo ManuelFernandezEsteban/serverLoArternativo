@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const path_1 = __importDefault(require("path"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const planes_route_1 = __importDefault(require("../routes/planes.route"));
@@ -71,7 +70,7 @@ class Server {
         //lectura body
         this.app.use(express_1.default.json());
         //Carpeta pública
-        //this.app.use(express.static('public'));
+        //
     }
     routes() {
         this.app.use(this.apiPaths.especialistas, especialista_route_1.default);
@@ -85,9 +84,7 @@ class Server {
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
         this.app.use(this.apiPaths.new_password, (req, res) => {
-            let root = path_1.default.join(__dirname, './public/new-password/index.html');
-            console.log(root);
-            res.sendFile(root);
+            this.app.use(express_1.default.static('public/new-password'));
         });
     }
     listen() {
