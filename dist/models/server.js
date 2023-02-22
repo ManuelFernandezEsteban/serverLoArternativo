@@ -86,6 +86,7 @@ class Server {
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
         this.app.use(this.apiPaths.new_password, (req, res) => {
             let root = path_1.default.join(__dirname, './public/new-password/index.html');
+            console.log(root);
             res.sendFile(root);
         });
     }
