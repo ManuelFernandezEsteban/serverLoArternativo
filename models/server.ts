@@ -78,8 +78,8 @@ class Server{
         this.app.use(express.json());
 
         //Carpeta pública
-
-        //
+        this.app.use(express.static('public'));
+        // 
 
     }
 
@@ -92,15 +92,15 @@ class Server{
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);
         this.app.use(this.apiPaths.auth,authRoutes);
-        this.app.use(this.apiPaths.newsletter,newsletterRoutes);
+        this.app.use(this.apiPaths.newsletter,newsletterRoutes); 
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
-        this.app.use(this.apiPaths.new_password,(req,res)=>{
+       /* this.app.use(this.apiPaths.new_password,(req,res)=>{
             this.app.use(express.static('public/new-password/index.html'));
-        })
+        })*/ 
     }
-
+ 
     listen(){
 
         this.app.listen(this.port,()=>{

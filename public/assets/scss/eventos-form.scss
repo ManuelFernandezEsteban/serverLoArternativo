@@ -1,0 +1,386 @@
+.eventos-form {
+    .wrapper-form {
+        width: 100%;
+        display: grid;
+        grid-template-columns: [first] 1fr [col2] 1fr [col3] 1fr [col4] 1fr [col5] 1fr [col6] 1fr [col7] 1fr [col8] 1fr [end];
+
+        grid-template-rows: auto;
+        gap: 20px;
+        place-items: center;
+
+        @media (max-width:$breakpoint760) {
+            gap: 10px;
+        }
+
+        .columna {
+            width: 100%;
+        }
+    }
+
+    form {
+        padding: 0px 200px 200px 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+
+        @media (max-width:$breakpoint1440) {
+            padding: 0px 130px 130px 130px;
+        }
+
+        @media (max-width:$breakpointLaptop) {
+            padding: 0px 100px 100px 100px;
+
+        }
+
+        @media (max-width:$breakpoint1180) {
+            padding: 0px 50px 50px 50px;
+
+        }
+
+        @media (max-width:$breakpointTablet) {
+            padding: 20px;
+        }
+    }
+
+    input {
+        border-color: black;
+        width: 100%;
+
+    }
+
+    input[type="checkbox"] {
+        width: 20%;
+
+    }
+
+    .w-online {
+        align-self: flex-end;
+        grid-column-start: col7;
+        grid-column-end: col8;
+    }
+
+
+    .box-formulario-evento {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        width: 100%;
+
+        @media (max-width:$breakpoint760) {
+            padding: 10px;
+            padding-bottom: 100px;
+        }
+
+    }
+
+    .evento {
+        grid-column-start: first;
+        grid-column-end: col7;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col6;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .fecha {
+        grid-column-start: col7;
+        grid-column-end: col8;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: col6;
+            grid-column-end: end;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .email {
+        grid-column-start: first;
+        grid-column-end: col5;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpoint760) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .web {
+        grid-column-start: col5;
+        grid-column-end: col8;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpoint760) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .telefono {
+        grid-column-start: first;
+        grid-column-end: col4;
+
+
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .precio {
+        grid-column-start: col5;
+        grid-column-end: col7;
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col6;
+        }
+    }
+
+    .online {
+        display: flex;
+        align-items: center;
+        grid-column-start: end;
+        grid-column-end: end;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col6;
+        }
+
+        @media (max-width:$breakpoint760) {
+            grid-column-start: col4;
+            grid-column-end: col4;
+        }
+    }
+
+    .direccion {
+        grid-column-start: first;
+        grid-column-end: col8;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .poblacion {
+        grid-column-start: first;
+        grid-column-end: col4;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col5;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .provincia {
+        grid-column-start: col4;
+        grid-column-end: col7;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col5;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .c-postal {
+        grid-column-start: col7;
+        grid-column-end: col8;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: col5;
+            grid-column-end: col8;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .descripcion {
+        grid-column-start: first;
+        grid-column-end: col8;
+
+    }
+
+    .img-input {
+        grid-column-start: first;
+        grid-column-end: col8;
+    }
+
+    .visor-evento {
+        grid-column-start: first;
+        grid-column-end: col2;
+
+        a {
+            cursor: pointer;
+            color: $darkColor;
+            text-decoration: none;
+            border: 2px solid $darkColor;
+            padding: 4px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+    }
+
+    .img-evento {
+        border: 2px solid $darkColor;
+        border-radius: 4px;
+        min-width: 200px;
+        min-height: 200px;
+        max-width: 300px;
+        max-height: 300px;
+        grid-column-start: first;
+        grid-column-end: col2;
+
+
+        @media (max-width:$breakpoint760) {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        img {
+            aspect-ratio: 1;
+            width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+
+
+        }
+    }
+
+    .pdf {
+        grid-column-start: first;
+        grid-column-end: col8;
+    }
+
+    .instagram {
+
+        grid-column-start: first;
+        grid-column-end: col5;
+
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .twitter {
+
+        grid-column-start: col5;
+        grid-column-end: col8;
+
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .facebook {
+
+        grid-column-start: first;
+        grid-column-end: col5;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .you_tube {
+
+        grid-column-start: col5;
+        grid-column-end: col8;
+
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+    }
+
+    .botones {
+        margin-top: 40px;
+        display: flex;
+        justify-content: flex-end;
+
+        @media (max-width:$breakpointMovil) {
+            justify-content: center;
+        }
+
+
+    }
+
+    textarea {
+        border-color: black;
+        width: 100%;
+    }
+
+
+    app-modal-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        min-height: 100vh;
+        background-color: rgba(0, 0, 0, 0.3);
+        inset: 0;
+        position: fixed;
+    }
+
+
+
+}

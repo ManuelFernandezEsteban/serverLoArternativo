@@ -1,0 +1,259 @@
+header {
+    background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, $blueColor 0%, rgba(255, 255, 255, 1) 80%);
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+    padding-top: 20px;
+    padding-left: 80px;
+    padding-right: 80px;
+    @media (max-width:1580px){
+        padding-left: 50px;
+        padding-right: 50px;        
+    }
+    @media screen and (max-width:$breakpoint1440) {
+        justify-content: space-between;  
+        padding-left: 30px;
+        padding-right: 50px;      
+    }
+
+    @media (max-width:$breakpointLaptop) {
+
+        padding-left: 0px;
+        padding-right: 20px;
+
+    }
+    @media screen and (max-width:$breakpointTablet) {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    @media screen and (max-width:$breakpoint800) {
+        justify-content: space-between;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+}
+.fila{
+    h1{
+        flex: 4;
+    }
+    #social,#social-movil{
+        flex: 1;
+    }
+}
+
+.menu-icon span {
+    display: block;
+    border-radius: 15px;
+    width: 25px;
+    height: 5px;
+    background-color: $accentColor;
+    margin: 5px;
+    transition: all 0.4s ease;
+}
+
+.menu-icon {
+    display: none;
+    cursor: pointer;
+    flex-grow: 1;
+    
+
+    @media screen and (max-width:$breakpointTablet) {
+        display: block;
+    }
+}
+
+.logo-header {
+    
+    img {
+        object-fit: cover;
+        width: 500px;
+        height: 500px;
+        @media (max-width:1580px){
+            width: 400px;
+            height: 400px;
+        }
+        @media screen and (max-width:$breakpoint1440) {
+            width: 300px;
+            height: 300px;        
+        }
+        @media (max-width:$breakpointLaptop) {
+
+            width: 250px;
+            height: 250px;
+
+        }
+
+        @media screen and (max-width:$breakpoint800) {
+            width: 150px;
+            height: 150px;
+
+        }
+
+        @media screen and (max-width:$breakpointMovil) {
+            width: 100px;
+            height: 100px;
+
+        }
+        @media screen and (max-width:$breakpointMovilVerySmall) {
+            width: 80px;
+            height: 80px;
+
+        }
+    }
+}
+
+.aCenter {
+    align-items: center;
+}
+
+.jCenter {
+    justify-content: center;
+}
+
+.jEnd {
+    justify-content: flex-end;
+}
+
+.aStart {
+    align-items: flex-start;
+}
+
+.aEnd {
+    align-items: flex-end;
+}
+
+.jStart {
+    justify-content: flex-start;
+}
+
+.pad20 {
+    padding: 20px;
+}
+
+.gap60 {
+    gap: 60px;
+}
+
+
+
+
+
+
+h2 {
+    @media screen and (max-width:$breakpointMovil) {
+        display: none;
+    }
+}
+
+#social-movil {
+    @media screen and (max-width:$breakpointMovil) {
+        display: flex;
+    }
+
+    @media screen and (min-width:$breakpointMovil) {
+        display: none;
+    }
+}
+
+#social {
+    @media screen and (max-width:$breakpointMovil) {
+        display: none;
+    }
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    list-style: none;
+
+    li {
+        display: inline-block;
+        cursor: pointer;
+
+        a {
+            display: block;
+            padding: 2px 2px;
+            text-decoration: none;
+            color: $accentColor;
+        }
+
+        a:hover {
+            font-style: italic;
+            color: $accentColorHover;
+
+        }
+    }
+    @media screen and (max-width:$breakpointTablet) {
+        position: absolute;
+        top: 305px;
+        /* change to 8vh */
+        height: 60%;
+        /* change to 92vh */
+        left: 0px;
+        justify-content: space-evenly;
+        flex-direction: column;
+        align-items: center;
+        background-color: $lightColor;
+        transform: translateX(-100%);
+        transition: transform 0.5s ease-in;
+        width: 50%;
+        z-index: 5;
+
+
+    }
+
+    @media screen and (max-width:$breakpoint800) {
+
+        top: 205px;
+    }
+
+    @media screen and (max-width:$breakpointMovil) {
+        width: 80%;
+        top: 155px;
+    }
+    @media screen and (max-width:$breakpointMovilVerySmall) {
+        width: 80%;
+        top: 135px;
+    }
+}
+
+.liMostrado {
+    opacity: 1;
+    transform: translate(0px)
+}
+
+
+
+@keyframes navLinkAnime {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+}
+
+.menu-icon.span-anime span:first-child {
+    transform: rotate(-135deg) translate(-20px, 6px);
+    margin-left: -18px;
+}
+
+.menu-icon.span-anime span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-icon.span-anime span:last-child {
+    transform: rotate(135deg) translate(-19px, -5px);
+    margin-left: -17px;
+}
+
+.nav-links.menu-active {
+    transform: translateX(0%);
+    opacity: 1;
+}
