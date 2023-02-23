@@ -78,7 +78,7 @@ class Server{
         this.app.use(express.json());
 
         //Carpeta pública
-        this.app.use(express.static('./public'));
+        this.app.use(express.static('./public/app'));
         // 
 
     }
@@ -96,10 +96,10 @@ class Server{
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
-        this.app.use(this.apiPaths.new_password,(req,res)=>{
+        /*this.app.use(this.apiPaths.new_password,(req,res)=>{
            res.send(req.params.tk) 
-        }) 
-    }
+        })*/ 
+    } 
  
     listen(){
 

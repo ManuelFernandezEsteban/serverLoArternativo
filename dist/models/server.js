@@ -70,7 +70,7 @@ class Server {
         //lectura body
         this.app.use(express_1.default.json());
         //Carpeta pública
-        this.app.use(express_1.default.static('./public'));
+        this.app.use(express_1.default.static('./public/app'));
         // 
     }
     routes() {
@@ -84,9 +84,9 @@ class Server {
         this.app.use(this.apiPaths.contacto, contacto_routes_1.default);
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
-        this.app.use(this.apiPaths.new_password, (req, res) => {
-            res.send(req.params.tk);
-        });
+        /*this.app.use(this.apiPaths.new_password,(req,res)=>{
+           res.send(req.params.tk)
+        })*/
     }
     listen() {
         this.app.listen(this.port, () => {
