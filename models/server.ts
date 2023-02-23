@@ -78,7 +78,7 @@ class Server{
         this.app.use(express.json());
 
         //Carpeta pública
-        this.app.use(express.static('public'));
+        this.app.use(express.static('/public'));
         // 
 
     }
