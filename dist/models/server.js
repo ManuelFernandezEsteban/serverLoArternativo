@@ -84,9 +84,9 @@ class Server {
         this.app.use(this.apiPaths.contacto, contacto_routes_1.default);
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
-        /* this.app.use(this.apiPaths.new_password,(req,res)=>{
-             this.app.use(express.static('public/new-password/index.html'));
-         })*/
+        this.app.use(this.apiPaths.new_password, (req, res) => {
+            res.send(req.params.tk);
+        });
     }
     listen() {
         this.app.listen(this.port, () => {

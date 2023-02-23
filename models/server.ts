@@ -96,9 +96,9 @@ class Server{
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
-       /* this.app.use(this.apiPaths.new_password,(req,res)=>{
-            this.app.use(express.static('public/new-password/index.html'));
-        })*/ 
+        this.app.use(this.apiPaths.new_password,(req,res)=>{
+           res.send(req.params.tk) 
+        }) 
     }
  
     listen(){
