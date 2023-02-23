@@ -70,7 +70,7 @@ class Server {
         //lectura body
         this.app.use(express_1.default.json());
         //Carpeta pública
-        this.app.use(express_1.default.static('/public'));
+        this.app.use(express_1.default.static('./public'));
         // 
     }
     routes() {
