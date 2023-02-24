@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const connect_history_api_fallback_1 = __importDefault(require("connect-history-api-fallback"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const planes_route_1 = __importDefault(require("../routes/planes.route"));
@@ -69,6 +70,7 @@ class Server {
         this.app.use((0, cors_1.default)());
         //lectura body
         this.app.use(express_1.default.json());
+        this.app.use((0, connect_history_api_fallback_1.default)({ index: './public/app/index.html' }));
         //Carpeta pública
         this.app.use(express_1.default.static('./public/app'));
         // 
