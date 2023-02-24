@@ -85,7 +85,7 @@ class Server{
         this.app.use(express.static('./public/app'));
         // 
 
-    }
+    } 
 
 
     routes(){
