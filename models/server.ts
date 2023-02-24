@@ -1,6 +1,8 @@
 import express, {Application} from 'express';
 import cors from 'cors';
-import path from 'path';
+import history from 'connect-history-api-fallback';
+
+
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
@@ -76,6 +78,8 @@ class Server{
 
         //lectura body
         this.app.use(express.json());
+
+        this.app.use(history());
 
         //Carpeta pública
         this.app.use(express.static('./public/app'));
