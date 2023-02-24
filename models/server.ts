@@ -1,6 +1,7 @@
 import express, {Application} from 'express';
 import cors from 'cors';
 import history from 'connect-history-api-fallback';
+import path from 'path';
 
 
 
@@ -19,6 +20,18 @@ import db from '../db/connection';
 
 
 class Server{
+
+    allowedExt = [
+        '.js',
+        '.ico',
+        '.css',
+        '.png',
+        '.jpg',
+        '.woff2',
+        '.woff',
+        '.ttf',
+        '.svg',
+      ];
 
     private app:Application;
     private port:string;
@@ -100,9 +113,13 @@ class Server{
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.landingPaths.landing,landingRoutes);
-        /*this.app.use(this.apiPaths.new_password,(req,res)=>{
-           res.send(req.params.tk) 
-        })*/ 
+        this.app.get('*', (req, res) => {
+            if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
+              res.sendFile(path.resolve(`public/app/${req.url}`));
+            } else {
+              res.sendFile(path.resolve('public/app/index.html'));
+            }
+          });
     } 
  
     listen(){
