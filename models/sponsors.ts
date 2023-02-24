@@ -11,6 +11,9 @@ const Sponsor = db.define('Sponsors',{
         type:DataTypes.STRING(50)
     },
     imagen:{
+        type:DataTypes.STRING(255)
+    },
+    url:{
         type:DataTypes.STRING(80)
     },
     tipo:{

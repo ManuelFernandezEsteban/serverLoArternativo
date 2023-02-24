@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import Actividad from "../models/actividades";
 
 export const getActividad = async (req:Request,res:Response)=>{
@@ -18,7 +19,14 @@ export const getActividad = async (req:Request,res:Response)=>{
 
 export const getActividades = async(req:Request,res:Response)=>{
     
-    const actividades = await Actividad.findAll();
+    const actividades = await Actividad.findAll(
+        {
+            where:
+                {
+                    id:{[Op.not]:10}        
+                }
+        }
+    );
     res.json({
         actividades
     })

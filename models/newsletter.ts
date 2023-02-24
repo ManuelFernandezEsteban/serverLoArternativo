@@ -3,7 +3,7 @@ import db from "../db/connection";
 
 
 
-const NewsLetter = db.define('newsletter',{
+const NewsLetter = db.define('Newsletter',{
     id:{
         type:DataTypes.UUID,
         defaultValue:DataTypes.UUIDV4,

@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
+import { createFolder } from '../helpers/createFolder';
 
 export const getEvento = async (req: Request, res: Response) => {
 
@@ -113,7 +114,7 @@ export const postEvento = async (req: Request, res: Response) => {
         })
     }
 
-    if (body.EspecialistaID != '95b87e79-4300-4933-aa25-3579b0a4a266'){ // especialista para publicar eventos nativos tierra y revista
+    if (body.ActividadeId != 10){ // especialista para publicar eventos nativos tierra y revista
 
         const resultado = await Especialista.findByPk(body.EspecialistaId, {
             attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
@@ -149,6 +150,7 @@ export const postEvento = async (req: Request, res: Response) => {
     try {
 
         const evento = await Evento.create(body);
+        createFolder(`eventos/${evento.id}`);
         res.json({
             evento
         })

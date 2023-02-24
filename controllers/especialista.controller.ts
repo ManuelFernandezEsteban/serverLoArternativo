@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
 import { sendMail } from '../helpers/send-mail';
 import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
+import { createFolder } from '../helpers/createFolder';
 
 
 export const getEspecialistasPagination = async (req: Request, res: Response) => {
@@ -97,8 +98,13 @@ export const postEspecialista = async (req: Request, res: Response) => {
         const especialista = await Especialista.create(body);
         especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        especialista.set({ password: '' })
+        especialista.set({ password: '' });
         const token = generarJWT(especialista.id);
+        //crear arbol directoreio en Space
+
+        createFolder(`especialistas/${especialista.id}`);
+        createFolder(`especialistas/${especialista.id}/profile`);
+        
 
         await sendMail({
             asunto: 'Registro como especialista en el Portal Web Nativos Tierra',

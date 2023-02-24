@@ -1,0 +1,46 @@
+
+/* página nosotros*/
+app-nosotros {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#nosotros {
+    width: 60%;
+    justify-content: center;
+
+    @media (max-width:$breakpoint935) {
+        width: 90%;
+    }
+
+    .fila {
+        @media (max-width:$breakpoint935) {
+            flex-direction: column;
+        }
+
+        img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+        }
+    }
+
+    .grid-nosotros {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+
+        @media (max-width:$breakpoint935) {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+
+            .columna {
+                align-items: center;
+            }
+        }
+    }
+
+}
+
+/*fin página nosotros*/

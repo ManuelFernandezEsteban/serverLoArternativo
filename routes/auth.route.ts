@@ -4,7 +4,7 @@ import { createNewPassword, forgotPassword, login, renewToken } from '../control
 import { validarCampos } from '../middlewares/validar-campos';
 import { validarJWT } from '../middlewares/validar-JWT';
 
-const router = Router();
+const router = Router(); 
 
 //renwe token
 router.get('/renovar',validarJWT,validarCampos,renewToken);

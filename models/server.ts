@@ -1,5 +1,9 @@
 import express, {Application} from 'express';
 import cors from 'cors';
+import history from 'connect-history-api-fallback';
+import path from 'path';
+
+
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
@@ -10,14 +14,30 @@ import authRoutes from '../routes/auth.route';
 import newsletterRoutes from '../routes/newsletter.routes';
 import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
+import landingRoutes from '../routes/landing.routes'
 import db from '../db/connection';
 
 
 
 class Server{
 
+    allowedExt = [
+        '.js',
+        '.ico',
+        '.css',
+        '.png',
+        '.jpg',
+        '.woff2',
+        '.woff',
+        '.ttf',
+        '.svg',
+      ];
+
     private app:Application;
     private port:string;
+    private landingPaths={
+        landing:'/landing/'
+    }
     private apiPaths={
         especialistas:'/api/especialistas',
         actividades:'/api/actividades',
@@ -27,7 +47,8 @@ class Server{
         auth:'/api/auth',
         newsletter:'/api/newsletter',
         contacto:'/api/contacto',
-        uploads:'/api/uploads'
+        uploads:'/api/uploads',
+        new_password:'/auth/new-password/:tk'
     }
 
     constructor(){
@@ -71,11 +92,13 @@ class Server{
         //lectura body
         this.app.use(express.json());
 
+       
+
         //Carpeta pública
+        this.app.use(express.static('./public/app'));
+        // 
 
-        this.app.use(express.static('public'));
-
-    }
+    } 
 
 
     routes(){
@@ -86,11 +109,19 @@ class Server{
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);
         this.app.use(this.apiPaths.auth,authRoutes);
-        this.app.use(this.apiPaths.newsletter,newsletterRoutes);
+        this.app.use(this.apiPaths.newsletter,newsletterRoutes); 
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
-    }
-
+        this.app.use(this.landingPaths.landing,landingRoutes);
+        this.app.get('*', (req, res) => {
+            if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
+              res.sendFile(path.resolve(`public/app/${req.url}`));
+            } else {
+              res.sendFile(path.resolve('public/app/index.html'));
+            }
+          });
+    } 
+ 
     listen(){
 
         this.app.listen(this.port,()=>{

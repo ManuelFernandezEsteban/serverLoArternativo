@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import NewsLetter from "../models/newsletter";
 import { sendMail } from "../helpers/send-mail";
 import { mailSuscripcion } from '../helpers/plantilla-mail';
+import { login } from './auth.controller';
 
 
 
@@ -48,10 +49,8 @@ export const postUserNews = async (req: Request, res: Response) => {
 
     const { body } = req;
     try {
-
         const user = NewsLetter.build(body);
         user.save();
-
         await sendMail({
             asunto: 'Suscripción a newsletter',
             nombreDestinatario: body.nombre,
@@ -59,7 +58,6 @@ export const postUserNews = async (req: Request, res: Response) => {
             mensaje: `Hola, ${body.nombre} su suscripción ha sido completada`,
             html: mailSuscripcion(body.nombre)
         })
-
         res.json({
             user
         })
@@ -67,6 +65,7 @@ export const postUserNews = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
+
             msg: error,
         })
     }

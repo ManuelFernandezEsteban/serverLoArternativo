@@ -1,0 +1,83 @@
+
+
+/* página registro*/
+app-registro {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    a {
+        text-decoration: none;
+        cursor: pointer;
+    }
+}
+
+.box-registro {
+    width: 80%;
+    padding: 50px;
+    border: 2px solid $accentColor;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    align-self: center;
+    margin-bottom: 100px;
+
+    .terminos {
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+
+        span:last-child {
+            text-align: end;
+        }
+    }
+
+    @media (max-width:$breakpoint800) {
+        padding: 20px;
+        width: 90%;
+
+    }
+
+    form {
+        width: 100%;
+    }
+
+    .columna {
+        width: 100%;
+
+        .fila {
+            @media (max-width:$breakpoint800) {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    }
+
+    .fila {
+        justify-content: space-between;
+        margin-top: 40px;
+        align-items: flex-start;
+/*
+        span {
+            align-self: flex-end;
+        }
+*/
+
+    }
+
+}
+
+.select-registro select {
+    border: none;
+    border-bottom: 2px solid $accentColor;
+    outline: none;
+    width: 90%;
+    padding: 8px;
+    font-size: 1rem;
+    font-family: $fontPrimary;
+}
+
+/*fin página registro*/

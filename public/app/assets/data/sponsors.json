@@ -1,0 +1,82 @@
+
+
+{
+    "sponsors": [
+        {
+            "id": 1,
+            "nombre": "cepsa",
+            "imagen": "./../../../../assets/images/sponsors/cepsa.png",
+            "url":"https://www.cepsa.es"
+        },
+        {
+            "id": 2,
+            "nombre": "colacao",
+            "imagen": "./../../../../assets/images/sponsors/colacao.png",
+            "url":"https://www.colacao.es"
+
+        },
+        {
+            "id": 3,
+            "nombre": "zara",
+            "imagen": "./../../../../assets/images/sponsors/zara.png",
+            "url":"https://www.zara.com"
+        },
+        {
+            "id": 4,
+            "nombre": "El corte ingles",
+            "imagen": "./../../../../assets/images/sponsors/eci-triangulo-logo.png",
+            "url":"https://www.elcorteingles.es"
+        },
+        {
+            "id": 5,
+            "nombre": "cocacola",
+            "imagen": "./../../../../assets/images/sponsors/cocacola.png",
+            "url":"https://www.hipercor.es"
+
+        },
+        {
+            "id": 6,
+            "nombre": "samsung",
+            "imagen": "./../../../../assets/images/sponsors/samsung.png",
+            "url":"https://www.samsung.com"
+        },
+        {
+            "id": 7,
+            "nombre": "sfera",
+            "imagen": "./../../../../assets/images/sponsors/sfera.png",
+            "url":"https://www.sfera.com"
+        },
+        {
+            "id": 8,
+            "nombre": "sony",
+            "imagen": "./../../../../assets/images/sponsors/sony.png",
+            "url":"https://www.sony.es"
+
+        },
+        {
+            "id": 9,
+            "nombre": "Springfield",
+            "imagen": "./../../../../assets/images/sponsors/spf.png",
+            "url":"https://www.spf.com"
+        },
+        {
+            "id": 10,
+            "nombre": "supercor",
+            "imagen": "./../../../../assets/images/sponsors/supercor-supermercados.png",
+            "url":"https://www.elcorteingles.es"
+        },
+        {
+            "id": 11,
+            "nombre": "hipercor",
+            "imagen": "./../../../../assets/images/sponsors/hipercor.png",
+            "url":"https://www.hipercor.es"
+
+        },
+        {
+            "id": 12,
+            "nombre": "apple",
+            "imagen": "./../../../../assets/images/sponsors/apple.png",
+            "url":"https://www.samsung.com"
+        }   
+    ]
+}
