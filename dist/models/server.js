@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const planes_route_1 = __importDefault(require("../routes/planes.route"));
@@ -27,6 +28,17 @@ const landing_routes_1 = __importDefault(require("../routes/landing.routes"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
+        this.allowedExt = [
+            '.js',
+            '.ico',
+            '.css',
+            '.png',
+            '.jpg',
+            '.woff2',
+            '.woff',
+            '.ttf',
+            '.svg',
+        ];
         this.landingPaths = {
             landing: '/landing/'
         };
@@ -40,6 +52,7 @@ class Server {
             newsletter: '/api/newsletter',
             contacto: '/api/contacto',
             uploads: '/api/uploads',
+            new_password: '/auth/new-password/:tk'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -69,7 +82,8 @@ class Server {
         //lectura body
         this.app.use(express_1.default.json());
         //Carpeta pública
-        this.app.use(express_1.default.static('public'));
+        this.app.use(express_1.default.static('./public/app'));
+        // 
     }
     routes() {
         this.app.use(this.apiPaths.especialistas, especialista_route_1.default);
@@ -82,6 +96,14 @@ class Server {
         this.app.use(this.apiPaths.contacto, contacto_routes_1.default);
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
+        this.app.get('*', (req, res) => {
+            if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
+                res.sendFile(path_1.default.resolve(`public/app/${req.url}`));
+            }
+            else {
+                res.sendFile(path_1.default.resolve('public/app/index.html'));
+            }
+        });
     }
     listen() {
         this.app.listen(this.port, () => {
