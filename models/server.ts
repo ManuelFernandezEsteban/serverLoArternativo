@@ -79,7 +79,7 @@ class Server{
         //lectura body
         this.app.use(express.json());
 
-        this.app.use(history({index:'./public/app/index.html'}));
+       
 
         //Carpeta pública
         this.app.use(express.static('./public/app'));
