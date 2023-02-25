@@ -8,8 +8,8 @@ const db = new Sequelize('DB-nativos-tierra',
     host: 'nativos-tierra-db-do-user-13555636-0.b.db.ondigitalocean.com',
     dialect:'mysql',
     logging:false,
-    port:3306 
+    port:25060 
     
 }); 
  
-export default db;       
+export default db;        

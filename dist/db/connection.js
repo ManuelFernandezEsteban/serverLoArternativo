@@ -5,7 +5,7 @@ const db = new sequelize_1.Sequelize('DB-nativos-tierra', 'nativos-tierra', 'AVN
     host: 'nativos-tierra-db-do-user-13555636-0.b.db.ondigitalocean.com',
     dialect: 'mysql',
     logging: false,
-    port: 3306
+    port: 25060
 });
 exports.default = db;
 //# sourceMappingURL=connection.js.map
