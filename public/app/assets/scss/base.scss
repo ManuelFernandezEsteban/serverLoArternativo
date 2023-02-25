@@ -12,19 +12,24 @@
 }
 
 .container {
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 100%;
-
     @media (max-width:$breakpointMovil) {
         padding: 20px;
         width: 100%;
 
     }
+}
 
-
+.contenedor{  
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 100px;
+    width: 100%;
 }
 
 .gap-20 {

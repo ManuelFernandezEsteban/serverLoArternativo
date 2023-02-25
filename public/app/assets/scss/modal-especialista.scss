@@ -68,7 +68,19 @@ span {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    .content-especialista{
+        display: flex;
+        @media (max-width:$breakpointMovil){
+            flex-direction: column;
+            .columna:first-child{
+                order:2
+            }
+            .columna:last-child{
+                order:1
+            }
+        }       
 
+    }
     @media (max-width:$breakpoint935) {
         width: 80%;
     }
@@ -89,11 +101,7 @@ span {
     .fila:nth-child(2) {
         align-items: flex-start;
 
-        .columna:first-child {
-            @media (max-width:$breakpointMovil) {
-                display: none;
-            }
-        }
+        
 
         .columna {
             @media (max-width:$breakpointMovil) {

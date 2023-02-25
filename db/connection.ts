@@ -1,13 +1,15 @@
 import { Sequelize } from 'sequelize';
 
-const db = new Sequelize('DB-nativos-tierra',
-                         'nativos-tierra',
-                         'AVNS_UjHl8s8ClOhOFlsZ7Wp',{
-    host: 'nativos-tierra-db-do-user-13555636-0.b.db.ondigitalocean.com',
+
+
+const db = new Sequelize('loalternativo',
+                         'loalternativo',
+                         'pzOc5s[p3kZxdTDx',{
+    host: 'localhost',
     dialect:'mysql',
     logging:false,
-    port:25060 
+    port:3306 
     
 }); 
  
-export default db; 
+export default db;      

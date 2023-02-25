@@ -9,11 +9,12 @@
     right: 0;
     position: relative;
 }
+
 .img-grande {
     aspect-ratio: 1;
     border-radius: 4px;
     object-fit: cover;
-    
+
 }
 
 
@@ -37,6 +38,7 @@
 
     @media (max-width:730px) {
         width: 100%;
+
     }
 
     .fila:first-child {
@@ -46,12 +48,18 @@
 
     }
 
-    .fila:nth-child(2) {
+    .content-evento {
+        display: flex;
         align-items: flex-start;
-        .columna:first-child{
-            @media (max-width:$breakpointMovil){
-                    display: none;
-                }
+
+        @media (max-width:$breakpointMovil) {
+            flex-direction: column;
+        }
+
+        .columna:first-child {
+            @media (max-width:$breakpointMovil) {
+                order: 2;
+            }
         }
 
         .columna {
@@ -60,7 +68,7 @@
                 width: 100%;
             }
 
-
+       
 
             .fila {
                 align-items: center;
@@ -172,7 +180,7 @@
     }*/
 }
 
-.aRevista{
+.aRevista {
     text-decoration: none;
     cursor: pointer;
 }
