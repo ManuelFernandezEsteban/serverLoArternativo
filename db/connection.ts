@@ -12,4 +12,4 @@ const db = new Sequelize('DB-nativos-tierra',
     
 }); 
  
-export default db;      
+export default db;       
