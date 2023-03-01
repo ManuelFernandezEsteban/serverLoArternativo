@@ -1,12 +1,12 @@
 import express, {Application} from 'express';
 import cors from 'cors';
-import history from 'connect-history-api-fallback';
 import path from 'path';
 
 
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
+import monedasRoutes from '../routes/monedas.routes';
 import planesRoutes from '../routes/planes.route';
 import sponsorsRoutes from '../routes/sponsor.route';
 import eventosRoutes from '../routes/eventos.route'
@@ -16,8 +16,6 @@ import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
 import landingRoutes from '../routes/landing.routes'
 import db from '../db/connection';
-
-
 
 class Server{
 
@@ -41,6 +39,7 @@ class Server{
     private apiPaths={
         especialistas:'/api/especialistas',
         actividades:'/api/actividades',
+        monedas:'/api/monedas',
         planes:'/api/planes',
         sponsors:'/api/sponsors',
         eventos:'/api/eventos',
@@ -105,6 +104,7 @@ class Server{
 
         this.app.use(this.apiPaths.especialistas,especialistasRoutes);
         this.app.use(this.apiPaths.actividades,actividadesRoutes);
+        this.app.use(this.apiPaths.monedas,monedasRoutes);
         this.app.use(this.apiPaths.planes,planesRoutes);
         this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
         this.app.use(this.apiPaths.eventos,eventosRoutes);

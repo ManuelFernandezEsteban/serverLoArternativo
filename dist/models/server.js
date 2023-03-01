@@ -17,6 +17,7 @@ const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
+const monedas_routes_1 = __importDefault(require("../routes/monedas.routes"));
 const planes_route_1 = __importDefault(require("../routes/planes.route"));
 const sponsor_route_1 = __importDefault(require("../routes/sponsor.route"));
 const eventos_route_1 = __importDefault(require("../routes/eventos.route"));
@@ -45,6 +46,7 @@ class Server {
         this.apiPaths = {
             especialistas: '/api/especialistas',
             actividades: '/api/actividades',
+            monedas: '/api/monedas',
             planes: '/api/planes',
             sponsors: '/api/sponsors',
             eventos: '/api/eventos',
@@ -88,6 +90,7 @@ class Server {
     routes() {
         this.app.use(this.apiPaths.especialistas, especialista_route_1.default);
         this.app.use(this.apiPaths.actividades, actividades_route_1.default);
+        this.app.use(this.apiPaths.monedas, monedas_routes_1.default);
         this.app.use(this.apiPaths.planes, planes_route_1.default);
         this.app.use(this.apiPaths.sponsors, sponsor_route_1.default);
         this.app.use(this.apiPaths.eventos, eventos_route_1.default);

@@ -13,6 +13,9 @@ const Evento = db.define('Eventos',{
     precio:{
         type:DataTypes.FLOAT
     },
+    monedaId:{
+        type:DataTypes.INTEGER
+    },
     fecha:{
         type:DataTypes.DATE
     },

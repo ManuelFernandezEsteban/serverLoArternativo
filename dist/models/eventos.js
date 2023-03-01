@@ -17,6 +17,9 @@ const Evento = connection_1.default.define('Eventos', {
     precio: {
         type: sequelize_1.DataTypes.FLOAT
     },
+    monedaId: {
+        type: sequelize_1.DataTypes.INTEGER
+    },
     fecha: {
         type: sequelize_1.DataTypes.DATE
     },

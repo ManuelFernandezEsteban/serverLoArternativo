@@ -4,6 +4,7 @@ import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
 import { createFolder } from '../helpers/createFolder';
+import Moneda from '../models/monedas';
 
 export const getEvento = async (req: Request, res: Response) => {
 
@@ -17,6 +18,9 @@ export const getEvento = async (req: Request, res: Response) => {
             },
             {
                 model: Actividad
+            },
+            {
+                model: Moneda
             }
         ]
     });

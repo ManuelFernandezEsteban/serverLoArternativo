@@ -18,6 +18,7 @@ const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
 const eventos_1 = __importDefault(require("../models/eventos"));
 const createFolder_1 = require("../helpers/createFolder");
+const monedas_1 = __importDefault(require("../models/monedas"));
 const getEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const evento = yield eventos_1.default.findByPk(id, {
@@ -28,6 +29,9 @@ const getEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             },
             {
                 model: actividades_1.default
+            },
+            {
+                model: monedas_1.default
             }
         ]
     });
