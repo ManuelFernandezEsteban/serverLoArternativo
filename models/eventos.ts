@@ -16,7 +16,7 @@ const Evento = db.define('Eventos',{
     monedaId:{
         type:DataTypes.INTEGER
     },
-    fecha:{
+    fecha:{ 
         type:DataTypes.DATE
     },
     descripcion:{

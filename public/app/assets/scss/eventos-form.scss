@@ -53,11 +53,6 @@
 
     }
 
-    .w-online {
-        align-self: flex-end;
-        grid-column-start: col7;
-        grid-column-end: col8;
-    }
 
 
     .box-formulario-evento {
@@ -152,35 +147,37 @@
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
+            grid-column-end: col7;
+        }
+    }
+    .w-online {
+        align-self: flex-end;
+        grid-column-start: col4;
+        grid-column-end: col6;
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: col7;
             grid-column-end: col8;
         }
     }
 
     .precio {
-        grid-column-start: col5;
-        grid-column-end: col7;
+        grid-column-start: col6;
+        grid-column-end: col8;
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
             grid-column-end: col6;
         }
     }
+    .moneda{
+        display: flex;
+        align-items: flex-end;
+
+    }
 
     .online {
         display: flex;
-        align-items: center;
-        grid-column-start: end;
-        grid-column-end: end;
-
-        @media (max-width:$breakpoint860) {
-            grid-column-start: first;
-            grid-column-end: col6;
-        }
-
-        @media (max-width:$breakpoint760) {
-            grid-column-start: col4;
-            grid-column-end: col4;
-        }
+        align-items: center; 
     }
 
     .direccion {
@@ -203,10 +200,10 @@
         grid-column-start: first;
         grid-column-end: col4;
 
-        @media (max-width:$breakpoint860) {
-            grid-column-start: first;
-            grid-column-end: col5;
-        }
+     /*   @media (max-width:$breakpoint860) {
+            grid-column-start: col5;
+            grid-column-end: col8;
+        }*/
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
@@ -217,12 +214,12 @@
 
     .provincia {
         grid-column-start: col4;
-        grid-column-end: col7;
+        grid-column-end: col8;
 
-        @media (max-width:$breakpoint860) {
+    /*    @media (max-width:$breakpoint860) {
             grid-column-start: first;
             grid-column-end: col5;
-        }
+        }*/
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
@@ -232,11 +229,27 @@
     }
 
     .c-postal {
-        grid-column-start: col7;
+        grid-column-start: first;
+        grid-column-end: col4;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col4;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .pais {
+        grid-column-start: col4;
         grid-column-end: col8;
 
         @media (max-width:$breakpoint860) {
-            grid-column-start: col5;
+            grid-column-start: col4;
             grid-column-end: col8;
         }
 

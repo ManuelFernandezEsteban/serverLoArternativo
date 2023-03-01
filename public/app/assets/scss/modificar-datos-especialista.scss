@@ -171,10 +171,10 @@
         grid-column-start: first;
         grid-column-end: col4;
 
-        @media (max-width:$breakpoint860) {
+     /*   @media (max-width:$breakpoint860) {
             grid-column-start: col5;
             grid-column-end: col8;
-        }
+        }*/
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
@@ -185,12 +185,12 @@
 
     .provincia {
         grid-column-start: col4;
-        grid-column-end: col6;
+        grid-column-end: col8;
 
-        @media (max-width:$breakpoint860) {
+    /*    @media (max-width:$breakpoint860) {
             grid-column-start: first;
             grid-column-end: col5;
-        }
+        }*/
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;
@@ -200,11 +200,27 @@
     }
 
     .c-postal {
-        grid-column-start: col6;
+        grid-column-start: first;
+        grid-column-end: col4;
+
+        @media (max-width:$breakpoint860) {
+            grid-column-start: first;
+            grid-column-end: col4;
+        }
+
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col8;
+        }
+
+    }
+
+    .pais {
+        grid-column-start: col4;
         grid-column-end: col8;
 
         @media (max-width:$breakpoint860) {
-            grid-column-start: col5;
+            grid-column-start: col4;
             grid-column-end: col8;
         }
 
