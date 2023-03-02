@@ -27,7 +27,7 @@ const crearTransporte = () => {
 };
 const createMessage = (mailInfo) => {
     return {
-        from: `Manuel <${process.env.USER_SMTP}>`,
+        from: `Nativos Tierra <${process.env.USER_SMTP}>`,
         to: `${mailInfo.mailDestinatario}`,
         subject: `Hola ${mailInfo.asunto}`,
         text: mailInfo.mensaje,

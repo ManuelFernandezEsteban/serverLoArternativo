@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getActividades = exports.getActividad = void 0;
 const sequelize_1 = require("sequelize");
 const actividades_1 = __importDefault(require("../models/actividades"));
+const categorias_actividades_1 = __importDefault(require("../models/categorias_actividades"));
 const getActividad = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const actividad = yield actividades_1.default.findByPk(id);
@@ -32,6 +33,11 @@ const getActividad = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getActividad = getActividad;
 const getActividades = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const actividades = yield actividades_1.default.findAll({
+        include: [
+            {
+                model: categorias_actividades_1.default
+            }
+        ],
         where: {
             id: { [sequelize_1.Op.not]: 10 }
         }

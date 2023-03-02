@@ -20,7 +20,7 @@ const crearTransporte = ():nodemailer.Transporter<SMTPTransport.SentMessageInfo>
 const createMessage = (mailInfo: MailInformation,):any=>{
 
     return {
-        from: `Manuel <${process.env.USER_SMTP}>`, // sender address
+        from: `Nativos Tierra <${process.env.USER_SMTP}>`, // sender address
         to: `${mailInfo.mailDestinatario}`, // list of receivers
         subject: `Hola ${mailInfo.asunto}`, // Subject line
         text: mailInfo.mensaje, // plain text body

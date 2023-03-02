@@ -28,7 +28,7 @@ class Server{
         '.woff2',
         '.woff',
         '.ttf',
-        '.svg',
+        '.svg', 
       ];
 
     private app:Application;
