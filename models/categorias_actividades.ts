@@ -22,4 +22,4 @@ const Categoria_actividad = db.define('Categorias_actividades',{
 Actividades.hasMany(Categoria_actividad ); 
 Categoria_actividad.belongsTo(Actividades);
 
-export default Categoria_actividad;
+export default Categoria_actividad; 
