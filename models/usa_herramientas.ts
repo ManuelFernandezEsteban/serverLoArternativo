@@ -20,7 +20,7 @@ const UsaHerramientas = db.define('UsaHerramientas',{
     HerramientaId:{
         type:DataTypes.INTEGER,
         primaryKey:true,
-        references:{
+        references:{ 
             model:Herramientas,
             key:'id'
         }
