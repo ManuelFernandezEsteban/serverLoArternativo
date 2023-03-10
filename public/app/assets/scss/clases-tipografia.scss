@@ -153,23 +153,23 @@
 .option-menu {
     font-family: $fontOptions;
     font-size: $fsOptionMenu;
-    line-height: 36px;
+   
     letter-spacing: 3.6px;
     font-weight: 400;
 
     @media (max-width:$breakpointLaptop) {
         font-size: $fsOptionMenuLaptop;
-        line-height: 30px;
+     
     }
 
     @media (max-width:$breakpointLaptop) {
         font-size: $fsOptionMenutablet;
-        line-height: 24px;
+       
     }
 
     @media (max-width:$breakpointMovil) {
         font-size: $fsOptionMenuMovil;
-        line-height: 18px;
+        
         letter-spacing: 2.4px;
     }
 }

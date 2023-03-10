@@ -15,6 +15,7 @@ import newsletterRoutes from '../routes/newsletter.routes';
 import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
 import landingRoutes from '../routes/landing.routes'
+import herramientas from '../routes/herramientas.routes'
 import db from '../db/connection';
 
 class Server{
@@ -47,6 +48,7 @@ class Server{
         newsletter:'/api/newsletter',
         contacto:'/api/contacto',
         uploads:'/api/uploads',
+        herramientas:'/api/herramientas',
         new_password:'/auth/new-password/:tk'
     }
 
@@ -112,6 +114,7 @@ class Server{
         this.app.use(this.apiPaths.newsletter,newsletterRoutes); 
         this.app.use(this.apiPaths.contacto,contactoRoutes);
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
+        this.app.use(this.apiPaths.herramientas,herramientas)
         this.app.use(this.landingPaths.landing,landingRoutes);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {

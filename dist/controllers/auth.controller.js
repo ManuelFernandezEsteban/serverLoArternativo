@@ -19,6 +19,9 @@ const generar_JWT_1 = require("../helpers/generar-JWT");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
+const actividades_1 = __importDefault(require("../models/actividades"));
+const planes_1 = __importDefault(require("../models/planes"));
+const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
@@ -26,9 +29,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: {
                 email: email
             },
-            include: [{
-                    all: true
-                }]
+            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         });
         if (!especialista) {
             return res.status(400).json({
@@ -63,6 +64,7 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const token = yield (0, generar_JWT_1.generarJWT)(id);
         const especialista = yield especialista_1.default.findByPk(id, {
             attributes: { exclude: ['password'] },
+            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         });
         res.json({
             token,
@@ -121,7 +123,6 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         emailStatus = 'error';
         res.status(500).json({ message: 'Algo no ha ido bien' });
     }
-    //res.json({ message, emailStatus })
 });
 exports.forgotPassword = forgotPassword;
 const createNewPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

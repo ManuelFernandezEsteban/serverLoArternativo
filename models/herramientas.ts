@@ -1,14 +1,18 @@
 import { DataTypes } from 'sequelize';
 import db from '../db/connection';
-import Actividades from './actividades';
+import Especialista from './especialista';
+import UsaHerramientas from './usa_herramientas';
 
-const Categoria_actividad = db.define('Categorias_actividades',{
+const Herramientas = db.define('Herramientas',{
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true
     },
     categoria:{
         type:DataTypes.STRING(20)
+    },
+    ActividadeId:{
+        type:DataTypes.INTEGER
     },
     updatedAt:{
         type:DataTypes.STRING(80)
@@ -19,7 +23,6 @@ const Categoria_actividad = db.define('Categorias_actividades',{
     
 });
 
-Actividades.hasMany(Categoria_actividad ); 
-Categoria_actividad.belongsTo(Actividades);
+//UsaHerramientas.belongsTo(Herramientas)
 
-export default Categoria_actividad; 
+export default Herramientas; 

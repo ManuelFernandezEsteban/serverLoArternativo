@@ -17,7 +17,7 @@
     background-color: $secondaryColor;
     flex-direction: column;
     align-items: center;    
-    
+    overflow-x: auto;    
     @media (max-width:$breakpointLaptop) {
         top: 30px;
         width: 280px;
@@ -48,7 +48,7 @@
 }
 
 .container-title>span {
-    color: $lightColor;
+    color: $primaryColor;
     width: 100%;
     height: 100%;
     border-top-left-radius: 4px;
@@ -59,7 +59,7 @@
 .container-especialidad:hover .container-title>span {
 
     background-color: $primaryColorHover;
-
+    color: $blueColor;
 }
 
 

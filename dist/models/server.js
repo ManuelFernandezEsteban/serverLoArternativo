@@ -26,6 +26,7 @@ const newsletter_routes_1 = __importDefault(require("../routes/newsletter.routes
 const contacto_routes_1 = __importDefault(require("../routes/contacto.routes"));
 const uploads_route_1 = __importDefault(require("../routes/uploads.route"));
 const landing_routes_1 = __importDefault(require("../routes/landing.routes"));
+const herramientas_routes_1 = __importDefault(require("../routes/herramientas.routes"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
@@ -54,6 +55,7 @@ class Server {
             newsletter: '/api/newsletter',
             contacto: '/api/contacto',
             uploads: '/api/uploads',
+            herramientas: '/api/herramientas',
             new_password: '/auth/new-password/:tk'
         };
         this.app = (0, express_1.default)();
@@ -98,6 +100,7 @@ class Server {
         this.app.use(this.apiPaths.newsletter, newsletter_routes_1.default);
         this.app.use(this.apiPaths.contacto, contacto_routes_1.default);
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
+        this.app.use(this.apiPaths.herramientas, herramientas_routes_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {

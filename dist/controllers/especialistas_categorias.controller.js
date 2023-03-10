@@ -12,39 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getActividades = exports.getActividad = void 0;
-const sequelize_1 = require("sequelize");
-const actividades_1 = __importDefault(require("../models/actividades"));
+exports.getCategorias = void 0;
+const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
 const herramientas_1 = __importDefault(require("../models/herramientas"));
-const getActividad = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getCategorias = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const actividad = yield actividades_1.default.findByPk(id);
-    if (actividad) {
-        res.json({
-            actividad
-        });
-    }
-    else {
-        res.status(404).json({
-            msg: `No existe una actividad con el id ${id}`
-        });
-    }
-});
-exports.getActividad = getActividad;
-const getActividades = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const actividades = yield actividades_1.default.findAll({
-        include: [
-            {
+    try {
+        const categorias = yield usa_herramientas_1.default.findAll({
+            where: {
+                EspecialistaId: id
+            },
+            include: {
                 model: herramientas_1.default
             }
-        ],
-        where: {
-            id: { [sequelize_1.Op.not]: 10 }
-        }
-    });
-    res.json({
-        actividades
-    });
+        });
+        res.json({
+            categorias
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: error
+        });
+    }
 });
-exports.getActividades = getActividades;
-//# sourceMappingURL=actividades.controller.js.map
+exports.getCategorias = getCategorias;
+//# sourceMappingURL=especialistas_categorias.controller.js.map

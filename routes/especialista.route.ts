@@ -64,6 +64,6 @@ router.patch('/modificarPlan/:id',[
     check('PlaneId').custom(esPlanValido),
 ], validarCampos,patchEspecialista);
 
-export default router;
+export default router;  
 
 

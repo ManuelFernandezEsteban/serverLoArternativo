@@ -7,6 +7,7 @@ const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const especialista_1 = __importDefault(require("./especialista"));
 const eventos_1 = __importDefault(require("./eventos"));
+const herramientas_1 = __importDefault(require("./herramientas"));
 const Actividad = connection_1.default.define('Actividades', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -26,5 +27,7 @@ Actividad.hasMany(especialista_1.default);
 especialista_1.default.belongsTo(Actividad);
 Actividad.hasMany(eventos_1.default);
 eventos_1.default.belongsTo(Actividad);
+Actividad.hasMany(herramientas_1.default);
+herramientas_1.default.belongsTo(Actividad);
 exports.default = Actividad;
 //# sourceMappingURL=actividades.js.map

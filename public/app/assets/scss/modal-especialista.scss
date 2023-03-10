@@ -174,3 +174,16 @@ span {
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
+
+
+.wrapper-categorias{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    span{
+        background-color: $primaryColor;
+        padding: 2px;
+        border-radius: 10px;
+    }
+}

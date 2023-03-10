@@ -81,4 +81,6 @@ const Evento = db.define('Eventos',{
     paranoid:true // soft delete
 });
 
+
+
 export default Evento;

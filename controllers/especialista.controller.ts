@@ -8,6 +8,9 @@ import { generarJWT } from '../helpers/generar-JWT';
 import { sendMail } from '../helpers/send-mail';
 import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 import { createFolder } from '../helpers/createFolder';
+import UsaHerramientas from '../models/usa_herramientas';
+import Herramientas from '../models/herramientas';
+
 
 
 export const getEspecialistasPagination = async (req: Request, res: Response) => {
@@ -27,7 +30,7 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
     }
     const { count, rows } = await Especialista.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan],
+        include: [Actividad, Plan,UsaHerramientas],
 
         where: {
             actividadeId: especialidad
@@ -38,7 +41,7 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
     const especialistas = rows;
 
     res.json({
-        especialistas,
+        especialistas, 
         count
     })
 }
@@ -48,10 +51,11 @@ export const getEspecialistas = async (req: Request, res: Response) => {
 
     const { rows, count } = await Especialista.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan],
+        include: [Actividad, Plan,UsaHerramientas],
 
         where: {
-            actividadeId: especialidad
+            actividadeId: especialidad,
+            
         }
     })
     const especialistas = rows;
@@ -70,7 +74,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan],
+        include: [Actividad, Plan,UsaHerramientas],
 
     });
 
@@ -96,16 +100,25 @@ export const postEspecialista = async (req: Request, res: Response) => {
         //Encriptar contraseña y guardar especialista
         const salt = bcrypt.genSaltSync();
         const especialista = await Especialista.create(body);
-        especialista.set({ password: bcrypt.hashSync(body.password, salt) })
+        await especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        especialista.set({ password: '' });
+        //especialista.set({ password: '' });
         const token = generarJWT(especialista.id);
-        //crear arbol directoreio en Space
-
+        const herramientas = body.UsaHerramientas;
+        if (herramientas) {
+            if (herramientas.length > 0) {
+                herramientas.forEach(async (herramienta: any) => {
+                    const usaHerrmienta = await UsaHerramientas.create({
+                        EspecialistaId: especialista.id,
+                        HerramientaId: herramienta,
+                        ActividadeId:especialista.ActividadeId
+                    })
+                    await especialista.save();
+                });
+            }
+        }
         createFolder(`especialistas/${especialista.id}`);
         createFolder(`especialistas/${especialista.id}/profile`);
-        
-
         await sendMail({
             asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
             nombreDestinatario: body.nombre,
@@ -115,7 +128,7 @@ export const postEspecialista = async (req: Request, res: Response) => {
         })
 
         res.json({
-            especialista,
+
             token
         });
 
@@ -125,8 +138,6 @@ export const postEspecialista = async (req: Request, res: Response) => {
             msg: error,
         })
     }
-
-
 }
 
 export const putEspecialista = async (req: Request, res: Response) => {
@@ -137,11 +148,9 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     if (idEspecilistaAutenticado !== id) {
         return res.status(500).json({
-            msg: 'El token no es válido',
+            msg: 'El token no es válido', 
         })
     }
-
-
     try {
 
         const especialista = await Especialista.findByPk(id);
@@ -160,15 +169,36 @@ export const putEspecialista = async (req: Request, res: Response) => {
                         msg: 'Ya existe un especialista con el email ' + body.email
                     })
                 }
-
             }
+            try {
+                const herramientasAEliminar = await UsaHerramientas.destroy({
+                    where: {
+                        EspecialistaId: id
+                    }
+                })
 
-            await especialista.update(body);
-            if (body.password) {
-                const salt = bcrypt.genSaltSync();
-                await especialista.update({ password: bcrypt.hashSync(body.password, salt) });
+            } catch (error) {
+                console.log(error);
+                res.status(500).json({
+                    error
+                })
             }
-            especialista.set({ password: '' });
+            
+            await especialista.update(body)
+            await especialista.save();
+            const herramientas = body.UsaHerramientas;
+            if (herramientas) {
+                if (herramientas.length > 0) {
+                    herramientas.forEach(async (herramienta: any) => {
+                        const usaHerrmienta = await UsaHerramientas.create({
+                            EspecialistaId: especialista.id,
+                            HerramientaId: herramienta,
+                            ActividadeId:especialista.ActividadeId
+                        })
+                        await especialista.save();
+                    });
+                }
+            }
             res.json({ especialista });
 
         } else {

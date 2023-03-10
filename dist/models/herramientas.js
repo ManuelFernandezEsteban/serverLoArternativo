@@ -5,15 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
-const actividades_1 = __importDefault(require("./actividades"));
-const especialistas_categorias_1 = __importDefault(require("./especialistas_categorias"));
-const Categoria_actividad = connection_1.default.define('Categorias_actividades', {
+const Herramientas = connection_1.default.define('Herramientas', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true
     },
     categoria: {
         type: sequelize_1.DataTypes.STRING(20)
+    },
+    ActividadeId: {
+        type: sequelize_1.DataTypes.INTEGER
     },
     updatedAt: {
         type: sequelize_1.DataTypes.STRING(80)
@@ -22,9 +23,6 @@ const Categoria_actividad = connection_1.default.define('Categorias_actividades'
         type: sequelize_1.DataTypes.DATE
     },
 });
-actividades_1.default.hasMany(Categoria_actividad);
-Categoria_actividad.belongsTo(actividades_1.default);
-Categoria_actividad.hasMany(especialistas_categorias_1.default);
-especialistas_categorias_1.default.belongsTo(Categoria_actividad);
-exports.default = Categoria_actividad;
-//# sourceMappingURL=categorias_actividades.js.map
+//UsaHerramientas.belongsTo(Herramientas)
+exports.default = Herramientas;
+//# sourceMappingURL=herramientas.js.map

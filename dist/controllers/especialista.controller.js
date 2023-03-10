@@ -22,6 +22,7 @@ const generar_JWT_1 = require("../helpers/generar-JWT");
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
 const createFolder_1 = require("../helpers/createFolder");
+const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
 const getEspecialistasPagination = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { especialidad } = req.params;
     let { limit = 5, desde = 0 } = req.query;
@@ -37,7 +38,7 @@ const getEspecialistasPagination = (req, res) => __awaiter(void 0, void 0, void 
     }
     const { count, rows } = yield especialista_1.default.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [actividades_1.default, planes_1.default],
+        include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         where: {
             actividadeId: especialidad
         },
@@ -55,9 +56,9 @@ const getEspecialistas = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const { especialidad } = req.params;
     const { rows, count } = yield especialista_1.default.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [actividades_1.default, planes_1.default],
+        include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         where: {
-            actividadeId: especialidad
+            actividadeId: especialidad,
         }
     });
     const especialistas = rows;
@@ -71,7 +72,7 @@ const getEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, function
     const { id } = req.params;
     const especialista = yield especialista_1.default.findByPk(id, {
         attributes: { exclude: ['password'] },
-        include: [actividades_1.default, planes_1.default],
+        include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
     });
     if (especialista) {
         //especialista.set({password:''});
@@ -92,11 +93,23 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
         //Encriptar contraseña y guardar especialista
         const salt = bcryptjs_1.default.genSaltSync();
         const especialista = yield especialista_1.default.create(body);
-        especialista.set({ password: bcryptjs_1.default.hashSync(body.password, salt) });
+        yield especialista.set({ password: bcryptjs_1.default.hashSync(body.password, salt) });
         yield especialista.save();
-        especialista.set({ password: '' });
+        //especialista.set({ password: '' });
         const token = (0, generar_JWT_1.generarJWT)(especialista.id);
-        //crear arbol directoreio en Space
+        const herramientas = body.UsaHerramientas;
+        if (herramientas) {
+            if (herramientas.length > 0) {
+                herramientas.forEach((herramienta) => __awaiter(void 0, void 0, void 0, function* () {
+                    const usaHerrmienta = yield usa_herramientas_1.default.create({
+                        EspecialistaId: especialista.id,
+                        HerramientaId: herramienta,
+                        ActividadeId: especialista.ActividadeId
+                    });
+                    yield especialista.save();
+                }));
+            }
+        }
         (0, createFolder_1.createFolder)(`especialistas/${especialista.id}`);
         (0, createFolder_1.createFolder)(`especialistas/${especialista.id}/profile`);
         yield (0, send_mail_1.sendMail)({
@@ -107,7 +120,6 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
             html: (0, plantilla_mail_1.mailRegistro)(especialista.nombre)
         });
         res.json({
-            especialista,
             token
         });
     }
@@ -146,12 +158,34 @@ const putEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, function
                     });
                 }
             }
-            yield especialista.update(body);
-            if (body.password) {
-                const salt = bcryptjs_1.default.genSaltSync();
-                yield especialista.update({ password: bcryptjs_1.default.hashSync(body.password, salt) });
+            try {
+                const herramientasAEliminar = yield usa_herramientas_1.default.destroy({
+                    where: {
+                        EspecialistaId: id
+                    }
+                });
             }
-            especialista.set({ password: '' });
+            catch (error) {
+                console.log(error);
+                res.status(500).json({
+                    error
+                });
+            }
+            yield especialista.update(body);
+            yield especialista.save();
+            const herramientas = body.UsaHerramientas;
+            if (herramientas) {
+                if (herramientas.length > 0) {
+                    herramientas.forEach((herramienta) => __awaiter(void 0, void 0, void 0, function* () {
+                        const usaHerrmienta = yield usa_herramientas_1.default.create({
+                            EspecialistaId: especialista.id,
+                            HerramientaId: herramienta,
+                            ActividadeId: especialista.ActividadeId
+                        });
+                        yield especialista.save();
+                    }));
+                }
+            }
             res.json({ especialista });
         }
         else {

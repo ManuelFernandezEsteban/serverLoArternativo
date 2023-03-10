@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import Actividad from "../models/actividades";
-import Categoria_actividad from "../models/categorias_actividades";
+import Categoria_actividad from "../models/herramientas";
 
 export const getActividad = async (req:Request,res:Response)=>{
 

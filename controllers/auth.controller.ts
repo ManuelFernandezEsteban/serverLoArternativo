@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
-import Especialista from "../models/especialista";
+import Especialista from '../models/especialista';
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
 import jwt from 'jsonwebtoken';
 import { sendMail } from "../helpers/send-mail";
 import { mailRecuperacionPassword } from "../helpers/plantilla-mail";
+import Especialistas_Categoria from '../models/usa_herramientas';
+import { Op } from "sequelize";
+import Actividad from "../models/actividades";
+import Plan from "../models/planes";
+import UsaHerramientas from "../models/usa_herramientas";
 
 export const login = async (req: Request, res: Response) => {
 
@@ -16,9 +21,7 @@ export const login = async (req: Request, res: Response) => {
             where: {
                 email: email
             },
-            include: [{
-                all: true
-            }]
+            include: [Actividad, Plan,UsaHerramientas],
         })
         if (!especialista) {
             return res.status(400).json({
@@ -60,6 +63,7 @@ export const renewToken = async (req: Request, res: Response) => {
         const especialista = await Especialista.findByPk(id, {
 
             attributes: { exclude: ['password'] },
+            include: [Actividad, Plan,UsaHerramientas],
 
         });
 
@@ -127,7 +131,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Algo no ha ido bien' });
     }
 
-    //res.json({ message, emailStatus })
+    
 
 }
 
