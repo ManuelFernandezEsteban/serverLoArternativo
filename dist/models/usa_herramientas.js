@@ -9,12 +9,6 @@ const especialista_1 = __importDefault(require("./especialista"));
 const actividades_1 = __importDefault(require("./actividades"));
 const herramientas_1 = __importDefault(require("./herramientas"));
 const UsaHerramientas = connection_1.default.define('UsaHerramientas', {
-    createdAt: {
-        type: sequelize_1.DataTypes.DATE
-    },
-    updatedAt: {
-        type: sequelize_1.DataTypes.DATE
-    },
     EspecialistaId: {
         type: sequelize_1.DataTypes.STRING,
         primaryKey: true,
@@ -29,7 +23,13 @@ const UsaHerramientas = connection_1.default.define('UsaHerramientas', {
     },
     ActividadeId: {
         type: sequelize_1.DataTypes.INTEGER,
-    }
+    },
+    createdAt: {
+        type: sequelize_1.DataTypes.DATE
+    },
+    updatedAt: {
+        type: sequelize_1.DataTypes.DATE
+    },
 });
 especialista_1.default.hasMany(UsaHerramientas);
 UsaHerramientas.belongsTo(especialista_1.default);

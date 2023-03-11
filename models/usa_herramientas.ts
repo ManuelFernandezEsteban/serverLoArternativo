@@ -6,12 +6,7 @@ import Herramientas from './herramientas';
 
 
 const UsaHerramientas = db.define('UsaHerramientas',{
-    createdAt:{
-        type:DataTypes.DATE
-    },
-    updatedAt:{
-        type:DataTypes.DATE
-    },
+    
     EspecialistaId:{
         type:DataTypes.STRING,
         primaryKey:true,
@@ -29,7 +24,13 @@ const UsaHerramientas = db.define('UsaHerramientas',{
     ActividadeId:{
         type:DataTypes.INTEGER,
        
-    }  
+    },
+    createdAt:{
+        type:DataTypes.DATE
+    },
+    updatedAt:{
+        type:DataTypes.DATE
+    },  
 })
 Especialista.hasMany(UsaHerramientas);
 UsaHerramientas.belongsTo(Especialista);

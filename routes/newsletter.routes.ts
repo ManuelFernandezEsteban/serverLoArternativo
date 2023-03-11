@@ -22,11 +22,7 @@ router.post('/',[
     check('privacidad','Debe aceptar la política de privacidad').custom(politicaAceptada),
     ] ,validarCampos, postUserNews );
 
-
-
-
-router.put('/:id',[
-    
+router.put('/:id',[    
     //check('id').custom(existeUsuarioNews),
     check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
     check('email','El correo no es válido').isEmail().trim().escape().normalizeEmail(),
