@@ -36,6 +36,7 @@
 
 input::placeholder{
     color: $secondaryColor;
+    
 }
 
 input {
@@ -46,6 +47,7 @@ input {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 input[type='text'] {
@@ -56,6 +58,7 @@ input[type='text'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 input[type='password'] {
@@ -66,10 +69,12 @@ input[type='password'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+    
 }
 
 input [type='email'] {
     size: 50;
+    
 }
 
 input [type='email'] {
@@ -80,6 +85,7 @@ input [type='email'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 /*check box*/
@@ -128,7 +134,7 @@ textarea {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     padding: 10px;
-
+    background-color: RGBa(30, 84, 95, 0.01) ;
     @media (max-width:$breakpointMovil) {
         width: 100%;
     }
