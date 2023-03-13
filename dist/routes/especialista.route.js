@@ -28,7 +28,7 @@ router.post('/', [
     (0, express_validator_1.check)('ActividadeId').custom(db_validators_1.esActividadValida),
     (0, express_validator_1.check)('PlaneId', 'El plan es obligatorio').not().isEmpty(),
     (0, express_validator_1.check)('PlaneId').custom(db_validators_1.esPlanValido),
-    (0, express_validator_1.check)('pais').not().isEmpty()
+    (0, express_validator_1.check)('pais', 'El país es obligatorio').not().isEmpty()
 ], validar_campos_1.validarCampos, especialista_controller_1.postEspecialista);
 router.put('/:id', [
     validar_JWT_1.validarJWT,
@@ -41,7 +41,7 @@ router.put('/:id', [
     (0, express_validator_1.check)('ActividadeId').custom(db_validators_1.esActividadValida),
     (0, express_validator_1.check)('PlaneId', 'El plan es obligatorio').not().isEmpty(),
     (0, express_validator_1.check)('PlaneId').custom(db_validators_1.esPlanValido),
-    (0, express_validator_1.check)('pais').not().isEmpty()
+    (0, express_validator_1.check)('pais', 'El país es obligatorio').not().isEmpty()
 ], validar_campos_1.validarCampos, especialista_controller_1.putEspecialista);
 router.delete('/:id', [validar_JWT_1.validarJWT,
     (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),

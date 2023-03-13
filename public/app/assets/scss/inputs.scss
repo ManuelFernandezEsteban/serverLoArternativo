@@ -134,7 +134,7 @@ textarea {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     padding: 10px;
-    background-color: RGBa(30, 84, 95, 0.01) ;
+
     @media (max-width:$breakpointMovil) {
         width: 100%;
     }

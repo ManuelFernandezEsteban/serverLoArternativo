@@ -36,7 +36,7 @@ router.post('/',[
     check('ActividadeId').custom( esActividadValida ),    
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
     check('PlaneId').custom(esPlanValido),
-    check('pais').not().isEmpty()  
+    check('pais','El país es obligatorio').not().isEmpty()  
     ] ,validarCampos, postEspecialista);
 
 router.put('/:id',[
@@ -50,7 +50,7 @@ router.put('/:id',[
     check('ActividadeId').custom( esActividadValida ),    
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
     check('PlaneId').custom(esPlanValido),
-    check('pais').not().isEmpty()
+    check('pais','El país es obligatorio').not().isEmpty()
 ], validarCampos,putEspecialista);
 
 router.delete('/:id',[  validarJWT,  

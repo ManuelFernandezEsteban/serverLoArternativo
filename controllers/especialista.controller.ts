@@ -10,6 +10,7 @@ import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 import { createFolder } from '../helpers/createFolder';
 import UsaHerramientas from '../models/usa_herramientas';
 import Herramientas from '../models/herramientas';
+import { login } from './auth.controller';
 
 
 
@@ -180,9 +181,10 @@ export const putEspecialista = async (req: Request, res: Response) => {
             } catch (error) {
                 console.log(error);
                 res.status(500).json({
+                    
                     error
                 })
-            }
+            } 
             
             await especialista.update(body)
             await especialista.save();
@@ -202,6 +204,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
             res.json({ especialista });
 
         } else {
+            
             return res.status(404).json({
                 msg: `El id ${id} no se encuentra en la BD`
             })
