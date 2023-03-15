@@ -19,6 +19,10 @@ router.get('/especialista/:id', [
 router.post('/', [
     (0, express_validator_1.check)('email', 'El correo no es válido').isEmail().trim().escape().normalizeEmail(),
     (0, express_validator_1.check)('email').custom(db_validators_1.existeEmail),
+    (0, express_validator_1.check)('privacidad', 'Es obligatorio aceptar la política de privacidad').isBoolean({ 'strict': true }),
+    (0, express_validator_1.check)('condiciones', 'Es obligatorio aceptar las condiciones de uso').isBoolean({ 'strict': true }),
+    (0, express_validator_1.check)('privacidad', 'Es obligatorio aceptar la política de privacidad').custom(db_validators_1.politicaAceptada),
+    (0, express_validator_1.check)('condiciones', 'Es obligatorio aceptar las condiciones de uso').custom(db_validators_1.condicionesAceptada),
     (0, express_validator_1.check)('nombre', 'El nombre es obligatorio').not().isEmpty().trim().escape(),
     (0, express_validator_1.check)('apellidos', 'Los apellidos son obligatorios').not().isEmpty().trim().escape(),
     (0, express_validator_1.check)('telefono', 'El teléfono es obligatorio').not().isEmpty().trim().escape(),

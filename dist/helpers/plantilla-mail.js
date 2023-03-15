@@ -86,7 +86,8 @@ const mailInferior = `
 
 
     <footer>
-        Info legal, etc.
+    Este correo electrónico y, en su caso, cualquier fichero anexo al mismo se dirige exclusivamente a su destinatario y puede contener información privilegiada o confidencial. Si no es Ud. el destinatario indicado, queda notificado de que la utilización, divulgación y/o copia sin autorización está prohibida en virtud de la legislación vigente. Si ha recibido este mensaje por error, le rogamos que nos lo comunique inmediatamente por esta misma vía y proceda a su destrucción.
+    Si no desea continuar recibiendo comunicaciones electrónicas de NATIVOS TIERRA comuníquelo a bajas@nativostierra.com
     </footer>
 
 </body>

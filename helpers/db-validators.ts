@@ -108,5 +108,11 @@ export const politicaAceptada = async (privacidad:boolean)=>{
     }
 }
 
+export const condicionesAceptada = async (condiciones:boolean)=>{
+    if (!condiciones){
+        throw new Error('Debe aceptar las condiciones de uso')
+    }
+}
+
 
 //exports = {esActividadValida,esPlanValido}

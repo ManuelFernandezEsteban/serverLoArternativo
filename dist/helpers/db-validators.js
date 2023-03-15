@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.politicaAceptada = exports.existeEmailNews = exports.planPermitido = exports.planPermitidoEvento = exports.existeUsuario = exports.existeEspecialistaEvento = exports.existeEmail = exports.esPlanValido = exports.esActividadValida = void 0;
+exports.condicionesAceptada = exports.politicaAceptada = exports.existeEmailNews = exports.planPermitido = exports.planPermitidoEvento = exports.existeUsuario = exports.existeEspecialistaEvento = exports.existeEmail = exports.esPlanValido = exports.esActividadValida = void 0;
 const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
 const newsletter_1 = __importDefault(require("../models/newsletter"));
@@ -101,5 +101,11 @@ const politicaAceptada = (privacidad) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.politicaAceptada = politicaAceptada;
+const condicionesAceptada = (condiciones) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!condiciones) {
+        throw new Error('Debe aceptar las condiciones de uso');
+    }
+});
+exports.condicionesAceptada = condicionesAceptada;
 //exports = {esActividadValida,esPlanValido}
 //# sourceMappingURL=db-validators.js.map

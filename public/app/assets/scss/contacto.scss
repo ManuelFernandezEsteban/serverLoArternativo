@@ -9,10 +9,18 @@ app-contacto {
     }
 }
 
+
+
 #contacto {
     .fila {
         @media (max-width:$breakpoint800) {
             flex-direction: column;
+        }
+    }
+    form{
+        padding: 0px 150px 0px 150px;
+        @media (max-width:$breakpoint800){
+            padding: 0px;
         }
     }
 }

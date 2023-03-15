@@ -8,7 +8,7 @@ import { getEspecialista,
          patchEspecialista,
          getEspecialistasPagination} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
-import {esActividadValida,esPlanValido, existeEmail, existeUsuario} from '../helpers/db-validators'
+import { condicionesAceptada, esActividadValida, esPlanValido, existeEmail, existeUsuario, politicaAceptada } from '../helpers/db-validators';
 import { validarJWT } from '../middlewares/validar-JWT';
 
 const router = Router();
@@ -27,6 +27,10 @@ router.get('/especialista/:id',[
 router.post('/',[
     check('email','El correo no es válido').isEmail().trim().escape().normalizeEmail(),  
     check('email').custom(existeEmail),   
+    check('privacidad','Es obligatorio aceptar la política de privacidad').isBoolean({'strict':true}),
+    check('condiciones','Es obligatorio aceptar las condiciones de uso').isBoolean({'strict':true}),
+    check('privacidad','Es obligatorio aceptar la política de privacidad').custom(politicaAceptada),
+    check('condiciones','Es obligatorio aceptar las condiciones de uso').custom(condicionesAceptada),    
     check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
     check('apellidos','Los apellidos son obligatorios').not().isEmpty().trim().escape(),
     check('telefono','El teléfono es obligatorio').not().isEmpty().trim().escape(),

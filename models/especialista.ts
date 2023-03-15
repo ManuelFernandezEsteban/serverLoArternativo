@@ -1,10 +1,7 @@
-import {DataTypes, Sequelize} from 'sequelize';
+import {DataTypes} from 'sequelize';
 import db from '../db/connection';
-import { MailInformation } from '../interfaces/mail-information.interface';
 import Evento from './eventos';
-import Especialistas_Categoria from './usa_herramientas';
-import Herramientas from './herramientas';
-import UsaHerramientas from './usa_herramientas';
+
 
 
 const Especialista = db.define('Especialistas',{
@@ -82,6 +79,12 @@ const Especialista = db.define('Especialistas',{
     },
     fecha_fin_suscripcion:{
         type:DataTypes.DATE
+    },
+    privacidad:{
+        type:DataTypes.BOOLEAN
+    },
+    condiciones:{
+        type:DataTypes.BOOLEAN
     },
     createdAt:{
         type:DataTypes.DATE

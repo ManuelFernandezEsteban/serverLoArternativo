@@ -80,6 +80,12 @@ const Especialista = connection_1.default.define('Especialistas', {
     fecha_fin_suscripcion: {
         type: sequelize_1.DataTypes.DATE
     },
+    privacidad: {
+        type: sequelize_1.DataTypes.BOOLEAN
+    },
+    condiciones: {
+        type: sequelize_1.DataTypes.BOOLEAN
+    },
     createdAt: {
         type: sequelize_1.DataTypes.DATE
     },

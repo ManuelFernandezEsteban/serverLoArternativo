@@ -21,7 +21,7 @@ const createMessage = (mailInfo: MailInformation,):any=>{
 
     return {
         from: `Nativos Tierra <${process.env.USER_SMTP}>`, // sender address
-        to: `${mailInfo.mailDestinatario}`, // list of receivers
+        to: `${mailInfo.mailDestinatario},${process.env.USER_SMTP}`, // list of receivers
         subject: `Hola ${mailInfo.asunto}`, // Subject line
         text: mailInfo.mensaje, // plain text body
         html: mailInfo.html // html body

@@ -1,0 +1,20 @@
+.content-proteccion-datos{
+    display: flex;
+    flex-direction: column;
+    padding: 100px;
+    @media (max-width:$breakpoint800) {
+        padding:20px;
+    }
+    @media (max-width:$breakpointMovil) {
+        padding:0px;
+    }
+    ul{
+        padding:20px;
+        li{
+            *{
+                padding:0px
+            }
+        }
+    }
+
+}
