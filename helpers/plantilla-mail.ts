@@ -15,7 +15,7 @@ const mailSuperior: string = `
         font-family: Roboto, monospace;
     }
     body{
-        height: 100vh;
+        min-height: 100vh;
     }
     
     header{
@@ -23,8 +23,8 @@ const mailSuperior: string = `
         height: 150px;    
         display: flex;
         justify-content: flex-start;
-        align-items: center;
-        background-color: #7BACD5;
+        align-items: space-between;
+        background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, $blueColor 0%,rgba(30,84,95,0.01) 100%);
         padding: 40px;
         gap: 40px;
     }
@@ -36,7 +36,7 @@ const mailSuperior: string = `
         text-decoration:none;
         text-align:center;
         padding:5px;
-        background-color: #7BACD5;
+        background-color: rgba(30,84,95,0.01);
         cursor:pointer;
         border-radius:4px;
     }
@@ -51,11 +51,8 @@ const mailSuperior: string = `
     
     footer{
         width: 100%;
-        padding: 40px;
-        position: fixed;
-        bottom: 0;
-        height: 80px;
-        background-color: #7BACD5;
+        padding: 40px;               
+        background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, $blueColor 0%,rgba(30,84,95,0.01) 100%);
     }
     h1,p,a{
         margin: 10px;
@@ -68,6 +65,7 @@ const mailSuperior: string = `
 <body>
 
     <header>
+    <img class="img-logo" [ngClass]="headerFixed?'pequena':''" src="./assets/images/logo/logo.svg" alt="logo nativos tierra">
         <span>Nativos Tierra</span>
     </header>
 
