@@ -23,6 +23,9 @@ const NewsLetter = connection_1.default.define('Newsletter', {
     ip: {
         type: sequelize_1.DataTypes.STRING(255)
     },
+    info_comercial: {
+        type: sequelize_1.DataTypes.BOOLEAN
+    },
     createdAt: {
         type: sequelize_1.DataTypes.DATE
     },

@@ -3,11 +3,6 @@ import { check } from 'express-validator';
 import { deleteUserNews, getAllUserNews, getUserNews, postUserNews } from '../controllers/newsletter.controller';
 import { existeEmailNews, politicaAceptada } from '../helpers/db-validators';
 import { validarCampos } from '../middlewares/validar-campos';
-import { validarJWT } from '../middlewares/validar-JWT';
-
-
-
-
 
 const router = Router();
 router.get('/getall',getAllUserNews);
@@ -17,7 +12,7 @@ router.get('/:id',[
 
 router.post('/',[
     check('email','El correo no es válido').isEmail().trim().escape().normalizeEmail(),  
-    check('email','Email ya registrado').custom(existeEmailNews),   
+    //check('email','Email ya registrado').custom(existeEmailNews),   
     check('nombre','El nombre es obligatorio').not().isEmpty().trim().escape(),
     check('privacidad','Debe aceptar la política de privacidad').custom(politicaAceptada),
     ] ,validarCampos, postUserNews );

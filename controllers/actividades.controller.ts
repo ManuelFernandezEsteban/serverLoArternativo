@@ -35,7 +35,7 @@ export const getActividades = async(req:Request,res:Response)=>{
         }
     );
     res.json({
-        actividades 
+        actividades  
     })
 }
  

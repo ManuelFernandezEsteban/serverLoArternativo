@@ -21,6 +21,9 @@ const NewsLetter = db.define('Newsletter',{
     ip:{
         type:DataTypes.STRING(255)
     },
+    info_comercial:{
+        type:DataTypes.BOOLEAN
+    },
     createdAt:{
         type:DataTypes.DATE
     },

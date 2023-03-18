@@ -68,7 +68,7 @@ const mailSuperior = `
 <body>
 
     <header>
-    <img class="img-logo" [ngClass]="headerFixed?'pequena':''" src="./assets/images/logo/logo.svg" alt="logo nativos tierra">
+        <img src="cid:logo" alt="logo nativos tierra">
         <span>Nativos Tierra</span>
     </header>
 

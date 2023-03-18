@@ -97,6 +97,9 @@ const Especialista = db.define('Especialistas',{
     },
     resetToken:{
         type:DataTypes.STRING(255)
+    },
+    no_info_comercial:{
+        type:DataTypes.BOOLEAN
     }
 },{
     paranoid:true // soft delete

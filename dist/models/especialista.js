@@ -97,6 +97,9 @@ const Especialista = connection_1.default.define('Especialistas', {
     },
     resetToken: {
         type: sequelize_1.DataTypes.STRING(255)
+    },
+    no_info_comercial: {
+        type: sequelize_1.DataTypes.BOOLEAN
     }
 }, {
     paranoid: true // soft delete

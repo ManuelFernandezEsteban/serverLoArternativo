@@ -4,7 +4,7 @@ import { MailInformation } from '../interfaces/mail-information.interface';
 
 
 
-const crearTransporte = ():nodemailer.Transporter<SMTPTransport.SentMessageInfo>=>{
+const crearTransporte = (): nodemailer.Transporter<SMTPTransport.SentMessageInfo> => {
     return nodemailer.createTransport({
         host: process.env.HOST,
         port: 465,
@@ -17,14 +17,22 @@ const crearTransporte = ():nodemailer.Transporter<SMTPTransport.SentMessageInfo>
 }
 
 
-const createMessage = (mailInfo: MailInformation,):any=>{
+const createMessage = (mailInfo: MailInformation,): any => {
 
     return {
         from: `Nativos Tierra <${process.env.USER_SMTP}>`, // sender address
         to: `${mailInfo.mailDestinatario},${process.env.USER_SMTP}`, // list of receivers
         subject: `Hola ${mailInfo.asunto}`, // Subject line
         text: mailInfo.mensaje, // plain text body
-        html: mailInfo.html // html body
+        html: mailInfo.html, // html body
+        attachments: [
+            {
+                filename: 'logo.svg',
+                path: './public/app/assets/images/logo/logo.svg',
+                cid: 'logo'
+            }
+
+        ]
     }
 }
 
