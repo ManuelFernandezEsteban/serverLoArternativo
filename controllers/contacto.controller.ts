@@ -18,7 +18,7 @@ export const enviarConsulta = async (req: Request, res: Response) => {
             mensaje: `Hola, ${body.nombre} hemos enviado su consulta`,
             html: mailConsulta(body.nombre,body.mensaje)
         }).then(()=>{
-            res.status(200).json({
+            res.status(200).json({ 
                 msg:'mensaje enviado'
             })
         }).catch(()=>{
