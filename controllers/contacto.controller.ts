@@ -28,7 +28,7 @@ export const enviarConsulta = async (req: Request, res: Response) => {
         })
 
         
-    } catch (error) {
+    } catch (error) { 
         
     }
 
