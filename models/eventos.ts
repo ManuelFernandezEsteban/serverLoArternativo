@@ -75,6 +75,12 @@ const Evento = db.define('Eventos',{
     },
     deletedAt:{
         type:DataTypes.DATE
+    },
+    idProductEvent:{
+        type:DataTypes.STRING(100)
+    },
+    idPriceEvent:{
+        type:DataTypes.STRING(100)
     }
 
 },{

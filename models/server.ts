@@ -1,8 +1,7 @@
 import express, {Application} from 'express';
 import cors from 'cors';
 import path from 'path';
-
-
+import helmet from 'helmet';
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
@@ -14,8 +13,9 @@ import authRoutes from '../routes/auth.route';
 import newsletterRoutes from '../routes/newsletter.routes';
 import contactoRoutes from '../routes/contacto.routes';
 import uploadsRoutes from '../routes/uploads.route';
-import landingRoutes from '../routes/landing.routes'
-import herramientas from '../routes/herramientas.routes'
+import landingRoutes from '../routes/landing.routes';
+import herramientas from '../routes/herramientas.routes';
+import checkoutRoutes from '../routes/checkout.routes';
 import db from '../db/connection';
 
 class Server{
@@ -49,12 +49,15 @@ class Server{
         contacto:'/api/contacto',
         uploads:'/api/uploads',
         herramientas:'/api/herramientas',
-        new_password:'/auth/new-password/:tk'
+        new_password:'/auth/new-password/:tk',
+        checkout:'/api/checkout'
     }
 
     constructor(){
         this.app=express();
         this.port=process.env.PORT || '8000';
+        //APLICAR HELMET
+        this.app.use(helmet());
 
         //conexion a la base de datos
 
@@ -116,6 +119,7 @@ class Server{
         this.app.use(this.apiPaths.uploads,uploadsRoutes);
         this.app.use(this.apiPaths.herramientas,herramientas)
         this.app.use(this.landingPaths.landing,landingRoutes);
+        this.app.use(this.apiPaths.checkout, checkoutRoutes);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
               res.sendFile(path.resolve(`public/app/${req.url}`));

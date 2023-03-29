@@ -79,6 +79,12 @@ const Evento = connection_1.default.define('Eventos', {
     },
     deletedAt: {
         type: sequelize_1.DataTypes.DATE
+    },
+    idProductEvent: {
+        type: sequelize_1.DataTypes.STRING(100)
+    },
+    idPriceEvent: {
+        type: sequelize_1.DataTypes.STRING(100)
     }
 }, {
     paranoid: true // soft delete

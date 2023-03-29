@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
+const helmet_1 = __importDefault(require("helmet"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const monedas_routes_1 = __importDefault(require("../routes/monedas.routes"));
@@ -27,6 +28,7 @@ const contacto_routes_1 = __importDefault(require("../routes/contacto.routes"));
 const uploads_route_1 = __importDefault(require("../routes/uploads.route"));
 const landing_routes_1 = __importDefault(require("../routes/landing.routes"));
 const herramientas_routes_1 = __importDefault(require("../routes/herramientas.routes"));
+const checkout_routes_1 = __importDefault(require("../routes/checkout.routes"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
@@ -56,10 +58,13 @@ class Server {
             contacto: '/api/contacto',
             uploads: '/api/uploads',
             herramientas: '/api/herramientas',
-            new_password: '/auth/new-password/:tk'
+            new_password: '/auth/new-password/:tk',
+            checkout: '/api/checkout'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
+        //APLICAR HELMET
+        this.app.use((0, helmet_1.default)());
         //conexion a la base de datos
         this.dbConnection();
         //middlewares
@@ -102,6 +107,7 @@ class Server {
         this.app.use(this.apiPaths.uploads, uploads_route_1.default);
         this.app.use(this.apiPaths.herramientas, herramientas_routes_1.default);
         this.app.use(this.landingPaths.landing, landing_routes_1.default);
+        this.app.use(this.apiPaths.checkout, checkout_routes_1.default);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
                 res.sendFile(path_1.default.resolve(`public/app/${req.url}`));

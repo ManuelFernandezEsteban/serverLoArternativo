@@ -19,6 +19,12 @@ const especialista_1 = __importDefault(require("../models/especialista"));
 const eventos_1 = __importDefault(require("../models/eventos"));
 const createFolder_1 = require("../helpers/createFolder");
 const monedas_1 = __importDefault(require("../models/monedas"));
+const createPrice_1 = require("../helpers/createPrice");
+const stripe_1 = __importDefault(require("stripe"));
+//import Evento from '../models/eventos';
+const stripe = new stripe_1.default('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+    apiVersion: '2022-11-15'
+});
 const getEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const evento = yield eventos_1.default.findByPk(id, {
@@ -79,8 +85,10 @@ const getEventosActividad = (req, res) => __awaiter(void 0, void 0, void 0, func
     const { count, rows } = yield eventos_1.default.findAndCountAll({
         where: {
             actividadeId: actividad,
-            fecha: { [sequelize_1.Op.lte]: fecha_limite,
-                [sequelize_1.Op.gte]: fecha_inicio },
+            fecha: {
+                [sequelize_1.Op.lte]: fecha_limite,
+                [sequelize_1.Op.gte]: fecha_inicio
+            },
         },
         include: [{
                 model: especialista_1.default,
@@ -103,7 +111,7 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const now = new Date(Date.now());
     const fecha = new Date(req.body.fecha);
     const { body } = req;
-    console.log(body);
+    //console.log(body);
     if (now > fecha) {
         return res.status(401).json({
             msg: 'Fecha invalida'
@@ -134,9 +142,17 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
     }
+    const evento = yield eventos_1.default.create(body);
     try {
-        const evento = yield eventos_1.default.create(body);
+        const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
+        console.log(idProductEvent);
+        const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, evento.precio, evento.monedaId);
+        yield evento.update({
+            idProductEvent,
+            idPriceEvent
+        });
         (0, createFolder_1.createFolder)(`eventos/${evento.id}`);
+        yield evento.save();
         res.json({
             evento
         });
@@ -144,7 +160,8 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg: error
+            msg: error,
+            donde: 'folder'
         });
     }
 });
@@ -162,7 +179,13 @@ const putEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const evento = yield eventos_1.default.findByPk(id);
         if (evento) {
+            const precioAnterior = evento.precio;
             yield evento.update(body);
+            if (precioAnterior != body.precio) {
+                const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.idProductEvent, evento.precio, evento.moneda);
+                yield evento.update({ idPriceEvent });
+            }
+            yield (0, createPrice_1.updateProductEvento)(evento);
             res.json({
                 evento
             });

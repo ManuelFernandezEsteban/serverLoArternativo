@@ -5,7 +5,13 @@ import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
 import { createFolder } from '../helpers/createFolder';
 import Moneda from '../models/monedas';
+import { createPriceEvento, createProductEvento, deleteProductEvento, updateProductEvento } from '../helpers/createPrice';
+import Stripe from "stripe";
+//import Evento from '../models/eventos';
 
+const stripe = new Stripe('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+    apiVersion: '2022-11-15'
+})
 export const getEvento = async (req: Request, res: Response) => {
 
     const { id } = req.params;
@@ -79,9 +85,11 @@ export const getEventosActividad = async (req: Request, res: Response) => {
 
         where: {
             actividadeId: actividad,
-            fecha: { [Op.lte]: fecha_limite, 
-                     [Op.gte]: fecha_inicio   },
-            
+            fecha: {
+                [Op.lte]: fecha_limite,
+                [Op.gte]: fecha_inicio
+            },
+
 
         },
         include: [{
@@ -109,8 +117,8 @@ export const postEvento = async (req: Request, res: Response) => {
     const fecha = new Date(req.body.fecha);
     const { body } = req;
 
-    console.log(body);
-    
+    //console.log(body);
+
 
     if (now > fecha) {
         return res.status(401).json({
@@ -118,7 +126,7 @@ export const postEvento = async (req: Request, res: Response) => {
         })
     }
 
-    if (body.ActividadeId != 10){ // especialista para publicar eventos nativos tierra y revista
+    if (body.ActividadeId != 10) { // especialista para publicar eventos nativos tierra y revista
 
         const resultado = await Especialista.findByPk(body.EspecialistaId, {
             attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
@@ -126,7 +134,7 @@ export const postEvento = async (req: Request, res: Response) => {
 
 
 
-        if ((fecha<resultado?.dataValues.fecha_pago_actual) || (fecha>resultado?.dataValues.fecha_fin_suscripcion)){
+        if ((fecha < resultado?.dataValues.fecha_pago_actual) || (fecha > resultado?.dataValues.fecha_fin_suscripcion)) {
             return res.status(401).json({
                 msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
             })
@@ -150,11 +158,17 @@ export const postEvento = async (req: Request, res: Response) => {
             })
         }
     }
-
+    const evento = await Evento.create(body);
     try {
-
-        const evento = await Evento.create(body);
+        const idProductEvent = await createProductEvento(evento);
+        console.log(idProductEvent);
+        const idPriceEvent = await createPriceEvento(idProductEvent, evento.precio, evento.monedaId);
+        await evento.update({
+            idProductEvent,
+            idPriceEvent
+        });
         createFolder(`eventos/${evento.id}`);
+        await evento.save();
         res.json({
             evento
         })
@@ -162,12 +176,12 @@ export const postEvento = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({
-            msg: error
+            msg: error,
+            donde: 'folder'
         })
     }
 
 }
-
 export const putEvento = async (req: Request, res: Response) => {
 
     const now = new Date(Date.now());
@@ -184,9 +198,16 @@ export const putEvento = async (req: Request, res: Response) => {
 
         const evento = await Evento.findByPk(id);
         if (evento) {
-
-            await evento.update(body);
-
+            const precioAnterior = evento.precio;
+            await evento.update(body);            
+            if (precioAnterior != body.precio) {
+                
+                const idPriceEvent = await createPriceEvento(evento.idProductEvent, evento.precio, evento.moneda);
+                await evento.update(
+                    { idPriceEvent }
+                )
+            }
+            await updateProductEvento(evento);
             res.json({
                 evento
             })
@@ -214,9 +235,8 @@ export const deleteEvento = async (req: Request, res: Response) => {
     const evento = await Evento.findByPk(id);
 
     if (evento) {
-        try {
+        try {           
             evento.destroy();
-
             res.json({
                 evento
             })
