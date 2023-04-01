@@ -28,7 +28,7 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
     if (evento) {
         try {
             let sesionConfig;
-            if (evento.idPriceEvent) {
+            if (evento.idPriceEvent != null) {
                 sesionConfig = setupCompraDeEvento(info, evento.idPriceEvent);
             }
             //console.log(sesionConfig);
@@ -50,6 +50,7 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.createCheckoutSession = createCheckoutSession;
 const setupCompraDeEvento = (info, price) => {
+    console.log(info);
     const config = setupBaseSesionConfig(info);
     config.line_items = [
         {
@@ -60,6 +61,7 @@ const setupCompraDeEvento = (info, price) => {
     return config;
 };
 const setupBaseSesionConfig = (info) => {
+    console.log(info);
     const config = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,

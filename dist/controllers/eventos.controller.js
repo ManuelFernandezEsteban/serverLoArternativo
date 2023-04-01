@@ -142,8 +142,8 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
     }
-    const evento = yield eventos_1.default.create(body);
     try {
+        const evento = yield eventos_1.default.create(body);
         const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
         console.log(idProductEvent);
         const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, evento.precio, evento.monedaId);
@@ -152,7 +152,6 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             idPriceEvent
         });
         (0, createFolder_1.createFolder)(`eventos/${evento.id}`);
-        yield evento.save();
         res.json({
             evento
         });

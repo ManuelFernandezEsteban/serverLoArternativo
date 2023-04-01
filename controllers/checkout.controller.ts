@@ -22,13 +22,15 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
         eventoId: req.body.eventoId,
         callbackUrl: req.body.callbackUrl
     }
+    
     const evento = await Evento.findByPk(info.eventoId);
     if (evento) {
         try {
             let sesionConfig;
-            if (evento.idPriceEvent) {
+            if (evento.idPriceEvent!=null) {
                 sesionConfig = setupCompraDeEvento(info,evento.idPriceEvent);
-            }
+                
+            }            
             //console.log(sesionConfig);
             const sesion = await stripe.checkout.sessions.create(sesionConfig);
 
@@ -54,6 +56,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
 const setupCompraDeEvento = (info: RequestInfo,price:string) => {
 
+    console.log(info)
     const config = setupBaseSesionConfig(info);
     config.line_items = [
         {
@@ -65,7 +68,7 @@ const setupCompraDeEvento = (info: RequestInfo,price:string) => {
 }
 
 const setupBaseSesionConfig = (info: RequestInfo) => {
-
+    console.log(info)
     const config: any = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,

@@ -158,17 +158,17 @@ export const postEvento = async (req: Request, res: Response) => {
             })
         }
     }
-    const evento = await Evento.create(body);
+    
     try {
+        const evento = await Evento.create(body);        
         const idProductEvent = await createProductEvento(evento);
         console.log(idProductEvent);
         const idPriceEvent = await createPriceEvento(idProductEvent, evento.precio, evento.monedaId);
         await evento.update({
             idProductEvent,
             idPriceEvent
-        });
-        createFolder(`eventos/${evento.id}`);
-        await evento.save();
+        })        
+        createFolder(`eventos/${evento.id}`);        
         res.json({
             evento
         })
