@@ -74,6 +74,7 @@ const setupBaseSesionConfig = (info: RequestInfo) => {
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
         payment_method_types: ['card'],
         mode: 'payment',
+        
     }
     return config;
 }
