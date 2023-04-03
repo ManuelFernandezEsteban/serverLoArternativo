@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
+const sesion_compra_evento_1 = __importDefault(require("./sesion_compra_evento"));
 const Evento = connection_1.default.define('Eventos', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -89,5 +90,7 @@ const Evento = connection_1.default.define('Eventos', {
 }, {
     paranoid: true // soft delete
 });
+Evento.hasMany(sesion_compra_evento_1.default);
+sesion_compra_evento_1.default.belongsTo(Evento);
 exports.default = Evento;
 //# sourceMappingURL=eventos.js.map

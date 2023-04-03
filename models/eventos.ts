@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
+import Sesiones_compra_eventos from "./sesion_compra_evento";
 
 const Evento = db.define('Eventos',{
     id:{
@@ -87,6 +88,7 @@ const Evento = db.define('Eventos',{
     paranoid:true // soft delete
 });
 
-
+Evento.hasMany(Sesiones_compra_eventos);
+Sesiones_compra_eventos.belongsTo(Evento);
 
 export default Evento;
