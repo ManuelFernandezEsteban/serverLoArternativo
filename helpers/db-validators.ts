@@ -3,6 +3,7 @@ import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import NewsLetter from '../models/newsletter';
 import Plan from '../models/planes';
+import Cliente from '../models/clientes';
 
 export const esActividadValida = async (ActividadeId: number = 0) => {
     const existeActividad = await Actividad.findByPk(ActividadeId);

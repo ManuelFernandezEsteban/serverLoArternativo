@@ -15,21 +15,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createCheckoutSession = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const eventos_1 = __importDefault(require("../models/eventos"));
+const sesion_compra_evento_1 = __importDefault(require("../models/sesion_compra_evento"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const key = process.env.STRIPE_SECRET_KEY || '';
-const stripe = new stripe_1.default('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
 const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const info = {
         eventoId: req.body.eventoId,
+        clienteId: req.body.clienteId,
         callbackUrl: req.body.callbackUrl
     };
     const evento = yield eventos_1.default.findByPk(info.eventoId);
     if (evento) {
         try {
             let sesionConfig;
+            const sesion_compra_evento = yield sesion_compra_evento_1.default.create({
+                ClienteId: info.clienteId,
+                EventoId: info.eventoId,
+                completada: false
+            });
             if (evento.idPriceEvent != null) {
-                sesionConfig = setupCompraDeEvento(info, evento.idPriceEvent);
+                sesionConfig = setupCompraDeEvento(info, evento.idPriceEvent, sesion_compra_evento.id);
             }
             //console.log(sesionConfig);
             const sesion = yield stripe.checkout.sessions.create(sesionConfig);
@@ -49,9 +58,9 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.createCheckoutSession = createCheckoutSession;
-const setupCompraDeEvento = (info, price) => {
+const setupCompraDeEvento = (info, price, sesion_compra_eventoId) => {
     console.log(info);
-    const config = setupBaseSesionConfig(info);
+    const config = setupBaseSesionConfig(info, sesion_compra_eventoId);
     config.line_items = [
         {
             price: price,
@@ -60,13 +69,14 @@ const setupCompraDeEvento = (info, price) => {
     ];
     return config;
 };
-const setupBaseSesionConfig = (info) => {
+const setupBaseSesionConfig = (info, sesion_compra_eventoId) => {
     console.log(info);
     const config = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
         payment_method_types: ['card'],
         mode: 'payment',
+        client_reference_id: sesion_compra_eventoId
     };
     return config;
 };

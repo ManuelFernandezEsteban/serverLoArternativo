@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const sesion_compra_evento_1 = __importDefault(require("./sesion_compra_evento"));
+const compras_eventos_por_finalizar_1 = __importDefault(require("./compras_eventos_por_finalizar"));
 const Evento = connection_1.default.define('Eventos', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -92,5 +93,7 @@ const Evento = connection_1.default.define('Eventos', {
 });
 Evento.hasMany(sesion_compra_evento_1.default);
 sesion_compra_evento_1.default.belongsTo(Evento);
+Evento.hasMany(compras_eventos_por_finalizar_1.default);
+compras_eventos_por_finalizar_1.default.belongsTo(Evento);
 exports.default = Evento;
 //# sourceMappingURL=eventos.js.map

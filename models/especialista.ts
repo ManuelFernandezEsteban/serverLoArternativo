@@ -1,6 +1,7 @@
 import {DataTypes} from 'sequelize';
 import db from '../db/connection';
 import Evento from './eventos';
+import Compras_eventos_por_finalizar from './compras_eventos_por_finalizar';
 
 
 
@@ -107,7 +108,8 @@ const Especialista = db.define('Especialistas',{
 
 Especialista.hasMany(Evento);
 Evento.belongsTo(Especialista);
-
+Especialista.hasMany(Compras_eventos_por_finalizar);
+Compras_eventos_por_finalizar.belongsTo(Especialista);
 
 
 export default Especialista; 

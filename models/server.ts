@@ -1,4 +1,5 @@
 import express, {Application} from 'express';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import helmet from 'helmet';
@@ -16,7 +17,10 @@ import uploadsRoutes from '../routes/uploads.route';
 import landingRoutes from '../routes/landing.routes';
 import herramientas from '../routes/herramientas.routes';
 import checkoutRoutes from '../routes/checkout.routes';
+import stripe_webhook from '../routes/stripe-webhook.route';
+import clientesRoutes from '../routes/clientes.routes';
 import db from '../db/connection';
+
 
 class Server{
 
@@ -50,7 +54,9 @@ class Server{
         uploads:'/api/uploads',
         herramientas:'/api/herramientas',
         new_password:'/auth/new-password/:tk',
-        checkout:'/api/checkout'
+        checkout:'/api/checkout',
+        webhook_stripe:'/stripe-webhooks',
+        clientes:'/api/clientes'
     }
 
     constructor(){
@@ -94,7 +100,7 @@ class Server{
         this.app.use(cors());
 
         //lectura body
-        this.app.use(express.json());
+       // this.app.use(express.json());
 
        
 
@@ -105,21 +111,23 @@ class Server{
     } 
 
 
-    routes(){
+    routes(){      
 
-        this.app.use(this.apiPaths.especialistas,especialistasRoutes);
-        this.app.use(this.apiPaths.actividades,actividadesRoutes);
-        this.app.use(this.apiPaths.monedas,monedasRoutes);
-        this.app.use(this.apiPaths.planes,planesRoutes);
-        this.app.use(this.apiPaths.sponsors,sponsorsRoutes);
-        this.app.use(this.apiPaths.eventos,eventosRoutes);
-        this.app.use(this.apiPaths.auth,authRoutes);
-        this.app.use(this.apiPaths.newsletter,newsletterRoutes); 
-        this.app.use(this.apiPaths.contacto,contactoRoutes);
-        this.app.use(this.apiPaths.uploads,uploadsRoutes);
-        this.app.use(this.apiPaths.herramientas,herramientas)
-        this.app.use(this.landingPaths.landing,landingRoutes);
-        this.app.use(this.apiPaths.checkout, checkoutRoutes);
+        this.app.use(this.apiPaths.especialistas,express.json(),especialistasRoutes);
+        this.app.use(this.apiPaths.actividades,express.json(),actividadesRoutes);
+        this.app.use(this.apiPaths.monedas,express.json(),monedasRoutes);
+        this.app.use(this.apiPaths.planes,express.json(),planesRoutes);
+        this.app.use(this.apiPaths.sponsors,express.json(),sponsorsRoutes);
+        this.app.use(this.apiPaths.eventos,express.json(),eventosRoutes);
+        this.app.use(this.apiPaths.auth,express.json(),authRoutes);
+        this.app.use(this.apiPaths.newsletter,express.json(),newsletterRoutes); 
+        this.app.use(this.apiPaths.contacto,express.json(),contactoRoutes);
+        this.app.use(this.apiPaths.uploads,express.json(),uploadsRoutes);
+        this.app.use(this.apiPaths.herramientas,express.json(),herramientas)
+        this.app.use(this.landingPaths.landing,express.json(),landingRoutes);
+        this.app.use(this.apiPaths.checkout, express.json(),checkoutRoutes);        
+        this.app.use(this.apiPaths.clientes,express.json() ,clientesRoutes);
+        this.app.use(this.apiPaths.webhook_stripe,stripe_webhook)
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
               res.sendFile(path.resolve(`public/app/${req.url}`));

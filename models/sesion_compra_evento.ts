@@ -33,4 +33,4 @@ const Sesiones_compra_eventos = db.define('Sesiones_compra_eventos',{
     paranoid: true
 })
 
-export default Sesiones_compra_eventos;
+export default Sesiones_compra_eventos; 

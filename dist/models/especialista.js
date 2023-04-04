@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const eventos_1 = __importDefault(require("./eventos"));
+const compras_eventos_por_finalizar_1 = __importDefault(require("./compras_eventos_por_finalizar"));
 const Especialista = connection_1.default.define('Especialistas', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -106,5 +107,7 @@ const Especialista = connection_1.default.define('Especialistas', {
 });
 Especialista.hasMany(eventos_1.default);
 eventos_1.default.belongsTo(Especialista);
+Especialista.hasMany(compras_eventos_por_finalizar_1.default);
+compras_eventos_por_finalizar_1.default.belongsTo(Especialista);
 exports.default = Especialista;
 //# sourceMappingURL=especialista.js.map
