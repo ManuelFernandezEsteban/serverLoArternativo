@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
-const helmet_1 = __importDefault(require("helmet"));
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const monedas_routes_1 = __importDefault(require("../routes/monedas.routes"));
@@ -72,7 +71,7 @@ class Server {
         this.server = require('http').createServer(this.app);
         this.io = require('socket.io')(this.server);
         //APLICAR HELMET
-        this.app.use((0, helmet_1.default)());
+        //this.app.use(helmet());
         //conexion a la base de datos
         this.dbConnection();
         //middlewares

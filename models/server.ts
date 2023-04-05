@@ -68,7 +68,7 @@ class Server{
         this.server = require('http').createServer(this.app);
         this.io = require('socket.io')(this.server);
         //APLICAR HELMET
-        this.app.use(helmet());
+        //this.app.use(helmet());
 
         //conexion a la base de datos
 
@@ -155,5 +155,5 @@ class Server{
     }
     
 }
-
+ 
 export default Server;
