@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import jwt from 'jsonwebtoken';
 import Stripe from "stripe";
-import { CheckoutSesion, Object } from "../interfaces/checkout-sesion.interface";
 import Sesiones_compra_eventos from '../models/sesion_compra_evento';
 import Compras_eventos_por_finalizar from "../models/compras_eventos_por_finalizar";
 import Evento from "../models/eventos";
@@ -12,7 +11,7 @@ import Especialista from '../models/especialista';
 import { sendMail } from "../helpers/send-mail";
 import Cliente from "../models/clientes";
 import { mailCompraCliente, mailCompraEspecialista } from "../helpers/plantilla-mail";
-import { generarJWT } from "../helpers/generar-JWT";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
 });
@@ -63,8 +62,14 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             ok_especialista: false,
             payment_intent: sesion.payment_intent
         })
-        enviarMailCompraCliente(compra_por_finalizar);
-        enviarMailCompraEspecialista(compra_por_finalizar);
+
+        const token = jwt.sign({ sesion_compra: compra_por_finalizar.id },
+            process.env.SECRETPRIVATEKEY || '',
+            { expiresIn: '15d' })
+        
+
+        enviarMailCompraCliente(compra_por_finalizar,token);
+        enviarMailCompraEspecialista(compra_por_finalizar,token);
         //todo mandar mail al cliente y al especialista
 
     } catch (error) {
@@ -74,18 +79,13 @@ const onCheckoutSesionComplete = async (sesion: any) => {
     }
 }
 
-const enviarMailCompraCliente = async (sesion_compra: any) => {
+const enviarMailCompraCliente = async (sesion_compra: any,token:string) => {
 
+    const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
     try {
         let especialista =await Especialista.findByPk(sesion_compra.EspecialistaId);
         let evento =await Evento.findByPk(sesion_compra.EventoId);
         let cliente =await Cliente.findByPk(sesion_compra.ClienteId);
-        console.log(cliente,evento,especialista);
-        const token = jwt.sign({ sesion_compra: sesion_compra.id },
-            process.env.SECRETPRIVATEKEY || '',
-            { expiresIn: '15d' })
-        const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
-
         await sendMail({
             asunto: 'Compra de evento en Nativos Tierra',
             nombreDestinatario: cliente?.nombre,
@@ -99,18 +99,12 @@ const enviarMailCompraCliente = async (sesion_compra: any) => {
     }    
 }
 
-const enviarMailCompraEspecialista = async (sesion_compra: any) => {
-
+const enviarMailCompraEspecialista = async (sesion_compra: any,token:string) => {
+    const link = `${process.env.LINK_VERIFICAR_COMPRAS_ESPECIALISTAS}${token}`;
     try {
         let especialista =await Especialista.findByPk(sesion_compra.EspecialistaId);
         let evento =await Evento.findByPk(sesion_compra.EventoId);
-        let cliente =await Cliente.findByPk(sesion_compra.ClienteId);
-
-        const token = jwt.sign({ sesion_compra: sesion_compra.id },
-            process.env.SECRETPRIVATEKEY || '',
-            { expiresIn: '15d' })
-        const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
-
+        let cliente =await Cliente.findByPk(sesion_compra.ClienteId);  
         await sendMail({
             asunto: 'Compra de evento en Nativos Tierra',
             nombreDestinatario: especialista?.nombre,

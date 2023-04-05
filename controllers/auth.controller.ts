@@ -136,7 +136,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 }
 
 
-export const createNewPassword = async (req: Request, res: Response) => {
+export const createNewPassword = async (req: Request, res: Response) => { 
 
     const { password } = req.body;
     const resetToken = req.header('resetToken');

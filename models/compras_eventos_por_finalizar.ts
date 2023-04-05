@@ -25,6 +25,9 @@ const Compras_eventos_por_finalizar = db.define('Compras_eventos_no_finalizadas'
     ok_especialista:{
         type:DataTypes.BOOLEAN
     },
+    pagada:{
+        type:DataTypes.BOOLEAN
+    },
     createdAt:{
         type:DataTypes.DATE
     },

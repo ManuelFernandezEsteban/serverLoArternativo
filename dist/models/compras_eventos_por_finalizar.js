@@ -29,6 +29,9 @@ const Compras_eventos_por_finalizar = connection_1.default.define('Compras_event
     ok_especialista: {
         type: sequelize_1.DataTypes.BOOLEAN
     },
+    pagada: {
+        type: sequelize_1.DataTypes.BOOLEAN
+    },
     createdAt: {
         type: sequelize_1.DataTypes.DATE
     },

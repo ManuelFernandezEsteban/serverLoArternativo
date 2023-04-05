@@ -31,6 +31,7 @@ const herramientas_routes_1 = __importDefault(require("../routes/herramientas.ro
 const checkout_routes_1 = __importDefault(require("../routes/checkout.routes"));
 const stripe_webhook_route_1 = __importDefault(require("../routes/stripe-webhook.route"));
 const clientes_routes_1 = __importDefault(require("../routes/clientes.routes"));
+const validar_compras_route_1 = __importDefault(require("../routes/validar-compras.route"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
@@ -63,10 +64,13 @@ class Server {
             new_password: '/auth/new-password/:tk',
             checkout: '/api/checkout',
             webhook_stripe: '/stripe-webhooks',
-            clientes: '/api/clientes'
+            clientes: '/api/clientes',
+            validar_compras: '/api/validar-compras'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
+        this.server = require('http').createServer(this.app);
+        this.io = require('socket.io')(this.server);
         //APLICAR HELMET
         this.app.use((0, helmet_1.default)());
         //conexion a la base de datos
@@ -75,6 +79,8 @@ class Server {
         this.middlewares();
         //definir rutas
         this.routes();
+        //definir sockets
+        this.sockets();
     }
     //TODO: Conectar la base de datos
     dbConnection() {
@@ -90,10 +96,8 @@ class Server {
         });
     }
     middlewares() {
-        //cors
+        //cors   
         this.app.use((0, cors_1.default)());
-        //lectura body
-        // this.app.use(express.json());
         //Carpeta pública
         this.app.use(express_1.default.static('./public/app'));
         // 
@@ -114,6 +118,7 @@ class Server {
         this.app.use(this.apiPaths.checkout, express_1.default.json(), checkout_routes_1.default);
         this.app.use(this.apiPaths.clientes, express_1.default.json(), clientes_routes_1.default);
         this.app.use(this.apiPaths.webhook_stripe, stripe_webhook_route_1.default);
+        this.app.use(this.apiPaths.validar_compras, express_1.default.json(), validar_compras_route_1.default);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
                 res.sendFile(path_1.default.resolve(`public/app/${req.url}`));
@@ -123,8 +128,13 @@ class Server {
             }
         });
     }
+    sockets() {
+        this.io.on('connection', (socket) => {
+            console.log('cliente conectado');
+        });
+    }
     listen() {
-        this.app.listen(this.port, () => {
+        this.server.listen(this.port, () => {
             console.log(`Servidor corriendo en el puerto ${this.port}`);
         });
     }

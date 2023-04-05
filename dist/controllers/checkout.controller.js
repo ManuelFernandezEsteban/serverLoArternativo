@@ -72,7 +72,7 @@ const setupCompraDeEvento = (info, price, sesion_compra_eventoId) => {
 const setupBaseSesionConfig = (info, sesion_compra_eventoId) => {
     console.log(info);
     const config = {
-        success_url: `${info.callbackUrl}/?resultadoCompra=success`,
+        success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${sesion_compra_eventoId}`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
         payment_method_types: ['card'],
         mode: 'payment',

@@ -67,8 +67,9 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             ok_especialista: false,
             payment_intent: sesion.payment_intent
         });
-        enviarMailCompraCliente(compra_por_finalizar);
-        enviarMailCompraEspecialista(compra_por_finalizar);
+        const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
+        enviarMailCompraCliente(compra_por_finalizar, token);
+        enviarMailCompraEspecialista(compra_por_finalizar, token);
         //todo mandar mail al cliente y al especialista
     }
     catch (error) {
@@ -76,14 +77,12 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
         throw new Error(`Error completando sesion ${error}`);
     }
 });
-const enviarMailCompraCliente = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () {
+const enviarMailCompraCliente = (sesion_compra, token) => __awaiter(void 0, void 0, void 0, function* () {
+    const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
     try {
         let especialista = yield especialista_1.default.findByPk(sesion_compra.EspecialistaId);
         let evento = yield eventos_1.default.findByPk(sesion_compra.EventoId);
         let cliente = yield clientes_1.default.findByPk(sesion_compra.ClienteId);
-        console.log(cliente, evento, especialista);
-        const token = jsonwebtoken_1.default.sign({ sesion_compra: sesion_compra.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
-        const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
         yield (0, send_mail_1.sendMail)({
             asunto: 'Compra de evento en Nativos Tierra',
             nombreDestinatario: cliente === null || cliente === void 0 ? void 0 : cliente.nombre,
@@ -97,13 +96,12 @@ const enviarMailCompraCliente = (sesion_compra) => __awaiter(void 0, void 0, voi
         throw new Error('Error enviando el email al cliente');
     }
 });
-const enviarMailCompraEspecialista = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () {
+const enviarMailCompraEspecialista = (sesion_compra, token) => __awaiter(void 0, void 0, void 0, function* () {
+    const link = `${process.env.LINK_VERIFICAR_COMPRAS_ESPECIALISTAS}${token}`;
     try {
         let especialista = yield especialista_1.default.findByPk(sesion_compra.EspecialistaId);
         let evento = yield eventos_1.default.findByPk(sesion_compra.EventoId);
         let cliente = yield clientes_1.default.findByPk(sesion_compra.ClienteId);
-        const token = jsonwebtoken_1.default.sign({ sesion_compra: sesion_compra.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
-        const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
         yield (0, send_mail_1.sendMail)({
             asunto: 'Compra de evento en Nativos Tierra',
             nombreDestinatario: especialista === null || especialista === void 0 ? void 0 : especialista.nombre,

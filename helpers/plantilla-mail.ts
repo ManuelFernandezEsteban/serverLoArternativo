@@ -162,7 +162,7 @@ export const mailRecuperacionPassword = (nombre: string, link: string): string =
              ${mailInferior}  
         `;
 
-    return mensaje;
+    return mensaje; 
 }
 
 export const mailCompraCliente = (especialista:any,evento:any,cliente:any,link:string): string => {

@@ -1,5 +1,4 @@
-import express, {Application} from 'express';
-import bodyParser from 'body-parser';
+import express, {Application, Request} from 'express';
 import cors from 'cors';
 import path from 'path';
 import helmet from 'helmet';
@@ -19,6 +18,7 @@ import herramientas from '../routes/herramientas.routes';
 import checkoutRoutes from '../routes/checkout.routes';
 import stripe_webhook from '../routes/stripe-webhook.route';
 import clientesRoutes from '../routes/clientes.routes';
+import validarCompras from '../routes/validar-compras.route'
 import db from '../db/connection';
 
 
@@ -36,6 +36,8 @@ class Server{
         '.svg', 
       ];
 
+    server :any;  
+    io:any;
     private app:Application;
     private port:string;
     private landingPaths={
@@ -56,12 +58,15 @@ class Server{
         new_password:'/auth/new-password/:tk',
         checkout:'/api/checkout',
         webhook_stripe:'/stripe-webhooks',
-        clientes:'/api/clientes'
+        clientes:'/api/clientes',
+        validar_compras:'/api/validar-compras'
     }
 
     constructor(){
         this.app=express();
         this.port=process.env.PORT || '8000';
+        this.server = require('http').createServer(this.app);
+        this.io = require('socket.io')(this.server);
         //APLICAR HELMET
         this.app.use(helmet());
 
@@ -75,6 +80,9 @@ class Server{
 
         //definir rutas
         this.routes();
+
+        //definir sockets
+        this.sockets();
 
     }
     //TODO: Conectar la base de datos
@@ -96,19 +104,14 @@ class Server{
 
     middlewares(){
 
-        //cors
+        //cors   
         this.app.use(cors());
-
-        //lectura body
-       // this.app.use(express.json());
-
-       
 
         //Carpeta pública
         this.app.use(express.static('./public/app'));
         // 
 
-    } 
+    }  
 
 
     routes(){      
@@ -127,7 +130,8 @@ class Server{
         this.app.use(this.landingPaths.landing,express.json(),landingRoutes);
         this.app.use(this.apiPaths.checkout, express.json(),checkoutRoutes);        
         this.app.use(this.apiPaths.clientes,express.json() ,clientesRoutes);
-        this.app.use(this.apiPaths.webhook_stripe,stripe_webhook)
+        this.app.use(this.apiPaths.webhook_stripe,stripe_webhook);
+        this.app.use(this.apiPaths.validar_compras,express.json(),validarCompras);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
               res.sendFile(path.resolve(`public/app/${req.url}`));
@@ -136,10 +140,16 @@ class Server{
             }
           });
     } 
+
+    sockets(){
+        this.io.on('connection',(socket: any)=>{
+            console.log('cliente conectado')
+        })
+    }
   
     listen(){
 
-        this.app.listen(this.port,()=>{
+        this.server.listen(this.port,()=>{
             console.log(`Servidor corriendo en el puerto ${this.port}`);
         })
     }
