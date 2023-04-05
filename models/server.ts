@@ -153,7 +153,7 @@ class Server{
             console.log(`Servidor corriendo en el puerto ${this.port}`);
         })
     }
-    
+     
 }
  
 export default Server;
