@@ -1,7 +1,11 @@
 import express, {Application, Request} from 'express';
 import cors from 'cors';
+import socketIO from 'socket.io'
+import http from 'http';
 import path from 'path';
 import helmet from 'helmet';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import especialistasRoutes from '../routes/especialista.route';
 import actividadesRoutes from '../routes/actividades.route';
@@ -20,9 +24,13 @@ import stripe_webhook from '../routes/stripe-webhook.route';
 import clientesRoutes from '../routes/clientes.routes';
 import validarCompras from '../routes/validar-compras.route'
 import db from '../db/connection';
+import * as socketController  from '../sockets/controller';
+
 
 
 class Server{
+
+    private static _instance:Server;
 
     allowedExt = [
         '.js',
@@ -36,8 +44,9 @@ class Server{
         '.svg', 
       ];
 
-    server :any;  
-    io:any;
+    private server: http.Server;  
+    public io: socketIO.Server;
+    
     private app:Application;
     private port:string;
     private landingPaths={
@@ -62,11 +71,20 @@ class Server{
         validar_compras:'/api/validar-compras'
     }
 
-    constructor(){
+    private constructor(){
         this.app=express();
         this.port=process.env.PORT || '8000';
-        this.server = require('http').createServer(this.app);
-        this.io = require('socket.io')(this.server);
+        this.server=new http.Server(this.app);
+        this.io = new socketIO.Server( this.server, { cors: { origin: true, credentials: true } } );
+
+
+       /* this.io = require('socket.io')(this.server,{
+            cors:{
+                origin:process.env.URL_SOCKET_ORIGIN_DEV,
+                methods:["GET","POST"]
+            }
+        });*/
+        
         //APLICAR HELMET
         //this.app.use(helmet());
 
@@ -82,7 +100,12 @@ class Server{
         this.routes();
 
         //definir sockets
-        this.sockets();
+        //this.sockets();
+
+    }
+
+    public static get instance(){
+        return this._instance || (this._instance=new this);
 
     }
     //TODO: Conectar la base de datos
@@ -141,11 +164,21 @@ class Server{
           });
     } 
 
-    sockets(){
-        this.io.on('connection',(socket: any)=>{
-            console.log('cliente conectado')
+   /* sockets(){
+
+        
+        console.log('Escuchando conexiones');
+
+        this.io.on('connection',cliente =>{
+            console.log('cliente conectado ',cliente.id) 
+            //desconectar
+            socketController.desconectar(cliente); 
+            socketController.listenSesionCompra(cliente,this.io);
+            socketController.eviarCompraFinalizada(this.io,'');
         })
-    }
+
+
+    }*/
   
     listen(){
 

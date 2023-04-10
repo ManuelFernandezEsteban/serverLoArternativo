@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import Evento from "../models/eventos";
 import Sesiones_compra_eventos from "../models/sesion_compra_evento";
 import dotenv from 'dotenv';
+import Cliente from "../models/clientes";
 dotenv.config();
 
 
@@ -32,6 +33,12 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     const evento = await Evento.findByPk(info.eventoId);
     if (evento) {
         try {
+
+            const cliente = await Cliente.findByPk(info.clienteId);
+            if (!cliente){
+                throw new Error("El cliente no existe");
+            }
+
             let sesionConfig;
             const sesion_compra_evento = await Sesiones_compra_eventos.create({
                 ClienteId:info.clienteId,
@@ -39,7 +46,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
                 completada:false                                
             })  
             if (evento.idPriceEvent!=null) {
-                sesionConfig = setupCompraDeEvento(info,evento.idPriceEvent,sesion_compra_evento.id);
+                sesionConfig = setupCompraDeEvento(info,evento.idPriceEvent,sesion_compra_evento.id,cliente.stripeId);
                 
             }   
             //console.log(sesionConfig);
@@ -62,10 +69,10 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
 }
 
-const setupCompraDeEvento = (info: RequestInfo,price:string,sesion_compra_eventoId:string) => {
+const setupCompraDeEvento = (info: RequestInfo,price:string,sesion_compra_eventoId:string,clienteStripeId:string) => {
 
     console.log(info)
-    const config = setupBaseSesionConfig(info,sesion_compra_eventoId);
+    const config = setupBaseSesionConfig(info,sesion_compra_eventoId,clienteStripeId);
     config.line_items = [
         {
             price: price,
@@ -75,14 +82,17 @@ const setupCompraDeEvento = (info: RequestInfo,price:string,sesion_compra_evento
     return config;
 }
 
-const setupBaseSesionConfig = (info: RequestInfo,sesion_compra_eventoId:string) => {
+const setupBaseSesionConfig = (info: RequestInfo,sesion_compra_eventoId:string,clienteStripeId:string) => {
     console.log(info)
     const config: any = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${sesion_compra_eventoId}`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
         payment_method_types: ['card'],
         mode: 'payment',
-        client_reference_id:sesion_compra_eventoId
+        client_reference_id:sesion_compra_eventoId        
+    }
+    if (clienteStripeId){
+        config.customer=clienteStripeId;
     }
     return config;
 }

@@ -15,6 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCliente = exports.postCliente = void 0;
 const clientes_1 = __importDefault(require("../models/clientes"));
 const sesion_compra_evento_1 = __importDefault(require("../models/sesion_compra_evento"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const stripe_1 = __importDefault(require("stripe"));
+dotenv_1.default.config();
+const key = process.env.STRIPE_SECRET_KEY || '';
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15'
+});
 const postCliente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
     try {
@@ -24,7 +31,21 @@ const postCliente = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             }
         });
         if (!cliente) {
+            const customer = yield stripe.customers.create({
+                address: {
+                    city: body.poblacion,
+                    line1: body.direccion,
+                    postal_code: body.codigo_postal,
+                    state: body.provincia
+                },
+                email: body.email,
+                name: `${body.nombre} ${body.apellidos}`,
+                phone: body.telefono,
+            });
+            console.log(customer);
             cliente = yield clientes_1.default.create(body);
+            cliente.set({ idStripe: customer.id });
+            cliente.save();
         }
         res.status(200).json(cliente);
     }

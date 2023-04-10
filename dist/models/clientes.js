@@ -46,6 +46,9 @@ const Cliente = connection_1.default.define('Clientes', {
     aceptaComercial: {
         type: sequelize_1.DataTypes.BOOLEAN
     },
+    idStripe: {
+        type: sequelize_1.DataTypes.STRING(100)
+    },
     createdAt: {
         type: sequelize_1.DataTypes.DATE
     },

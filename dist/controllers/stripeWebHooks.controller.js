@@ -24,6 +24,7 @@ const especialista_1 = __importDefault(require("../models/especialista"));
 const send_mail_1 = require("../helpers/send-mail");
 const clientes_1 = __importDefault(require("../models/clientes"));
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
+const server_1 = __importDefault(require("../models/server"));
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
@@ -51,14 +52,28 @@ const stripeWebHooks = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.stripeWebHooks = stripeWebHooks;
 const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, function* () {
     const sesionReferenceId = sesion.client_reference_id;
+    //console.log(sesion);
     try {
         const sesion_compra_evento = yield sesion_compra_evento_1.default.findByPk(sesionReferenceId);
-        const evento = yield eventos_1.default.findByPk(sesion_compra_evento.EventoId);
+        const evento = yield eventos_1.default.findByPk(sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.EventoId);
+        const cliente = yield clientes_1.default.findByPk(sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.ClienteId);
         if (!evento) {
             throw new Error(`Error completando sesion, el evento no se encuentra`);
         }
+        if (!cliente) {
+            throw new Error(`Error completando sesion, el cliente no se encuentra`);
+        }
+        //cliente.set({idStripe:sesion.customer});
+        //await cliente.save();
         sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.set({ completada: 1 });
-        sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.save();
+        yield (sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.save());
+        //emision compra finalizada al frontend
+        const server = server_1.default.instance;
+        server.io.on('connection', cliente => {
+            console.log('cliente conectado ', cliente.id);
+            cliente.emit('sesion_compra_finalizada', sesionReferenceId);
+        });
+        console.log('sesion' + sesionReferenceId + ' pagada');
         const compra_por_finalizar = yield compras_eventos_por_finalizar_1.default.create({
             ClienteId: sesion_compra_evento.ClienteId,
             EventoId: sesion_compra_evento.EventoId,
@@ -68,9 +83,27 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             payment_intent: sesion.payment_intent
         });
         const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
+        //realizar factura evento comprado
+        if (cliente.idStripe) {
+            const date = new Date(Date.now());
+            console.log(date);
+            const factura = yield stripe.invoices.create({
+                collection_method: 'send_invoice',
+                customer: cliente.idStripe,
+                days_until_due: 0
+            });
+            const lineaFactura = yield stripe.invoiceItems.create({
+                customer: cliente.idStripe,
+                price: evento.idPriceEvent,
+                invoice: factura.id,
+                quantity: 1,
+            });
+            yield stripe.invoices.finalizeInvoice(factura.id);
+            // await stripe.invoices.pay(factura.id);
+            yield stripe.invoices.sendInvoice(factura.id);
+        }
         enviarMailCompraCliente(compra_por_finalizar, token);
         enviarMailCompraEspecialista(compra_por_finalizar, token);
-        //todo mandar mail al cliente y al especialista
     }
     catch (error) {
         console.log(error);

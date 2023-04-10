@@ -42,6 +42,9 @@ const Cliente = db.define('Clientes',{
     aceptaComercial: {
         type:DataTypes.BOOLEAN
     },
+    idStripe:{
+        type:DataTypes.STRING(100)
+    },
     createdAt:{
         type:DataTypes.DATE
     },

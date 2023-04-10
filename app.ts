@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-const server = new Server();
+const server = Server.instance;
+
+
 
 server.listen();

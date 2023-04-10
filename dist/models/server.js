@@ -14,7 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const socket_io_1 = __importDefault(require("socket.io"));
+const http_1 = __importDefault(require("http"));
 const path_1 = __importDefault(require("path"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const especialista_route_1 = __importDefault(require("../routes/especialista.route"));
 const actividades_route_1 = __importDefault(require("../routes/actividades.route"));
 const monedas_routes_1 = __importDefault(require("../routes/monedas.routes"));
@@ -68,8 +72,14 @@ class Server {
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
-        this.server = require('http').createServer(this.app);
-        this.io = require('socket.io')(this.server);
+        this.server = new http_1.default.Server(this.app);
+        this.io = new socket_io_1.default.Server(this.server, { cors: { origin: true, credentials: true } });
+        /* this.io = require('socket.io')(this.server,{
+             cors:{
+                 origin:process.env.URL_SOCKET_ORIGIN_DEV,
+                 methods:["GET","POST"]
+             }
+         });*/
         //APLICAR HELMET
         //this.app.use(helmet());
         //conexion a la base de datos
@@ -79,7 +89,10 @@ class Server {
         //definir rutas
         this.routes();
         //definir sockets
-        this.sockets();
+        //this.sockets();
+    }
+    static get instance() {
+        return this._instance || (this._instance = new this);
     }
     //TODO: Conectar la base de datos
     dbConnection() {
@@ -127,11 +140,21 @@ class Server {
             }
         });
     }
-    sockets() {
-        this.io.on('connection', (socket) => {
-            console.log('cliente conectado');
-        });
-    }
+    /* sockets(){
+ 
+         
+         console.log('Escuchando conexiones');
+ 
+         this.io.on('connection',cliente =>{
+             console.log('cliente conectado ',cliente.id)
+             //desconectar
+             socketController.desconectar(cliente);
+             socketController.listenSesionCompra(cliente,this.io);
+             socketController.eviarCompraFinalizada(this.io,'');
+         })
+ 
+ 
+     }*/
     listen() {
         this.server.listen(this.port, () => {
             console.log(`Servidor corriendo en el puerto ${this.port}`);
