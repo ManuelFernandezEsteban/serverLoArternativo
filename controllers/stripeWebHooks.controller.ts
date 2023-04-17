@@ -13,6 +13,8 @@ import Cliente from "../models/clientes";
 import { mailCompraCliente, mailCompraEspecialista } from "../helpers/plantilla-mail";
 import Server from "../models/server";
 import * as socketController from '../sockets/controller';
+import Sesiones_compra_suscripcion from "../models/sesiones_compra_suscripcion";
+import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -50,18 +52,81 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
     try {
         const sesion_compra_evento = await Sesiones_compra_eventos.findByPk(sesionReferenceId);
-        const evento = await Evento.findByPk(sesion_compra_evento?.EventoId);
-        const cliente = await Cliente.findByPk(sesion_compra_evento?.ClienteId);
-        if (!evento) {
-            throw new Error(`Error completando sesion, el evento no se encuentra`);
+        if (sesion_compra_evento) {
+            const evento = await Evento.findByPk(sesion_compra_evento?.EventoId);
+            const cliente = await Cliente.findByPk(sesion_compra_evento?.ClienteId);
+            if (!evento) {
+                throw new Error(`Error completando sesion, el evento no se encuentra`);
+            }
+            if (!cliente) {
+                throw new Error(`Error completando sesion, el cliente no se encuentra`);
+            }
+            //cliente.set({idStripe:sesion.customer});
+            //await cliente.save();
+            sesion_compra_evento?.set({ completada: 1 });
+            await sesion_compra_evento?.save();
+            const compra_por_finalizar = await Compras_eventos_por_finalizar.create({
+                ClienteId: sesion_compra_evento.ClienteId,
+                EventoId: sesion_compra_evento.EventoId,
+                EspecialistaId: evento.EspecialistaId,
+                ok_cliente: false,
+                ok_especialista: false,
+                payment_intent: sesion.payment_intent
+            });
+
+            const token = jwt.sign({ sesion_compra: compra_por_finalizar.id },
+                process.env.SECRETPRIVATEKEY || '',
+                { expiresIn: '15d' }
+            );
+            //realizar factura evento comprado
+            if (cliente.idStripe) {
+                const date = new Date(Date.now());
+                console.log(date);
+                const factura = await stripe.invoices.create({
+                    collection_method: 'send_invoice',
+                    customer: cliente.idStripe,
+                    days_until_due: 0
+
+                });
+                const lineaFactura = await stripe.invoiceItems.create({
+                    customer: cliente.idStripe,
+                    price: evento.idPriceEvent,
+                    invoice: factura.id,
+                    quantity: 1,
+
+                })
+
+                await stripe.invoices.finalizeInvoice(factura.id);                
+                await stripe.invoices.sendInvoice(factura.id);
+            }
+            enviarMailCompraCliente(compra_por_finalizar, token);
+            enviarMailCompraEspecialista(compra_por_finalizar, token);
+
+        } else {
+            const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.findByPk(sesionReferenceId);
+            console.log(sesion);
+            if (sesion_compra_suscripcion) {// es una suscripcion
+                const especialista = await Especialista.findByPk(sesion_compra_suscripcion.EspecialistaId);
+                if (!especialista) {
+                    throw new Error("Error, el especialista no se encuentra")
+                }
+                let fecha_fin = new Date(Date.now());
+                fecha_fin.setMonth(fecha_fin.getMonth() + 1)
+                await especialista.set({ 
+                    token_pago: sesion.subscription,
+                    stripeId:sesion.customer,
+                    fecha_pago_actual:new Date(Date.now()),
+                    fecha_fin_suscripcion:fecha_fin,
+                    planeId:sesion_compra_suscripcion.planeId
+
+                 });
+                await especialista.save();
+
+            } else {
+                throw new Error('no existe la referencia');
+            }
         }
-        if (!cliente) {
-            throw new Error(`Error completando sesion, el cliente no se encuentra`);
-        }
-        //cliente.set({idStripe:sesion.customer});
-        //await cliente.save();
-        sesion_compra_evento?.set({ completada: 1 });
-        await sesion_compra_evento?.save();
+
         //emision compra finalizada al frontend
         const server = Server.instance;
         server.io.on('connection', cliente => {
@@ -69,45 +134,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             cliente.emit('sesion_compra_finalizada', sesionReferenceId)
         })
         console.log('sesion' + sesionReferenceId + ' pagada');
-        const compra_por_finalizar = await Compras_eventos_por_finalizar.create({
-            ClienteId: sesion_compra_evento.ClienteId,
-            EventoId: sesion_compra_evento.EventoId,
-            EspecialistaId: evento.EspecialistaId,
-            ok_cliente: false,
-            ok_especialista: false,
-            payment_intent: sesion.payment_intent
-        });
 
-        const token = jwt.sign({ sesion_compra: compra_por_finalizar.id },
-            process.env.SECRETPRIVATEKEY || '',
-            { expiresIn: '15d' }
-        );
-        //realizar factura evento comprado
-        if (cliente.idStripe) {
-            const date = new Date(Date.now());
-            console.log(date);
-            const factura = await stripe.invoices.create({
-                collection_method: 'send_invoice',
-                customer: cliente.idStripe,
-                days_until_due:0
-
-            });
-            const lineaFactura = await stripe.invoiceItems.create({
-                customer: cliente.idStripe,
-                price: evento.idPriceEvent,
-                invoice: factura.id,
-                quantity: 1,
-
-            })
-            await stripe.invoices.finalizeInvoice(factura.id);
-           // await stripe.invoices.pay(factura.id);
-            await stripe.invoices.sendInvoice(factura.id);
-        }
-
-
-
-        enviarMailCompraCliente(compra_por_finalizar, token);
-        enviarMailCompraEspecialista(compra_por_finalizar, token);
 
 
     } catch (error) {

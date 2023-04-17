@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
 import Especialista from "./especialista";
+import Sesiones_compra_suscripcion from './sesiones_compra_suscripcion';
+import Sesiones_compra_suscripciones from "./sesiones_compra_suscripcion";
 
 
 const Plan = db.define('Planes',{
@@ -13,6 +15,9 @@ const Plan = db.define('Planes',{
     },
     precio:{
         type:DataTypes.FLOAT
+    },
+    priceId:{
+        type:DataTypes.STRING(255)
     },
     createdAt:{
         type:DataTypes.DATE
@@ -30,5 +35,7 @@ const Plan = db.define('Planes',{
 
 Plan.hasMany(Especialista);
 Especialista.belongsTo(Plan);
+Plan.hasMany(Sesiones_compra_suscripciones);
+Sesiones_compra_suscripciones.belongsTo(Plan);
 
 export default Plan;

@@ -21,6 +21,7 @@ const createFolder_1 = require("../helpers/createFolder");
 const monedas_1 = __importDefault(require("../models/monedas"));
 const createPrice_1 = require("../helpers/createPrice");
 const stripe_1 = __importDefault(require("stripe"));
+const dayjs_1 = __importDefault(require("dayjs"));
 //import Evento from '../models/eventos';
 const stripe = new stripe_1.default('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
     apiVersion: '2022-11-15'
@@ -118,13 +119,28 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
     }
     if (body.ActividadeId != 10) { // especialista para publicar eventos nativos tierra y revista
-        const resultado = yield especialista_1.default.findByPk(body.EspecialistaId, {
-            attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+        const idSuscripcion = yield especialista_1.default.findByPk(body.EspecialistaId, {
+            attributes: ['token_pago']
         });
-        if ((fecha < (resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_pago_actual)) || (fecha > (resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_fin_suscripcion))) {
-            return res.status(401).json({
-                msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
-            });
+        let fecha_inicio_periodo_pago;
+        let fecha_fin_periodo_pago;
+        if (idSuscripcion) {
+            const suscripcion = yield stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
+            if ((suscripcion.status === 'active') || (suscripcion.status === 'trialing')) {
+                fecha_fin_periodo_pago = dayjs_1.default.unix(suscripcion.current_period_end).toDate();
+                fecha_inicio_periodo_pago = dayjs_1.default.unix(suscripcion.current_period_start).toDate();
+                if ((fecha < fecha_inicio_periodo_pago) || (fecha > fecha_fin_periodo_pago)) {
+                    return res.status(401).json({
+                        msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
+                    });
+                }
+            }
+            else {
+                throw new Error(`El especilista con id ${body.EspecialistaId} no tiene un plan permitido`);
+            }
+        }
+        else {
+            throw new Error(`El especilista con id ${body.EspecialistaId} no tiene un plan permitido`);
         }
         const { count } = yield eventos_1.default.findAndCountAll({
             include: [{
@@ -133,7 +149,7 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 }],
             where: {
                 especialistaId: body.EspecialistaId,
-                fecha: { [sequelize_1.Op.between]: [resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_pago_actual, resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_fin_suscripcion] },
+                fecha: { [sequelize_1.Op.between]: [fecha_inicio_periodo_pago, fecha_fin_periodo_pago] },
             }
         });
         if (count >= 2) {
@@ -142,8 +158,8 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
     }
-    try {
-        const evento = yield eventos_1.default.create(body);
+    const evento = yield eventos_1.default.create(body);
+    if (evento.esVendible) {
         const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
         console.log(idProductEvent);
         const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, evento.precio, evento.monedaId);
@@ -151,6 +167,8 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             idProductEvent,
             idPriceEvent
         });
+    }
+    try {
         (0, createFolder_1.createFolder)(`eventos/${evento.id}`);
         res.json({
             evento
@@ -160,7 +178,6 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         console.log(error);
         return res.status(500).json({
             msg: error,
-            donde: 'folder'
         });
     }
 });
@@ -178,12 +195,14 @@ const putEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const evento = yield eventos_1.default.findByPk(id);
         if (evento) {
-            const precioAnterior = evento.precio;
-            yield evento.update(body);
-            if (precioAnterior != body.precio) {
-                const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.idProductEvent, evento.precio, evento.moneda);
-                yield evento.update({ idPriceEvent });
+            if (body.esVendible) {
+                const precioAnterior = evento.precio;
+                if (precioAnterior != body.precio || !(evento.esVendible)) {
+                    const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.idProductEvent, evento.precio, evento.moneda);
+                    yield evento.update({ idPriceEvent });
+                }
             }
+            yield evento.update(body);
             yield (0, createPrice_1.updateProductEvento)(evento);
             res.json({
                 evento

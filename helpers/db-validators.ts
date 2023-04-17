@@ -3,7 +3,13 @@ import Actividad from '../models/actividades';
 import Especialista from '../models/especialista';
 import NewsLetter from '../models/newsletter';
 import Plan from '../models/planes';
-import Cliente from '../models/clientes';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config();
+import dayjs from 'dayjs';
+
+
+const stripe = new Stripe(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
 
 export const esActividadValida = async (ActividadeId: number = 0) => {
     const existeActividad = await Actividad.findByPk(ActividadeId);
@@ -66,28 +72,45 @@ export const existeUsuario = async (id: number = 0) => {
 }
 
 export const planPermitidoEvento = async (EspecialistaId: string='') => {
-    const plan = await Especialista.findByPk(EspecialistaId, {
-        attributes: ['fecha_fin_suscripcion']
-    })
-    console.log(EspecialistaId);
-    if (!(plan?.dataValues.fecha_fin_suscripcion ) || (plan?.dataValues.fecha_fin_suscripcion<Date.now()) ){
 
-        throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
-
+    try {
+        const idSuscripcion = await Especialista.findByPk(EspecialistaId, {
+            attributes: ['token_pago']
+        });
+        if (idSuscripcion){
+            const suscripcion = await stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
+            if (!((suscripcion.status==='active')||(suscripcion.status==='trialing') )){
+                throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
+            }              
+        }else{
+            throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
+        }        
+    } catch (error) {
+        console.log(error);
     }
+    
+    
+    
 }
 
 
 export const planPermitido = async (especialista: string) => {
-    const plan = await Especialista.findByPk(especialista, {
-        attributes: ['fecha_fin_suscripcion']
-    })
-    if (!(plan?.dataValues.fecha_fin_suscripcion ) || (plan?.dataValues.fecha_fin_suscripcion<Date.now()) ){
-
-        throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
-
-
+    try {
+        const idSuscripcion = await Especialista.findByPk(especialista, {
+            attributes: ['token_pago']
+        });
+        if (idSuscripcion){
+            const suscripcion = await stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
+            if (!((suscripcion.status==='active')||(suscripcion.status==='trialing') )){
+                throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
+            }              
+        }else{
+            throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
+        }        
+    } catch (error) {
+        console.log(error);
     }
+    
 }
 
 export const existeEmailNews = async (email:string)=>{

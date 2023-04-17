@@ -87,6 +87,9 @@ const Evento = connection_1.default.define('Eventos', {
     },
     idPriceEvent: {
         type: sequelize_1.DataTypes.STRING(100)
+    },
+    esVendible: {
+        type: sequelize_1.DataTypes.BOOLEAN
     }
 }, {
     paranoid: true // soft delete

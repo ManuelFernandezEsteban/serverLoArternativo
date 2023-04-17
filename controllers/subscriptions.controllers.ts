@@ -1,26 +1,50 @@
 import { Request, Response } from "express";
 import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config();
+import dayjs from 'dayjs';
 
-const stripe = new Stripe(process.env.apiKeyStripe||'',{apiVersion: '2022-11-15',});
 
-export const createSubscription = async (req:Request,res:Response)=>{
+const stripe = new Stripe(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
 
-    
+export const getSubscription = async (req: Request, res: Response) => {
 
-    const session = await stripe.checkout.sessions.create({
-        line_items: [
-            {
-                price: process.env.PRICE_ID || '',
-                quantity: 1,
-            }
-        ],
-        mode: 'subscription',
-        success_url: 'http://localhost:4200/succes.html',
-        cancel_url: 'http://localhost:4200/cancel.html'
-    });    
-    res.redirect( session.url||'');
+    const idSubscription = req.params.id;
+
+    try {
+        
+
+        const subscription = await stripe.subscriptions.retrieve(
+            idSubscription
+        );
+        const {created, current_period_end,current_period_start,status,items} = subscription;
+        const createdAt = dayjs.unix(created).toDate()       
+        const current_period_end_Date = dayjs.unix(current_period_end).toDate().toLocaleDateString('es-Es');
+        const current_period_start_Date = dayjs.unix(current_period_start).toDate().toLocaleDateString('es-Es');
+        const tipoSuscripcion = items.data[0].plan.nickname;
+
+        if (subscription) {
+            res.json({
+                createdAt, current_period_end_Date,current_period_start_Date,status,tipoSuscripcion
+            })
+        }else{
+            res.status(400).json({
+                error:'No existe esa suscripcion'
+            })
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error
+        })
+    }
+
+
 }
 
+
+/*
 export const webHook = async (req:Request,res:Response)=>{
 
     let data;

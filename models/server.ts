@@ -23,6 +23,7 @@ import checkoutRoutes from '../routes/checkout.routes';
 import stripe_webhook from '../routes/stripe-webhook.route';
 import clientesRoutes from '../routes/clientes.routes';
 import validarCompras from '../routes/validar-compras.route'
+import subscription from '../routes/subscriptions.routes';
 import db from '../db/connection';
 import * as socketController  from '../sockets/controller';
 
@@ -68,7 +69,8 @@ class Server{
         checkout:'/api/checkout',
         webhook_stripe:'/stripe-webhooks',
         clientes:'/api/clientes',
-        validar_compras:'/api/validar-compras'
+        validar_compras:'/api/validar-compras',
+        subscriptions:'/api/subscriptions'
     }
 
     private constructor(){
@@ -155,6 +157,7 @@ class Server{
         this.app.use(this.apiPaths.clientes,express.json() ,clientesRoutes);
         this.app.use(this.apiPaths.webhook_stripe,stripe_webhook);
         this.app.use(this.apiPaths.validar_compras,express.json(),validarCompras);
+        this.app.use(this.apiPaths.subscriptions,express.json(),subscription);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
               res.sendFile(path.resolve(`public/app/${req.url}`));

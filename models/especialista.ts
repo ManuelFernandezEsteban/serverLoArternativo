@@ -2,6 +2,8 @@ import {DataTypes} from 'sequelize';
 import db from '../db/connection';
 import Evento from './eventos';
 import Compras_eventos_por_finalizar from './compras_eventos_por_finalizar';
+import Sesiones_compra_suscripcion from './sesiones_compra_suscripcion';
+import Sesiones_compra_suscripciones from './sesiones_compra_suscripcion';
 
 
 
@@ -59,7 +61,9 @@ const Especialista = db.define('Especialistas',{
     token_pago:{
         type:DataTypes.STRING(200)
     },
-    
+    planeId:{
+        type:DataTypes.INTEGER
+    },
     twitter:{
         type:DataTypes.STRING(50)
     },
@@ -101,6 +105,9 @@ const Especialista = db.define('Especialistas',{
     },
     no_info_comercial:{
         type:DataTypes.BOOLEAN
+    },
+    stripeId:{
+        type:DataTypes.STRING(255)
     }
 },{
     paranoid:true // soft delete
@@ -110,6 +117,7 @@ Especialista.hasMany(Evento);
 Evento.belongsTo(Especialista);
 Especialista.hasMany(Compras_eventos_por_finalizar);
 Compras_eventos_por_finalizar.belongsTo(Especialista);
-
+Especialista.hasMany(Sesiones_compra_suscripciones);
+Sesiones_compra_suscripciones.belongsTo(Especialista);
 
 export default Especialista; 

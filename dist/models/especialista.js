@@ -7,6 +7,7 @@ const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const eventos_1 = __importDefault(require("./eventos"));
 const compras_eventos_por_finalizar_1 = __importDefault(require("./compras_eventos_por_finalizar"));
+const sesiones_compra_suscripcion_1 = __importDefault(require("./sesiones_compra_suscripcion"));
 const Especialista = connection_1.default.define('Especialistas', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -60,6 +61,9 @@ const Especialista = connection_1.default.define('Especialistas', {
     token_pago: {
         type: sequelize_1.DataTypes.STRING(200)
     },
+    planeId: {
+        type: sequelize_1.DataTypes.INTEGER
+    },
     twitter: {
         type: sequelize_1.DataTypes.STRING(50)
     },
@@ -101,6 +105,9 @@ const Especialista = connection_1.default.define('Especialistas', {
     },
     no_info_comercial: {
         type: sequelize_1.DataTypes.BOOLEAN
+    },
+    stripeId: {
+        type: sequelize_1.DataTypes.STRING(255)
     }
 }, {
     paranoid: true // soft delete
@@ -109,5 +116,7 @@ Especialista.hasMany(eventos_1.default);
 eventos_1.default.belongsTo(Especialista);
 Especialista.hasMany(compras_eventos_por_finalizar_1.default);
 compras_eventos_por_finalizar_1.default.belongsTo(Especialista);
+Especialista.hasMany(sesiones_compra_suscripcion_1.default);
+sesiones_compra_suscripcion_1.default.belongsTo(Especialista);
 exports.default = Especialista;
 //# sourceMappingURL=especialista.js.map

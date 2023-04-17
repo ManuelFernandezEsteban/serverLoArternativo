@@ -12,68 +12,108 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createSession = exports.customerPortal = exports.webHook = exports.createSubscription = void 0;
+exports.getSubscription = void 0;
 const stripe_1 = __importDefault(require("stripe"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const dayjs_1 = __importDefault(require("dayjs"));
 const stripe = new stripe_1.default(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
-const createSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const session = yield stripe.checkout.sessions.create({
-        line_items: [
-            {
-                price: process.env.PRICE_ID || '',
-                quantity: 1,
-            }
-        ],
-        mode: 'subscription',
-        success_url: 'http://localhost:4200/succes.html',
-        cancel_url: 'http://localhost:4200/cancel.html'
-    });
-    res.redirect(session.url || '');
+const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idSubscription = req.params.id;
+    try {
+        const subscription = yield stripe.subscriptions.retrieve(idSubscription);
+        const { created, current_period_end, current_period_start, status, items } = subscription;
+        const createdAt = dayjs_1.default.unix(created).toDate();
+        const current_period_end_Date = dayjs_1.default.unix(current_period_end).toDate().toLocaleDateString('es-Es');
+        const current_period_start_Date = dayjs_1.default.unix(current_period_start).toDate().toLocaleDateString('es-Es');
+        const tipoSuscripcion = items.data[0].plan.nickname;
+        if (subscription) {
+            res.json({
+                createdAt, current_period_end_Date, current_period_start_Date, status, tipoSuscripcion
+            });
+        }
+        else {
+            res.status(400).json({
+                error: 'No existe esa suscripcion'
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error
+        });
+    }
 });
-exports.createSubscription = createSubscription;
-const webHook = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getSubscription = getSubscription;
+/*
+export const webHook = async (req:Request,res:Response)=>{
+
     let data;
     let eventType;
+
     const webHookSecret = process.env.webhook_secret;
-    if (webHookSecret) {
+    
+
+    if (webHookSecret){
         let event;
         let signature = req.headers['stripe-signature'];
-        try {
-            event = stripe.webhooks.constructEvent(req.body, signature || [], webHookSecret);
-        }
-        catch (err) {
+        try{
+            event= stripe.webhooks.constructEvent(req.body,signature||[],webHookSecret);
+
+
+        }catch(err){
             console.log('WebHook signature failed');
             return res.status(400);
         }
-        data = event.data;
-        eventType = req.body.type;
+        data=event.data;
+        eventType=req.body.type;
+
     }
+
     switch (eventType) {
         case 'checkout.session.completed':
-            console.log('payment recibed');
+             console.log('payment recibed');
             break;
+    
         case 'invoice.paid':
+            
             break;
         case 'invoice.payment.failed':
             break;
         default:
     }
     res.sendStatus(200);
-});
-exports.webHook = webHook;
-const customerPortal = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { sessionId } = req.body;
-    const checkoutSession = yield stripe.checkout.sessions.retrieve(sessionId);
+
+}
+
+export const customerPortal = async (req:Request,res:Response)=>{
+
+    const {sessionId} = req.body;
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+
     const returnUrl = process.env.DOMAIN;
-    const portalSession = yield stripe.billingPortal.sessions.create({
-        customer: checkoutSession.customer,
-        return_url: returnUrl
-    });
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+        customer:checkoutSession.customer,
+        return_url:returnUrl
+    })
     res.redirect(portalSession.url);
-});
-exports.customerPortal = customerPortal;
-const createSession = (req, res) => {
-};
-exports.createSession = createSession;
+
+}
+
+
+export const createSession = (req:Request,res:Response)=>{
+    
+}
+
+
+
+
+
+
+
+
 /*
     const stripe = new Stripe(process.env.apiKeyStripe||'',{apiVersion: '2022-11-15',});
 

@@ -35,6 +35,7 @@ const checkout_routes_1 = __importDefault(require("../routes/checkout.routes"));
 const stripe_webhook_route_1 = __importDefault(require("../routes/stripe-webhook.route"));
 const clientes_routes_1 = __importDefault(require("../routes/clientes.routes"));
 const validar_compras_route_1 = __importDefault(require("../routes/validar-compras.route"));
+const subscriptions_routes_1 = __importDefault(require("../routes/subscriptions.routes"));
 const connection_1 = __importDefault(require("../db/connection"));
 class Server {
     constructor() {
@@ -68,7 +69,8 @@ class Server {
             checkout: '/api/checkout',
             webhook_stripe: '/stripe-webhooks',
             clientes: '/api/clientes',
-            validar_compras: '/api/validar-compras'
+            validar_compras: '/api/validar-compras',
+            subscriptions: '/api/subscriptions'
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -131,6 +133,7 @@ class Server {
         this.app.use(this.apiPaths.clientes, express_1.default.json(), clientes_routes_1.default);
         this.app.use(this.apiPaths.webhook_stripe, stripe_webhook_route_1.default);
         this.app.use(this.apiPaths.validar_compras, express_1.default.json(), validar_compras_route_1.default);
+        this.app.use(this.apiPaths.subscriptions, express_1.default.json(), subscriptions_routes_1.default);
         this.app.get('*', (req, res) => {
             if (this.allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
                 res.sendFile(path_1.default.resolve(`public/app/${req.url}`));

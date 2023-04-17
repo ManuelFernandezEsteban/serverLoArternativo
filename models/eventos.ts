@@ -83,6 +83,9 @@ const Evento = db.define('Eventos',{
     },
     idPriceEvent:{
         type:DataTypes.STRING(100)
+    },
+    esVendible:{
+        type:DataTypes.BOOLEAN
     }
 
 },{
