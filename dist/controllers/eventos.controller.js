@@ -22,8 +22,9 @@ const monedas_1 = __importDefault(require("../models/monedas"));
 const createPrice_1 = require("../helpers/createPrice");
 const stripe_1 = __importDefault(require("stripe"));
 const dayjs_1 = __importDefault(require("dayjs"));
-//import Evento from '../models/eventos';
-const stripe = new stripe_1.default('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
 const getEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

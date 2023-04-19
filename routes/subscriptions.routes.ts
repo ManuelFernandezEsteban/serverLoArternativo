@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getSubscription } from '../controllers/subscriptions.controllers';
+import { deleteSubscription, getSubscription } from '../controllers/subscriptions.controllers';
 
 
 const router = Router();
@@ -12,6 +12,6 @@ router.post('/customer-portal',customerPortal);*/
 
 router.get('/:id',getSubscription)
 
-
+router.delete('/cancelar/:id',deleteSubscription)
 
 export default router;    

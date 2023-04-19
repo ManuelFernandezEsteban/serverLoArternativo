@@ -24,23 +24,61 @@ export const getSubscription = async (req: Request, res: Response) => {
         const tipoSuscripcion = items.data[0].plan.nickname;
 
         if (subscription) {
-            res.json({
+            return res.json({
                 createdAt, current_period_end_Date,current_period_start_Date,status,tipoSuscripcion
             })
         }else{
-            res.status(400).json({
+            return res.status(400).json({
                 error:'No existe esa suscripcion'
             })
         }
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({
+        return res.status(500).json({
             error
         })
     }
 
 
+}
+
+export const deleteSubscription = async (req: Request, res: Response) => {
+    const idSubscription = req.params.id;
+
+    try {
+        
+        const subscription = await stripe.subscriptions.retrieve(
+            idSubscription
+        );      
+
+        if (subscription.status==='canceled'){
+            
+            return res.status(400).json({
+                msg:"La suscripción ya está cancelada"
+            }) 
+        }
+
+        let suscripcionEliminada;
+        if (subscription){
+            
+            suscripcionEliminada = await stripe.subscriptions.del(subscription.id);
+            return res.json({
+                suscripcionEliminada
+            })
+            
+        }else{
+            res.status(400).json({
+                error:"La suscripción no existe"
+            })    
+        }
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            error
+        })
+    }
 }
 
 

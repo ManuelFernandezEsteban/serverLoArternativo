@@ -20,6 +20,7 @@ const planes_1 = __importDefault(require("../models/planes"));
 const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const dayjs_1 = __importDefault(require("dayjs"));
 const stripe = new stripe_1.default(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
 const esActividadValida = (ActividadeId = 0) => __awaiter(void 0, void 0, void 0, function* () {
     const existeActividad = yield actividades_1.default.findByPk(ActividadeId);
@@ -74,14 +75,16 @@ const planPermitidoEvento = (EspecialistaId = '') => __awaiter(void 0, void 0, v
         const idSuscripcion = yield especialista_1.default.findByPk(EspecialistaId, {
             attributes: ['token_pago']
         });
-        if (idSuscripcion) {
+        if ((idSuscripcion === null || idSuscripcion === void 0 ? void 0 : idSuscripcion.dataValues.token_pago) != null) {
             const suscripcion = yield stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
-            if (!((suscripcion.status === 'active') || (suscripcion.status === 'trialing'))) {
-                throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
+            const hoy = Date.now();
+            const fechaSuscripcionCumplida = dayjs_1.default.unix(suscripcion.current_period_end).isBefore(hoy);
+            if ((suscripcion.status === 'canceled') && (fechaSuscripcionCumplida)) {
+                throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido fechaFinSuscripcion`);
             }
         }
         else {
-            throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido`);
+            throw new Error(`El especilista con id ${EspecialistaId} no tiene un plan permitido no existe suscripcion`);
         }
     }
     catch (error) {
@@ -90,18 +93,21 @@ const planPermitidoEvento = (EspecialistaId = '') => __awaiter(void 0, void 0, v
 });
 exports.planPermitidoEvento = planPermitidoEvento;
 const planPermitido = (especialista) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(especialista, 'plan permitido');
     try {
         const idSuscripcion = yield especialista_1.default.findByPk(especialista, {
             attributes: ['token_pago']
         });
-        if (idSuscripcion) {
+        if ((idSuscripcion === null || idSuscripcion === void 0 ? void 0 : idSuscripcion.dataValues.token_pago) != null) {
             const suscripcion = yield stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
-            if (!((suscripcion.status === 'active') || (suscripcion.status === 'trialing'))) {
-                throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
+            const hoy = Date.now();
+            const fechaSuscripcionCumplida = dayjs_1.default.unix(suscripcion.current_period_end).isBefore(hoy);
+            if ((suscripcion.status === 'canceled') && (fechaSuscripcionCumplida)) {
+                throw new Error(`El especilista con id ${especialista} no tiene un plan permitido fechaFinSuscripcion`);
             }
         }
         else {
-            throw new Error(`El especilista con id ${especialista} no tiene un plan permitido`);
+            throw new Error(`El especilista con id ${especialista} no tiene un plan permitido no existe suscripcion`);
         }
     }
     catch (error) {

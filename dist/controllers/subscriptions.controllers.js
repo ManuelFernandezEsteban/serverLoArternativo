@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSubscription = void 0;
+exports.deleteSubscription = exports.getSubscription = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -28,24 +28,54 @@ const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function
         const current_period_start_Date = dayjs_1.default.unix(current_period_start).toDate().toLocaleDateString('es-Es');
         const tipoSuscripcion = items.data[0].plan.nickname;
         if (subscription) {
-            res.json({
+            return res.json({
                 createdAt, current_period_end_Date, current_period_start_Date, status, tipoSuscripcion
             });
         }
         else {
-            res.status(400).json({
+            return res.status(400).json({
                 error: 'No existe esa suscripcion'
             });
         }
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({
+        return res.status(500).json({
             error
         });
     }
 });
 exports.getSubscription = getSubscription;
+const deleteSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idSubscription = req.params.id;
+    try {
+        const subscription = yield stripe.subscriptions.retrieve(idSubscription);
+        if (subscription.status === 'canceled') {
+            return res.status(400).json({
+                msg: "La suscripción ya está cancelada"
+            });
+        }
+        let suscripcionEliminada;
+        if (subscription) {
+            suscripcionEliminada = yield stripe.subscriptions.del(subscription.id);
+            return res.json({
+                suscripcionEliminada
+            });
+        }
+        else {
+            res.status(400).json({
+                error: "La suscripción no existe"
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            error
+        });
+    }
+});
+exports.deleteSubscription = deleteSubscription;
 /*
 export const webHook = async (req:Request,res:Response)=>{
 

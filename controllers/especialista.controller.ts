@@ -30,12 +30,16 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
         }
     }
     const { count, rows } = await Especialista.findAndCountAll({
+        
         attributes: { exclude: ['password'] },
         include: [Actividad, Plan,UsaHerramientas],
 
         where: {
             actividadeId: especialidad
         },
+        order:['createdAt', 'DESC'],        
+        group:'PlaneId',
+        
         offset: Number(desde),
         limit: Number(limit)
     })
@@ -57,7 +61,15 @@ export const getEspecialistas = async (req: Request, res: Response) => {
         where: {
             actividadeId: especialidad,
             
-        }
+        },
+        //group:['planeId']
+        
+        order:[
+                ['planeId','DESC'],
+                ['createdAt', 'ASC'],
+
+            ],        
+        
     })
     const especialistas = rows;
 

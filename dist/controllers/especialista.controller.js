@@ -42,6 +42,8 @@ const getEspecialistasPagination = (req, res) => __awaiter(void 0, void 0, void 
         where: {
             actividadeId: especialidad
         },
+        order: ['createdAt', 'DESC'],
+        group: 'PlaneId',
         offset: Number(desde),
         limit: Number(limit)
     });
@@ -59,7 +61,12 @@ const getEspecialistas = (req, res) => __awaiter(void 0, void 0, void 0, functio
         include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         where: {
             actividadeId: especialidad,
-        }
+        },
+        //group:['planeId']
+        order: [
+            ['planeId', 'DESC'],
+            ['createdAt', 'ASC'],
+        ],
     });
     const especialistas = rows;
     res.json({

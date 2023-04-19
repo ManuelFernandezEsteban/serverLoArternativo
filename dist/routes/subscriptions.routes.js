@@ -10,5 +10,6 @@ router.post('/webhook',webHook);
 
 router.post('/customer-portal',customerPortal);*/
 router.get('/:id', subscriptions_controllers_1.getSubscription);
+router.delete('/cancelar/:id', subscriptions_controllers_1.deleteSubscription);
 exports.default = router;
 //# sourceMappingURL=subscriptions.routes.js.map

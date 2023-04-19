@@ -8,11 +8,13 @@ import Moneda from '../models/monedas';
 import { createPriceEvento, createProductEvento, deleteProductEvento, updateProductEvento } from '../helpers/createPrice';
 import Stripe from "stripe";
 import dayjs from 'dayjs';
-//import Evento from '../models/eventos';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const stripe = new Stripe('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
 })
+
 export const getEvento = async (req: Request, res: Response) => {
 
     const { id } = req.params;
