@@ -9,6 +9,8 @@ import { createPriceEvento, createProductEvento, deleteProductEvento, updateProd
 import Stripe from "stripe";
 import dayjs from 'dayjs';
 import dotenv from 'dotenv';
+import Compras_eventos_por_finalizar from '../models/compras_eventos_por_finalizar';
+import Cliente from '../models/clientes';
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -220,7 +222,7 @@ export const putEvento = async (req: Request, res: Response) => {
 
             if (body.esVendible) {
                 const precioAnterior = evento.precio;
-                if (precioAnterior != body.precio  || !(evento.esVendible)) {
+                if (precioAnterior != body.precio || !(evento.esVendible)) {
                     const idPriceEvent = await createPriceEvento(evento.idProductEvent, evento.precio, evento.moneda);
                     await evento.update(
                         { idPriceEvent }
@@ -273,6 +275,44 @@ export const deleteEvento = async (req: Request, res: Response) => {
     } else {
         return res.status(404).json({
             msg: `El evento con id ${id} no existe`
+        })
+    }
+
+
+
+}
+
+export const getVentasEvento = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
+    try {
+
+        const compras_eventos_no_finalizadas = await Compras_eventos_por_finalizar.findAll({
+            include: [
+                {
+                    model: Evento
+                },
+                {
+                    model: Cliente
+                }
+            ],
+            where: {
+                EventoId: id
+            }
+        })
+        console.log(compras_eventos_no_finalizadas)
+        if (compras_eventos_no_finalizadas.length===0) {
+            return res.status(400).json({
+                error: 'No hay ventas para ese evento'
+            })
+        }
+        res.json({
+            compras_eventos_no_finalizadas
+        })
+    } catch (error) {
+        console.log(error);        
+        return res.status(500).json({
+            error: 'No hay ventas para ese evento'
         })
     }
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
-import { deleteEvento, getEvento, getEventosActividad, getEventosEspecialista, postEvento, putEvento } from '../controllers/eventos.controller';
+import { deleteEvento, getEvento, getEventosActividad, getEventosEspecialista, getVentasEvento, postEvento, putEvento } from '../controllers/eventos.controller';
 import { validarCampos } from "../middlewares/validar-campos";
 import { existeUsuario, planPermitido, esActividadValida, existeEspecialistaEvento, planPermitidoEvento } from '../helpers/db-validators';
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -18,6 +18,10 @@ router.get('/eventos/:especialista',[
 router.get('/eventoxactividad/:actividad',[
     check('actividad').custom(esActividadValida)
 ],validarCampos,getEventosActividad);
+
+router.get('/ventas/:id',[
+    //validarJWT
+],getVentasEvento)
 
 router.post('/',[
     validarJWT,

@@ -34,9 +34,13 @@ const stripeWebHooks = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const firma = req.headers['stripe-signature'];
     try {
         const event = yield stripe.webhooks.constructEventAsync(payload, firma, process.env.STRIPE_WEBHOOK_SECRET);
-        if (event.type === 'checkout.session.completed') {
+        if ((event.type === 'checkout.session.completed')) {
             const sesion = event.data.object;
             yield onCheckoutSesionComplete(sesion);
+        }
+        if (event.type === 'customer.subscription.deleted') {
+            const sesion = event.data.object;
+            yield onDeleteSubscription(sesion.id);
         }
     }
     catch (error) {
@@ -51,9 +55,27 @@ const stripeWebHooks = (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
 });
 exports.stripeWebHooks = stripeWebHooks;
+const onDeleteSubscription = (subscriptionId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const especialista = yield especialista_1.default.findOne({
+            where: { token_pago: subscriptionId }
+        });
+        if (especialista) {
+            especialista.set({ planId: 1 });
+            yield especialista.save();
+        }
+        else {
+            throw new Error(`Error completando cancelación, el especialista no se encuentra`);
+        }
+    }
+    catch (error) {
+        console.log(error);
+        throw new Error(`Error completando cancelación ${error}`);
+    }
+});
 const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, function* () {
     const sesionReferenceId = sesion.client_reference_id;
-    //console.log(sesion);
+    //console.log('sesion.checkout.complete evento:', sesionReferenceId);
     try {
         const sesion_compra_evento = yield sesion_compra_evento_1.default.findByPk(sesionReferenceId);
         if (sesion_compra_evento) {
@@ -67,16 +89,18 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             }
             //cliente.set({idStripe:sesion.customer});
             //await cliente.save();
-            sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.set({ completada: 1 });
-            yield (sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.save());
+            sesion_compra_evento.set({ completada: 1 });
+            yield sesion_compra_evento.save();
             const compra_por_finalizar = yield compras_eventos_por_finalizar_1.default.create({
                 ClienteId: sesion_compra_evento.ClienteId,
-                EventoId: sesion_compra_evento.EventoId,
+                EventoId: evento.id,
                 EspecialistaId: evento.EspecialistaId,
                 ok_cliente: false,
                 ok_especialista: false,
-                payment_intent: sesion.payment_intent
+                payment_intent: sesion.payment_intent,
+                pagada: false
             });
+            console.log('compra por finalizar', compra_por_finalizar);
             const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
             //realizar factura evento comprado
             if (cliente.idStripe) {
@@ -101,7 +125,7 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
         }
         else {
             const sesion_compra_suscripcion = yield sesiones_compra_suscripcion_1.default.findByPk(sesionReferenceId);
-            console.log(sesion);
+            console.log('sesion.checkout.complete suscripcion:', sesion);
             if (sesion_compra_suscripcion) { // es una suscripcion
                 const especialista = yield especialista_1.default.findByPk(sesion_compra_suscripcion.EspecialistaId);
                 if (!especialista) {

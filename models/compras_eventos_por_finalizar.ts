@@ -1,11 +1,12 @@
 import { DataTypes} from "sequelize";
 import db from '../db/connection';
 
-const Compras_eventos_por_finalizar = db.define('Compras_eventos_no_finalizadas',{
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+const Compras_eventos_no_finalizadas = db.define('Compras_eventos_no_finalizadas',{
+    id:{
+        type:DataTypes.BIGINT,
+        primaryKey:true, 
+        autoIncrement:true,
+        unique:true       
     },
     ClienteId: {
         type: DataTypes.STRING(255)
@@ -42,4 +43,4 @@ const Compras_eventos_por_finalizar = db.define('Compras_eventos_no_finalizadas'
     paranoid: true
 })
 
-export default Compras_eventos_por_finalizar; 
+export default Compras_eventos_no_finalizadas; 

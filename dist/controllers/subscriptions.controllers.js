@@ -57,7 +57,10 @@ const deleteSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
         }
         let suscripcionEliminada;
         if (subscription) {
-            suscripcionEliminada = yield stripe.subscriptions.del(subscription.id);
+            suscripcionEliminada = yield stripe.subscriptions.update(subscription.id, {
+                cancel_at_period_end: true
+            });
+            //suscripcionEliminada=await stripe.subscriptions.del(subscription.id)
             return res.json({
                 suscripcionEliminada
             });

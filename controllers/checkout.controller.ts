@@ -77,7 +77,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
             }
         }
     } else if (info.plan) {
-        console.log(info)
+       // console.log(info)
 
         try {
             const especialista = await Especialista.findByPk(info.especialista);
@@ -119,14 +119,14 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
 const setupSuscripcion = (info: RequestInfo, sesion_compra_suscripcion: string, StripeIdEspecialista: string, price: string) => {
 
-    console.log(info, sesion_compra_suscripcion);
+    //console.log(info, sesion_compra_suscripcion);
     const config = setupBaseSesionConfig(info, sesion_compra_suscripcion, StripeIdEspecialista);
     config.mode = 'subscription';    
 
     config.subscription_data = {
         items: [{ plan: price }],
         trial_settings: {end_behavior: {missing_payment_method: 'cancel'}},
-        trial_period_days: 60,
+        trial_period_days: 30,
        
 
     }
@@ -135,7 +135,7 @@ const setupSuscripcion = (info: RequestInfo, sesion_compra_suscripcion: string, 
 
 const setupCompraDeEvento = (info: RequestInfo, price: string, sesion_compra_eventoId: string, clienteStripeId: string) => {
 
-    console.log(info)
+    //console.log(info)
     const config = setupBaseSesionConfig(info, sesion_compra_eventoId, clienteStripeId);
     config.line_items = [
         {
@@ -147,7 +147,7 @@ const setupCompraDeEvento = (info: RequestInfo, price: string, sesion_compra_eve
 }
 
 const setupBaseSesionConfig = (info: RequestInfo, sesion_compra_eventoId: string, clienteStripeId: string) => {
-    console.log(info)
+    //console.log(info)
     const config: any = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${sesion_compra_eventoId}`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,

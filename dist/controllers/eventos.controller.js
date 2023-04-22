@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEvento = exports.putEvento = exports.postEvento = exports.getEventosActividad = exports.getEventosEspecialista = exports.getEvento = void 0;
+exports.getVentasEvento = exports.deleteEvento = exports.putEvento = exports.postEvento = exports.getEventosActividad = exports.getEventosEspecialista = exports.getEvento = void 0;
 const sequelize_1 = require("sequelize");
 const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
@@ -23,6 +23,8 @@ const createPrice_1 = require("../helpers/createPrice");
 const stripe_1 = __importDefault(require("stripe"));
 const dayjs_1 = __importDefault(require("dayjs"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const compras_eventos_por_finalizar_1 = __importDefault(require("../models/compras_eventos_por_finalizar"));
+const clientes_1 = __importDefault(require("../models/clientes"));
 dotenv_1.default.config();
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
@@ -247,4 +249,38 @@ const deleteEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteEvento = deleteEvento;
+const getVentasEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const compras_eventos_no_finalizadas = yield compras_eventos_por_finalizar_1.default.findAll({
+            include: [
+                {
+                    model: eventos_1.default
+                },
+                {
+                    model: clientes_1.default
+                }
+            ],
+            where: {
+                EventoId: id
+            }
+        });
+        console.log(compras_eventos_no_finalizadas);
+        if (compras_eventos_no_finalizadas.length === 0) {
+            return res.status(400).json({
+                error: 'No hay ventas para ese evento'
+            });
+        }
+        res.json({
+            compras_eventos_no_finalizadas
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            error: 'No hay ventas para ese evento'
+        });
+    }
+});
+exports.getVentasEvento = getVentasEvento;
 //# sourceMappingURL=eventos.controller.js.map

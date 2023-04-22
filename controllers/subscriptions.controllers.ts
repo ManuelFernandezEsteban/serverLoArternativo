@@ -62,7 +62,13 @@ export const deleteSubscription = async (req: Request, res: Response) => {
         let suscripcionEliminada;
         if (subscription){
             
-            suscripcionEliminada = await stripe.subscriptions.del(subscription.id);
+            suscripcionEliminada = await stripe.subscriptions.update(subscription.id,{
+                cancel_at_period_end:true
+            });
+
+            //suscripcionEliminada=await stripe.subscriptions.del(subscription.id)
+
+
             return res.json({
                 suscripcionEliminada
             })
