@@ -17,7 +17,7 @@ const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const dayjs_1 = __importDefault(require("dayjs"));
-const stripe = new stripe_1.default(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
 const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idSubscription = req.params.id;
     try {

@@ -5,7 +5,7 @@ dotenv.config();
 import dayjs from 'dayjs';
 
 
-const stripe = new Stripe(process.env.apiKeyStripe || '', { apiVersion: '2022-11-15', });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
 
 export const getSubscription = async (req: Request, res: Response) => {
 

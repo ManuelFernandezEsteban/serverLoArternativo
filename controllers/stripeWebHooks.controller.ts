@@ -136,7 +136,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
         } else {
             const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.findByPk(sesionReferenceId);
-            console.log('sesion.checkout.complete suscripcion:',sesion);
+            //console.log('sesion.checkout.complete suscripcion:',sesion);
             if (sesion_compra_suscripcion) {// es una suscripcion
                 const especialista = await Especialista.findByPk(sesion_compra_suscripcion.EspecialistaId);
                 if (!especialista) {
@@ -150,7 +150,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                     fecha_pago_actual: new Date(Date.now()),
                     fecha_fin_suscripcion: fecha_fin,
                     planeId: sesion_compra_suscripcion.planeId
-                });
+                }); 
                 await especialista.save();
 
             } else {

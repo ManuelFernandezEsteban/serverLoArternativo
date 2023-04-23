@@ -265,7 +265,6 @@ const getVentasEvento = (req, res) => __awaiter(void 0, void 0, void 0, function
                 EventoId: id
             }
         });
-        console.log(compras_eventos_no_finalizadas);
         if (compras_eventos_no_finalizadas.length === 0) {
             return res.status(400).json({
                 error: 'No hay ventas para ese evento'

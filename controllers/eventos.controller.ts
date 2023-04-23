@@ -300,7 +300,7 @@ export const getVentasEvento = async (req: Request, res: Response) => {
                 EventoId: id
             }
         })
-        console.log(compras_eventos_no_finalizadas)
+        
         if (compras_eventos_no_finalizadas.length===0) {
             return res.status(400).json({
                 error: 'No hay ventas para ese evento'

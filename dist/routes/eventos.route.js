@@ -16,7 +16,7 @@ router.get('/eventoxactividad/:actividad', [
     (0, express_validator_1.check)('actividad').custom(db_validators_1.esActividadValida)
 ], validar_campos_1.validarCampos, eventos_controller_1.getEventosActividad);
 router.get('/ventas/:id', [
-//validarJWT
+    validar_JWT_1.validarJWT
 ], eventos_controller_1.getVentasEvento);
 router.post('/', [
     validar_JWT_1.validarJWT,

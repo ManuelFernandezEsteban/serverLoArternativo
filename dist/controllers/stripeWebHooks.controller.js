@@ -126,7 +126,7 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
         }
         else {
             const sesion_compra_suscripcion = yield sesiones_compra_suscripcion_1.default.findByPk(sesionReferenceId);
-            console.log('sesion.checkout.complete suscripcion:', sesion);
+            //console.log('sesion.checkout.complete suscripcion:',sesion);
             if (sesion_compra_suscripcion) { // es una suscripcion
                 const especialista = yield especialista_1.default.findByPk(sesion_compra_suscripcion.EspecialistaId);
                 if (!especialista) {

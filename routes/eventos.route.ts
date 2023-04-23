@@ -20,7 +20,7 @@ router.get('/eventoxactividad/:actividad',[
 ],validarCampos,getEventosActividad);
 
 router.get('/ventas/:id',[
-    //validarJWT
+    validarJWT
 ],getVentasEvento)
 
 router.post('/',[
