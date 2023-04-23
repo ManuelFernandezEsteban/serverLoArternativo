@@ -98,9 +98,10 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                 ok_cliente: false,
                 ok_especialista: false,
                 payment_intent: sesion.payment_intent,
-                pagada: false
+                pagada: false,
+                //        token_seguridad:token_seguridad
             });
-            console.log('compra por finalizar', compra_por_finalizar);
+            console.log('compra por finalizar', compra_por_finalizar.id);
             const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
             //realizar factura evento comprado
             if (cliente.idStripe) {
@@ -120,8 +121,8 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                 yield stripe.invoices.finalizeInvoice(factura.id);
                 yield stripe.invoices.sendInvoice(factura.id);
             }
-            enviarMailCompraCliente(compra_por_finalizar, token);
-            enviarMailCompraEspecialista(compra_por_finalizar, token);
+            yield enviarMailCompraCliente(compra_por_finalizar, token);
+            yield enviarMailCompraEspecialista(compra_por_finalizar, token);
         }
         else {
             const sesion_compra_suscripcion = yield sesiones_compra_suscripcion_1.default.findByPk(sesionReferenceId);
@@ -133,7 +134,7 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                 }
                 let fecha_fin = new Date(Date.now());
                 fecha_fin.setMonth(fecha_fin.getMonth() + 1);
-                yield especialista.set({
+                especialista.set({
                     token_pago: sesion.subscription,
                     stripeId: sesion.customer,
                     fecha_pago_actual: new Date(Date.now()),

@@ -3,10 +3,9 @@ import db from '../db/connection';
 
 const Compras_eventos_no_finalizadas = db.define('Compras_eventos_no_finalizadas',{
     id:{
-        type:DataTypes.BIGINT,
-        primaryKey:true, 
-        autoIncrement:true,
-        unique:true       
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true,        
     },
     ClienteId: {
         type: DataTypes.STRING(255)
@@ -28,6 +27,9 @@ const Compras_eventos_no_finalizadas = db.define('Compras_eventos_no_finalizadas
     },
     pagada:{
         type:DataTypes.BOOLEAN
+    },
+    token_seguridad:{
+        type: DataTypes.STRING(255)
     },
     createdAt:{
         type:DataTypes.DATE

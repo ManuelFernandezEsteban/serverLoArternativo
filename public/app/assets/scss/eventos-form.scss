@@ -155,14 +155,23 @@
         grid-column-start: col4;
         grid-column-end: col6;
         @media (max-width:$breakpointMovil) {
-            grid-column-start: col7;
-            grid-column-end: col8;
+            grid-column-start: first;
+            grid-column-end: col7;
+        }
+    }
+    .vendible {
+        align-self: flex-end;
+        grid-column-start: col6;
+        grid-column-end: col8;
+        @media (max-width:$breakpointMovil) {
+            grid-column-start: first;
+            grid-column-end: col7;
         }
     }
 
     .precio {
-        grid-column-start: col6;
-        grid-column-end: col8;
+        grid-column-start: first;
+        grid-column-end: col4;
 
         @media (max-width:$breakpointMovil) {
             grid-column-start: first;

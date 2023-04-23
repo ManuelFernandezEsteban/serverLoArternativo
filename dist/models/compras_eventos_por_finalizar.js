@@ -7,10 +7,9 @@ const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const Compras_eventos_no_finalizadas = connection_1.default.define('Compras_eventos_no_finalizadas', {
     id: {
-        type: sequelize_1.DataTypes.BIGINT,
+        type: sequelize_1.DataTypes.UUID,
+        defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
-        unique: true
     },
     ClienteId: {
         type: sequelize_1.DataTypes.STRING(255)
@@ -32,6 +31,9 @@ const Compras_eventos_no_finalizadas = connection_1.default.define('Compras_even
     },
     pagada: {
         type: sequelize_1.DataTypes.BOOLEAN
+    },
+    token_seguridad: {
+        type: sequelize_1.DataTypes.STRING(255)
     },
     createdAt: {
         type: sequelize_1.DataTypes.DATE

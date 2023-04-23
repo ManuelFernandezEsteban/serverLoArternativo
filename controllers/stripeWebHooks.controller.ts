@@ -12,10 +12,8 @@ import { sendMail } from "../helpers/send-mail";
 import Cliente from "../models/clientes";
 import { mailCompraCliente, mailCompraEspecialista } from "../helpers/plantilla-mail";
 import Server from "../models/server";
-import * as socketController from '../sockets/controller';
-import Sesiones_compra_suscripcion from "../models/sesiones_compra_suscripcion";
 import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
-import { Object } from '../interfaces/checkout-sesion.interface';
+import {v4 as uuidv4} from 'uuid';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -50,7 +48,7 @@ export const stripeWebHooks = async (req: Request, res: Response) => {
     })
 
 }
-
+ 
 const onDeleteSubscription= async(subscriptionId:string)=>{
 
     try {
@@ -92,7 +90,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             //await cliente.save();
             sesion_compra_evento.set({ completada: 1 });
             await sesion_compra_evento.save();
-
+        
 
             const compra_por_finalizar = await Compras_eventos_no_finalizadas.create({
                 ClienteId: sesion_compra_evento.ClienteId,
@@ -101,11 +99,12 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 ok_cliente: false,
                 ok_especialista: false,
                 payment_intent: sesion.payment_intent,
-                pagada:false
+                pagada:false,
+        //        token_seguridad:token_seguridad
             });
            
 
-            console.log('compra por finalizar', compra_por_finalizar);
+            console.log('compra por finalizar', compra_por_finalizar.id);
 
             const token = jwt.sign({ sesion_compra: compra_por_finalizar.id },
                 process.env.SECRETPRIVATEKEY || '',
@@ -132,8 +131,8 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 await stripe.invoices.finalizeInvoice(factura.id);                
                 await stripe.invoices.sendInvoice(factura.id);
             }
-            enviarMailCompraCliente(compra_por_finalizar, token);
-            enviarMailCompraEspecialista(compra_por_finalizar, token);
+            await enviarMailCompraCliente(compra_por_finalizar, token);
+            await enviarMailCompraEspecialista(compra_por_finalizar, token);
 
         } else {
             const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.findByPk(sesionReferenceId);
@@ -145,14 +144,13 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 }
                 let fecha_fin = new Date(Date.now());
                 fecha_fin.setMonth(fecha_fin.getMonth() + 1)
-                await especialista.set({ 
+                especialista.set({
                     token_pago: sesion.subscription,
-                    stripeId:sesion.customer,
-                    fecha_pago_actual:new Date(Date.now()),
-                    fecha_fin_suscripcion:fecha_fin,
-                    planeId:sesion_compra_suscripcion.planeId
-
-                 });
+                    stripeId: sesion.customer,
+                    fecha_pago_actual: new Date(Date.now()),
+                    fecha_fin_suscripcion: fecha_fin,
+                    planeId: sesion_compra_suscripcion.planeId
+                });
                 await especialista.save();
 
             } else {
