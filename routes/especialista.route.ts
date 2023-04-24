@@ -6,7 +6,9 @@ import { getEspecialista,
          putEspecialista, 
          deleteEspecialista, 
          patchEspecialista,
-         getEspecialistasPagination} from '../controllers/especialista.controller';
+         getEspecialistasPagination,
+         crearCuentaConectada,
+         getCuentaConectada} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
 import { condicionesAceptada, esActividadValida, esPlanValido, existeEmail, existeUsuario, politicaAceptada } from '../helpers/db-validators';
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -42,6 +44,16 @@ router.post('/',[
     check('PlaneId').custom(esPlanValido),
     check('pais','El país es obligatorio').not().isEmpty()  
     ] ,validarCampos, postEspecialista);
+
+router.post('/cuenta_conectada/:id',[
+    //validarJWT
+    check('id').custom(existeUsuario),
+],validarCampos,crearCuentaConectada);
+
+router.get('/cuenta_conectada/:id',[
+    //validarJWT
+    //check('id').custom(existeUsuario),
+],validarCampos,getCuentaConectada);
 
 router.put('/:id',[
     validarJWT,

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.patchEspecialista = exports.deleteEspecialista = exports.putEspecialista = exports.postEspecialista = exports.getEspecialista = exports.getEspecialistas = exports.getEspecialistasPagination = void 0;
+exports.getCuentaConectada = exports.crearCuentaConectada = exports.patchEspecialista = exports.deleteEspecialista = exports.putEspecialista = exports.postEspecialista = exports.getEspecialista = exports.getEspecialistas = exports.getEspecialistasPagination = void 0;
 const sequelize_1 = require("sequelize");
 const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
@@ -23,6 +23,12 @@ const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
 const createFolder_1 = require("../helpers/createFolder");
 const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const stripe_1 = __importDefault(require("stripe"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15'
+});
 const getEspecialistasPagination = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { especialidad } = req.params;
     let { limit = 5, desde = 0 } = req.query;
@@ -278,4 +284,52 @@ const patchEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.patchEspecialista = patchEspecialista;
+const crearCuentaConectada = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const link = yield crearConnectedAccount(id);
+    res.json({
+        link
+    });
+});
+exports.crearCuentaConectada = crearCuentaConectada;
+const crearConnectedAccount = (especialistaId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const especialista = yield especialista_1.default.findByPk(especialistaId);
+        if (especialista) {
+            const account = yield stripe.accounts.create({
+                type: 'express',
+                country: 'ES',
+                email: especialista.email,
+                capabilities: {
+                    card_payments: {
+                        requested: true,
+                    },
+                    transfers: {
+                        requested: true,
+                    },
+                },
+                default_currency: 'eur',
+            });
+            //console.log(account);
+            const accountLink = yield stripe.accountLinks.create({
+                account: account.id,
+                refresh_url: 'http://localhost:4200/home',
+                return_url: 'http://localhost:4200/home',
+                type: 'account_onboarding',
+            });
+            return { accountLink, account: account.id };
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+const getCuentaConectada = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const cuenta = yield stripe.accounts.retrieve(id);
+    res.json({
+        cuenta
+    });
+});
+exports.getCuentaConectada = getCuentaConectada;
 //# sourceMappingURL=especialista.controller.js.map

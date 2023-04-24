@@ -9,8 +9,12 @@ import { sendMail } from '../helpers/send-mail';
 import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 import { createFolder } from '../helpers/createFolder';
 import UsaHerramientas from '../models/usa_herramientas';
-import Herramientas from '../models/herramientas';
-import { login } from './auth.controller';
+import dotenv from 'dotenv';
+import Stripe from "stripe";
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2022-11-15'
+});
 
 
 
@@ -308,4 +312,63 @@ export const patchEspecialista = async (req: Request, res: Response) => {
     }
 
 
+}
+
+export const crearCuentaConectada = async  (req: Request, res: Response) => {
+
+    const {id} = req.params;
+
+    const link = await crearConnectedAccount(id);
+
+    res.json({
+        link  
+    })
+
+}
+
+
+const crearConnectedAccount = async (especialistaId: string) => {
+
+    try {
+        const especialista = await Especialista.findByPk(especialistaId);
+        if (especialista) {
+            const account = await stripe.accounts.create({
+                type: 'express',
+                country: 'ES',
+                email: especialista.email,
+                capabilities: {
+                    card_payments: {
+                        requested: true,
+                    },
+                    transfers: {
+                        requested: true,
+                    },
+                },
+                default_currency:'eur',
+            })
+            //console.log(account);
+
+            const accountLink = await stripe.accountLinks.create({
+                account: account.id,
+                refresh_url: 'http://localhost:4200/home',
+                return_url: 'http://localhost:4200/home',
+                type: 'account_onboarding',
+            });
+            return {accountLink,account:account.id};
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
+export const getCuentaConectada = async (req: Request, res: Response)=>{
+
+    const {id} = req.params;
+
+    const cuenta = await stripe.accounts.retrieve(id);
+
+    res.json({
+        cuenta
+    })
 }

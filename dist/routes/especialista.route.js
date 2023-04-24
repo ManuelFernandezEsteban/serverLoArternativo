@@ -34,6 +34,14 @@ router.post('/', [
     (0, express_validator_1.check)('PlaneId').custom(db_validators_1.esPlanValido),
     (0, express_validator_1.check)('pais', 'El país es obligatorio').not().isEmpty()
 ], validar_campos_1.validarCampos, especialista_controller_1.postEspecialista);
+router.post('/cuenta_conectada/:id', [
+    //validarJWT
+    (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),
+], validar_campos_1.validarCampos, especialista_controller_1.crearCuentaConectada);
+router.get('/cuenta_conectada/:id', [
+//validarJWT
+//check('id').custom(existeUsuario),
+], validar_campos_1.validarCampos, especialista_controller_1.getCuentaConectada);
 router.put('/:id', [
     validar_JWT_1.validarJWT,
     (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),

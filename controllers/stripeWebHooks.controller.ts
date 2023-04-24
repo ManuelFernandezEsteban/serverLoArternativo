@@ -13,7 +13,7 @@ import Cliente from "../models/clientes";
 import { mailCompraCliente, mailCompraEspecialista } from "../helpers/plantilla-mail";
 import Server from "../models/server";
 import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
-import {v4 as uuidv4} from 'uuid';
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -25,12 +25,12 @@ export const stripeWebHooks = async (req: Request, res: Response) => {
     const firma = req.headers['stripe-signature'];
     try {
         const event = await stripe.webhooks.constructEventAsync(payload, firma!, process.env.STRIPE_WEBHOOK_SECRET!);
-        
-        if ((event.type === 'checkout.session.completed') ){
-            
+
+        if ((event.type === 'checkout.session.completed')) {
+
             const sesion = event.data.object;
             await onCheckoutSesionComplete(sesion);
-        }if (event.type==='customer.subscription.deleted'){
+        } if (event.type === 'customer.subscription.deleted') {
             const sesion = event.data.object;
             await onDeleteSubscription(sesion.id);
         }
@@ -48,18 +48,18 @@ export const stripeWebHooks = async (req: Request, res: Response) => {
     })
 
 }
- 
-const onDeleteSubscription= async(subscriptionId:string)=>{
+
+const onDeleteSubscription = async (subscriptionId: string) => {
 
     try {
-        
+
         const especialista = await Especialista.findOne({
-            where:{token_pago:subscriptionId}
+            where: { token_pago: subscriptionId }
         });
-        if (especialista){
-            especialista.set({planId:1});
+        if (especialista) {
+            especialista.set({ planId: 1 });
             await especialista.save();
-        }else{
+        } else {
             throw new Error(`Error completando cancelación, el especialista no se encuentra`);
         }
 
@@ -90,7 +90,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             //await cliente.save();
             sesion_compra_evento.set({ completada: 1 });
             await sesion_compra_evento.save();
-        
+
 
             const compra_por_finalizar = await Compras_eventos_no_finalizadas.create({
                 ClienteId: sesion_compra_evento.ClienteId,
@@ -99,10 +99,10 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 ok_cliente: false,
                 ok_especialista: false,
                 payment_intent: sesion.payment_intent,
-                pagada:false,
-        //        token_seguridad:token_seguridad
+                pagada: false,
+                //        token_seguridad:token_seguridad
             });
-           
+
 
             console.log('compra por finalizar', compra_por_finalizar.id);
 
@@ -128,7 +128,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
                 })
 
-                await stripe.invoices.finalizeInvoice(factura.id);                
+                await stripe.invoices.finalizeInvoice(factura.id);
                 await stripe.invoices.sendInvoice(factura.id);
             }
             await enviarMailCompraCliente(compra_por_finalizar, token);
@@ -150,12 +150,15 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                     fecha_pago_actual: new Date(Date.now()),
                     fecha_fin_suscripcion: fecha_fin,
                     planeId: sesion_compra_suscripcion.planeId
-                }); 
+                });
                 await especialista.save();
+
+                
 
             } else {
                 throw new Error('no existe la referencia');
             }
+                        
         }
 
         //emision compra finalizada al frontend
@@ -174,6 +177,9 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
     }
 }
+
+
+
 
 const enviarMailCompraCliente = async (sesion_compra: any, token: string) => {
 
