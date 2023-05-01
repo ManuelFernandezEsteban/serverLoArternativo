@@ -34,7 +34,7 @@ export const postCliente = async (req:Request,res:Response)=>{
                 phone:body.telefono,
 
             });
-            console.log(customer);
+            //console.log(customer);
             cliente = await Cliente.create(body);
             cliente.set({idStripe:customer.id});
             cliente.save();

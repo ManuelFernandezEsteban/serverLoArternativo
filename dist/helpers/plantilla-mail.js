@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mailCompraEspecialista = exports.mailCompraCliente = exports.mailRecuperacionPassword = exports.mailConsulta = exports.mailPlanOro = exports.mailRegistro = exports.mailSuscripcion = void 0;
+exports.mailTransferenciaEspecialista = exports.mailCompraEspecialista = exports.mailCompraCliente = exports.mailRecuperacionPassword = exports.mailConsulta = exports.mailPlanOro = exports.mailRegistro = exports.mailSuscripcion = void 0;
 const mailSuperior = `
 <!DOCTYPE html>
 <html lang="en">
@@ -195,4 +195,20 @@ const mailCompraEspecialista = (especialista, evento, cliente, link) => {
     return mensaje;
 };
 exports.mailCompraEspecialista = mailCompraEspecialista;
+const mailTransferenciaEspecialista = (especialista, evento, cliente, cantidad, moneda) => {
+    const mensaje = `
+            ${mailSuperior}
+                    <p>Hola ${especialista.nombre}, le enviamos este mail con la información de la transferencia enviada a su cuenta por la realizacion del evento ${evento.evento}.</p>
+                    <ul>
+                        <li>Evento: ${evento.evento}</li>
+                        <li>Fecha: ${evento.fecha}</li>
+                        <li>Precio evento: ${evento.precio} ${moneda}</li>
+                        <li>Cliente: ${cliente.nombre} ${cliente.apellidos}</li>
+                        <li>Importe transferencia: ${cantidad / 100} </li>
+                    </ul>                    
+             ${mailInferior}  
+        `;
+    return mensaje;
+};
+exports.mailTransferenciaEspecialista = mailTransferenciaEspecialista;
 //# sourceMappingURL=plantilla-mail.js.map

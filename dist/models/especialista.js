@@ -8,6 +8,7 @@ const connection_1 = __importDefault(require("../db/connection"));
 const eventos_1 = __importDefault(require("./eventos"));
 const compras_eventos_por_finalizar_1 = __importDefault(require("./compras_eventos_por_finalizar"));
 const sesiones_compra_suscripcion_1 = __importDefault(require("./sesiones_compra_suscripcion"));
+const suscripciones_1 = __importDefault(require("./suscripciones"));
 const Especialista = connection_1.default.define('Especialistas', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -108,6 +109,9 @@ const Especialista = connection_1.default.define('Especialistas', {
     },
     stripeId: {
         type: sequelize_1.DataTypes.STRING(255)
+    },
+    cuentaConectada: {
+        type: sequelize_1.DataTypes.STRING(255)
     }
 }, {
     paranoid: true // soft delete
@@ -118,5 +122,7 @@ Especialista.hasMany(compras_eventos_por_finalizar_1.default);
 compras_eventos_por_finalizar_1.default.belongsTo(Especialista);
 Especialista.hasMany(sesiones_compra_suscripcion_1.default);
 sesiones_compra_suscripcion_1.default.belongsTo(Especialista);
+Especialista.hasMany(suscripciones_1.default);
+suscripciones_1.default.belongsTo(Especialista);
 exports.default = Especialista;
 //# sourceMappingURL=especialista.js.map

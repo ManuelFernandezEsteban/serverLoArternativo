@@ -40,6 +40,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
     if (info.eventoId) {
         const evento = await Evento.findByPk(info.eventoId);
+        console.log(info);
         if (evento) {
             try {
 
@@ -54,8 +55,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
                     EventoId: info.eventoId,
                     completada: false
                 })
-                if (evento.idPriceEvent != null) {
-                    sesionConfig = setupCompraDeEvento(info, evento.idPriceEvent, sesion_compra_evento.id, cliente.stripeId);
+                if (evento.dataValues.idPriceEvent != null) {
+                    sesionConfig = setupCompraDeEvento(info, evento.dataValues.idPriceEvent, sesion_compra_evento.dataValues.id, cliente.dataValues.stripeId);
 
                 }
                 //console.log(sesionConfig);
@@ -88,8 +89,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
             if (!plan) {
                 throw new Error("El plan no existe");
             }
-
-            let sesionConfig;
+            
             const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.create({
                 EspecialistaId: info.especialista,
                 planeId: info.plan,

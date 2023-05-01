@@ -145,7 +145,7 @@ const createNewPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
     try {
         const salt = bcryptjs_1.default.genSaltSync();
-        yield (especialista === null || especialista === void 0 ? void 0 : especialista.set({ password: bcryptjs_1.default.hashSync(password, salt) }));
+        yield (especialista === null || especialista === void 0 ? void 0 : especialista.set({ password: bcryptjs_1.default.hashSync(password, salt), resetToken: null }));
         yield (especialista === null || especialista === void 0 ? void 0 : especialista.save());
         res.json({
             'message': "Contraseña establecida",

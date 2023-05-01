@@ -209,3 +209,22 @@ export const mailCompraEspecialista = (especialista:any,evento:any,cliente:any,l
 
     return mensaje;
 }
+
+export const mailTransferenciaEspecialista = (especialista:any,evento:any,cliente:any,cantidad:number,moneda:string): string => {    
+    
+    const mensaje =
+        `
+            ${mailSuperior}
+                    <p>Hola ${especialista.nombre}, le enviamos este mail con la información de la transferencia enviada a su cuenta por la realizacion del evento ${evento.evento}.</p>
+                    <ul>
+                        <li>Evento: ${evento.evento}</li>
+                        <li>Fecha: ${evento.fecha}</li>
+                        <li>Precio evento: ${evento.precio} ${moneda}</li>
+                        <li>Cliente: ${cliente.nombre} ${cliente.apellidos}</li>
+                        <li>Importe transferencia: ${cantidad/100} </li>
+                    </ul>                    
+             ${mailInferior}  
+        `;
+
+    return mensaje;
+}

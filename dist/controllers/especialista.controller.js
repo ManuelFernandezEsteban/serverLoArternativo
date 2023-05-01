@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCuentaConectada = exports.crearCuentaConectada = exports.patchEspecialista = exports.deleteEspecialista = exports.putEspecialista = exports.postEspecialista = exports.getEspecialista = exports.getEspecialistas = exports.getEspecialistasPagination = void 0;
+exports.getCuentaConectada = exports.crearCuentaConectada = exports.deleteEspecialista = exports.putEspecialista = exports.postEspecialista = exports.getEspecialista = exports.getEspecialistas = exports.getEspecialistasPagination = void 0;
 const sequelize_1 = require("sequelize");
 const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
@@ -238,61 +238,65 @@ const deleteEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.deleteEspecialista = deleteEspecialista;
-const patchEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+/*
+export const patchEspecialista = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { body } = req;
     const { PlaneId } = body;
+
     try {
-        const especialista = yield especialista_1.default.findByPk(id);
+        const especialista = await Especialista.findByPk(id);
         if (!especialista) {
             return res.status(404).json({
                 msg: 'No existe un especialista con el id ' + id
-            });
-        }
-        else {
+            })
+        } else {
             //Plata
             if (PlaneId === 1) {
-                yield especialista.update({ PlaneId: PlaneId });
-            }
-            else {
+                await especialista.update({ PlaneId: PlaneId });
+
+            } else {
                 //oro
                 let fecha_fin = new Date(Date.now());
-                fecha_fin.setMonth(fecha_fin.getMonth() + 1);
-                yield (0, send_mail_1.sendMail)({
+                fecha_fin.setMonth(fecha_fin.getMonth() + 1)
+
+                await sendMail({
                     asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
                     nombreDestinatario: especialista.nombre,
                     mailDestinatario: especialista.email,
                     mensaje: `Hola, ${especialista.nombre} su resgistro ha sido completado`,
-                    html: (0, plantilla_mail_1.mailPlanOro)(especialista.nombre)
-                });
-                yield especialista.update({
+                    html: mailPlanOro(especialista.nombre)
+                })
+
+                await especialista.update({
                     PlaneId: PlaneId,
                     fecha_pago_actual: new Date(Date.now()),
                     fecha_fin_suscripcion: fecha_fin
-                });
+                })
+
             }
         }
         res.json({
             especialista
-        });
-    }
-    catch (error) {
+        })
+    } catch (error) {
         console.log(error);
         res.status(500).json({
             msg: error,
-        });
+        })
     }
-});
-exports.patchEspecialista = patchEspecialista;
+}
+*/
 const crearCuentaConectada = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const link = yield crearConnectedAccount(id);
+    const { callbackUrl } = req.body;
+    const link = yield crearConnectedAccount(id, callbackUrl);
     res.json({
         link
     });
 });
 exports.crearCuentaConectada = crearCuentaConectada;
-const crearConnectedAccount = (especialistaId) => __awaiter(void 0, void 0, void 0, function* () {
+const crearConnectedAccount = (especialistaId, callbackUrl) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const especialista = yield especialista_1.default.findByPk(especialistaId);
         if (especialista) {
@@ -310,11 +314,13 @@ const crearConnectedAccount = (especialistaId) => __awaiter(void 0, void 0, void
                 },
                 default_currency: 'eur',
             });
-            //console.log(account);
+            console.log(account.id);
+            yield especialista.update({ cuentaConectada: account.id });
+            console.log(especialista.id);
             const accountLink = yield stripe.accountLinks.create({
                 account: account.id,
-                refresh_url: 'http://localhost:4200/home',
-                return_url: 'http://localhost:4200/home',
+                refresh_url: callbackUrl,
+                return_url: callbackUrl,
                 type: 'account_onboarding',
             });
             return { accountLink, account: account.id };
@@ -326,10 +332,17 @@ const crearConnectedAccount = (especialistaId) => __awaiter(void 0, void 0, void
 });
 const getCuentaConectada = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const cuenta = yield stripe.accounts.retrieve(id);
-    res.json({
-        cuenta
-    });
+    if (id) {
+        const cuenta = yield stripe.accounts.retrieve(id);
+        res.json({
+            cuenta
+        });
+    }
+    else {
+        return res.status(400).json({
+            msg: 'No tiene cuenta conectada'
+        });
+    }
 });
 exports.getCuentaConectada = getCuentaConectada;
 //# sourceMappingURL=especialista.controller.js.map

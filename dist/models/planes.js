@@ -7,6 +7,7 @@ const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const especialista_1 = __importDefault(require("./especialista"));
 const sesiones_compra_suscripcion_1 = __importDefault(require("./sesiones_compra_suscripcion"));
+const suscripciones_1 = __importDefault(require("./suscripciones"));
 const Plan = connection_1.default.define('Planes', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -37,5 +38,7 @@ Plan.hasMany(especialista_1.default);
 especialista_1.default.belongsTo(Plan);
 Plan.hasMany(sesiones_compra_suscripcion_1.default);
 sesiones_compra_suscripcion_1.default.belongsTo(Plan);
+Plan.hasMany(suscripciones_1.default);
+suscripciones_1.default.belongsTo(Plan);
 exports.default = Plan;
 //# sourceMappingURL=planes.js.map

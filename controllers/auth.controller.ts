@@ -159,7 +159,7 @@ export const createNewPassword = async (req: Request, res: Response) => {
     }
     try {
         const salt = bcrypt.genSaltSync();
-        await especialista?.set({ password: bcrypt.hashSync(password, salt) })
+        await especialista?.set({ password: bcrypt.hashSync(password, salt),resetToken:null })
         await especialista?.save();
         res.json({
             'message': "Contraseña establecida",            

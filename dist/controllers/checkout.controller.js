@@ -36,6 +36,7 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
     };
     if (info.eventoId) {
         const evento = yield eventos_1.default.findByPk(info.eventoId);
+        console.log(info);
         if (evento) {
             try {
                 const cliente = yield clientes_1.default.findByPk(info.clienteId);
@@ -48,8 +49,8 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
                     EventoId: info.eventoId,
                     completada: false
                 });
-                if (evento.idPriceEvent != null) {
-                    sesionConfig = setupCompraDeEvento(info, evento.idPriceEvent, sesion_compra_evento.id, cliente.stripeId);
+                if (evento.dataValues.idPriceEvent != null) {
+                    sesionConfig = setupCompraDeEvento(info, evento.dataValues.idPriceEvent, sesion_compra_evento.dataValues.id, cliente.dataValues.stripeId);
                 }
                 //console.log(sesionConfig);
                 const sesion = yield stripe.checkout.sessions.create(sesionConfig);
@@ -81,7 +82,6 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
             if (!plan) {
                 throw new Error("El plan no existe");
             }
-            let sesionConfig;
             const sesion_compra_suscripcion = yield sesiones_compra_suscripcion_1.default.create({
                 EspecialistaId: info.especialista,
                 planeId: info.plan,

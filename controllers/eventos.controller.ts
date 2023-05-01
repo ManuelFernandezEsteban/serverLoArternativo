@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import dotenv from 'dotenv';
 import Compras_eventos_por_finalizar from '../models/compras_eventos_por_finalizar';
 import Cliente from '../models/clientes';
+import Suscripciones from '../models/suscripciones';
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -83,7 +84,7 @@ export const getEventosActividad = async (req: Request, res: Response) => {
     const fecha_limite = new Date(Date.now());
     fecha_limite.setDate(fecha_limite.getDate() + 15);
 
-    console.log(fecha_limite);
+    //console.log(fecha_limite);
 
 
     const { count, rows } = await Evento.findAndCountAll({
@@ -101,14 +102,18 @@ export const getEventosActividad = async (req: Request, res: Response) => {
             model: Especialista,
             attributes: { exclude: ['password'] },
             where: {
-                PlaneId: 2
-            }
-        }]
+                PlaneId: { [Op.not]: 1 }
+            },
 
+        }],
+        order: [
+            ['createdAt', 'ASC'],
+        ]
         ,
         limit: Number(limit),
         offset: Number(desde)
     })
+
     const eventos = rows
     res.json({
         eventos,
@@ -133,34 +138,36 @@ export const postEvento = async (req: Request, res: Response) => {
 
     if (body.ActividadeId != 10) { // especialista para publicar eventos nativos tierra y revista
 
-        const idSuscripcion = await Especialista.findByPk(body.EspecialistaId, {
-            attributes: ['token_pago']
+        const suscripcion = await Suscripciones.findOne({
+            where: { EspecialistaId: body.EspecialistaId }
         })
+
         let fecha_inicio_periodo_pago;
         let fecha_fin_periodo_pago;
-        if (idSuscripcion) {
-            const suscripcion = await stripe.subscriptions.retrieve(idSuscripcion.dataValues.token_pago);
-            if ((suscripcion.status === 'active') || (suscripcion.status === 'trialing')) {
-                fecha_fin_periodo_pago = dayjs.unix(suscripcion.current_period_end).toDate();
-                fecha_inicio_periodo_pago = dayjs.unix(suscripcion.current_period_start).toDate();
-                if ((fecha < fecha_inicio_periodo_pago) || (fecha > fecha_fin_periodo_pago)) {
-                    return res.status(401).json({
-                        msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
-                    })
-                }
-            } else {
-                throw new Error(`El especilista con id ${body.EspecialistaId} no tiene un plan permitido`);
+        if (suscripcion) {
+            const suscripcionAStripe = await stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription);
+            if (suscripcionAStripe.status === 'canceled') {
+                return res.status(400).json({
+                    error: `El especialista con id ${body.EspecialistaId} no tiene una suscripción activa`
+                });
             }
-
+            fecha_fin_periodo_pago = dayjs.unix(suscripcionAStripe.current_period_end).toDate();
+            fecha_inicio_periodo_pago = dayjs.unix(suscripcionAStripe.current_period_start).toDate();
+            if ((fecha < fecha_inicio_periodo_pago) || (fecha > fecha_fin_periodo_pago)) {
+                return res.status(401).json({
+                    msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
+                })
+            }
         } else {
-            throw new Error(`El especilista con id ${body.EspecialistaId} no tiene un plan permitido`);
+            return res.status(400).json({
+                error: `El especialista con id ${body.EspecialistaId} no tiene una suscripción activa`
+            });
         }
 
         const { count } = await Evento.findAndCountAll({
 
             include: [{
-                model: Especialista,
-                attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+                model: Especialista                
             }],
             where: {
                 especialistaId: body.EspecialistaId,
@@ -174,12 +181,12 @@ export const postEvento = async (req: Request, res: Response) => {
             })
         }
     }
-    const evento = await Evento.create(body);
-    if (evento.esVendible) {
+    const evento = await Evento.create(body);  
+    if (evento.dataValues.esVendible) {
 
         const idProductEvent = await createProductEvento(evento);
         console.log(idProductEvent);
-        const idPriceEvent = await createPriceEvento(idProductEvent, evento.precio, evento.monedaId);
+        const idPriceEvent = await createPriceEvento(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
         await evento.update({
             idProductEvent,
             idPriceEvent
@@ -188,7 +195,7 @@ export const postEvento = async (req: Request, res: Response) => {
 
     try {
 
-        createFolder(`eventos/${evento.id}`);
+        createFolder(`eventos/${evento.dataValues.id}`);
         res.json({
             evento
         })
@@ -221,9 +228,9 @@ export const putEvento = async (req: Request, res: Response) => {
         if (evento) {
 
             if (body.esVendible) {
-                const precioAnterior = evento.precio;
-                if (precioAnterior != body.precio || !(evento.esVendible)) {
-                    const idPriceEvent = await createPriceEvento(evento.idProductEvent, evento.precio, evento.moneda);
+                const precioAnterior = evento.dataValues.precio;
+                if (precioAnterior != body.precio || !(evento.dataValues.esVendible)) {
+                    const idPriceEvent = await createPriceEvento(evento.dataValues.idProductEvent, evento.dataValues.precio, evento.dataValues.moneda);
                     await evento.update(
                         { idPriceEvent }
                     )
@@ -277,9 +284,6 @@ export const deleteEvento = async (req: Request, res: Response) => {
             msg: `El evento con id ${id} no existe`
         })
     }
-
-
-
 }
 
 export const getVentasEvento = async (req: Request, res: Response) => {
@@ -300,8 +304,8 @@ export const getVentasEvento = async (req: Request, res: Response) => {
                 EventoId: id
             }
         })
-        
-        if (compras_eventos_no_finalizadas.length===0) {
+
+        if (compras_eventos_no_finalizadas.length === 0) {
             return res.status(400).json({
                 error: 'No hay ventas para ese evento'
             })
@@ -310,12 +314,10 @@ export const getVentasEvento = async (req: Request, res: Response) => {
             compras_eventos_no_finalizadas
         })
     } catch (error) {
-        console.log(error);        
+        console.log(error);
         return res.status(500).json({
             error: 'No hay ventas para ese evento'
         })
     }
-
-
 
 }

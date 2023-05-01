@@ -14,7 +14,7 @@ router.get('/pagination/:especialidad', [
     (0, express_validator_1.check)('especialidad').custom(db_validators_1.esActividadValida),
 ], validar_campos_1.validarCampos, especialista_controller_1.getEspecialistasPagination);
 router.get('/especialista/:id', [
-    (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),
+// check('id').custom(existeUsuario),
 ], validar_campos_1.validarCampos, especialista_controller_1.getEspecialista);
 router.post('/', [
     (0, express_validator_1.check)('email', 'El correo no es válido').isEmail().trim().escape().normalizeEmail(),
@@ -35,12 +35,12 @@ router.post('/', [
     (0, express_validator_1.check)('pais', 'El país es obligatorio').not().isEmpty()
 ], validar_campos_1.validarCampos, especialista_controller_1.postEspecialista);
 router.post('/cuenta_conectada/:id', [
-    //validarJWT
+    validar_JWT_1.validarJWT,
     (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),
 ], validar_campos_1.validarCampos, especialista_controller_1.crearCuentaConectada);
 router.get('/cuenta_conectada/:id', [
-//validarJWT
-//check('id').custom(existeUsuario),
+    validar_JWT_1.validarJWT
+    //check('id').custom(existeUsuario),
 ], validar_campos_1.validarCampos, especialista_controller_1.getCuentaConectada);
 router.put('/:id', [
     validar_JWT_1.validarJWT,
@@ -58,11 +58,13 @@ router.put('/:id', [
 router.delete('/:id', [validar_JWT_1.validarJWT,
     (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),
 ], validar_campos_1.validarCampos, especialista_controller_1.deleteEspecialista);
-router.patch('/modificarPlan/:id', [
-    validar_JWT_1.validarJWT,
-    (0, express_validator_1.check)('id').custom(db_validators_1.existeUsuario),
-    (0, express_validator_1.check)('PlaneId', 'El plan es obligatorio').not().isEmpty(),
-    (0, express_validator_1.check)('PlaneId').custom(db_validators_1.esPlanValido),
-], validar_campos_1.validarCampos, especialista_controller_1.patchEspecialista);
+/*
+router.patch('/modificarPlan/:id',[
+    validarJWT,
+    check('id').custom(existeUsuario),
+    check('PlaneId','El plan es obligatorio').not().isEmpty(),
+    check('PlaneId').custom(esPlanValido),
+], validarCampos,patchEspecialista);
+*/
 exports.default = router;
 //# sourceMappingURL=especialista.route.js.map

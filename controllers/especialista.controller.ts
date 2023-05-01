@@ -11,6 +11,7 @@ import { createFolder } from '../helpers/createFolder';
 import UsaHerramientas from '../models/usa_herramientas';
 import dotenv from 'dotenv';
 import Stripe from "stripe";
+
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -34,23 +35,23 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
         }
     }
     const { count, rows } = await Especialista.findAndCountAll({
-        
+
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividad, Plan, UsaHerramientas],
 
         where: {
             actividadeId: especialidad
         },
-        order:['createdAt', 'DESC'],        
-        group:'PlaneId',
-        
+        order: ['createdAt', 'DESC'],
+        group: 'PlaneId',
+
         offset: Number(desde),
         limit: Number(limit)
     })
     const especialistas = rows;
 
     res.json({
-        especialistas, 
+        especialistas,
         count
     })
 }
@@ -60,20 +61,20 @@ export const getEspecialistas = async (req: Request, res: Response) => {
 
     const { rows, count } = await Especialista.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividad, Plan, UsaHerramientas],
 
         where: {
             actividadeId: especialidad,
-            
+
         },
         //group:['planeId']
-        
-        order:[
-                ['planeId','DESC'],
-                ['createdAt', 'ASC'],
 
-            ],        
-        
+        order: [
+            ['planeId', 'DESC'],
+            ['createdAt', 'ASC'],
+
+        ],
+
     })
     const especialistas = rows;
 
@@ -91,7 +92,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividad, Plan, UsaHerramientas],
 
     });
 
@@ -128,7 +129,7 @@ export const postEspecialista = async (req: Request, res: Response) => {
                     const usaHerrmienta = await UsaHerramientas.create({
                         EspecialistaId: especialista.id,
                         HerramientaId: herramienta,
-                        ActividadeId:especialista.ActividadeId
+                        ActividadeId: especialista.ActividadeId
                     })
                     await especialista.save();
                 });
@@ -165,7 +166,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     if (idEspecilistaAutenticado !== id) {
         return res.status(500).json({
-            msg: 'El token no es válido', 
+            msg: 'El token no es válido',
         })
     }
     try {
@@ -197,11 +198,11 @@ export const putEspecialista = async (req: Request, res: Response) => {
             } catch (error) {
                 console.log(error);
                 res.status(500).json({
-                    
+
                     error
                 })
-            } 
-            
+            }
+
             await especialista.update(body)
             await especialista.save();
             const herramientas = body.UsaHerramientas;
@@ -211,7 +212,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
                         const usaHerrmienta = await UsaHerramientas.create({
                             EspecialistaId: especialista.id,
                             HerramientaId: herramienta,
-                            ActividadeId:especialista.ActividadeId
+                            ActividadeId: especialista.ActividadeId
                         })
                         await especialista.save();
                     });
@@ -220,7 +221,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
             res.json({ especialista });
 
         } else {
-            
+
             return res.status(404).json({
                 msg: `El id ${id} no se encuentra en la BD`
             })
@@ -263,7 +264,7 @@ export const deleteEspecialista = async (req: Request, res: Response) => {
 
 
 }
-
+/*
 export const patchEspecialista = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { body } = req;
@@ -310,24 +311,23 @@ export const patchEspecialista = async (req: Request, res: Response) => {
             msg: error,
         })
     }
-
-
 }
+*/
+export const crearCuentaConectada = async (req: Request, res: Response) => {
 
-export const crearCuentaConectada = async  (req: Request, res: Response) => {
-
-    const {id} = req.params;
-
-    const link = await crearConnectedAccount(id);
+    const { id } = req.params;
+    const {callbackUrl} = req.body;
+    const link = await crearConnectedAccount(id,callbackUrl);
 
     res.json({
-        link  
+        link
     })
 
 }
 
 
-const crearConnectedAccount = async (especialistaId: string) => {
+const crearConnectedAccount = async (especialistaId: string,callbackUrl:string) => {
+    
 
     try {
         const especialista = await Especialista.findByPk(especialistaId);
@@ -343,18 +343,20 @@ const crearConnectedAccount = async (especialistaId: string) => {
                     transfers: {
                         requested: true,
                     },
+                    
                 },
-                default_currency:'eur',
+                default_currency: 'eur',
             })
-            //console.log(account);
-
+            console.log(account.id);
+            await especialista.update({cuentaConectada:account.id});
+            console.log(especialista.id)
             const accountLink = await stripe.accountLinks.create({
                 account: account.id,
-                refresh_url: 'http://localhost:4200/home',
-                return_url: 'http://localhost:4200/home',
+                refresh_url: callbackUrl,
+                return_url: callbackUrl,
                 type: 'account_onboarding',
             });
-            return {accountLink,account:account.id};
+            return { accountLink, account: account.id };
         }
     } catch (error) {
         console.log(error);
@@ -362,13 +364,23 @@ const crearConnectedAccount = async (especialistaId: string) => {
 
 }
 
-export const getCuentaConectada = async (req: Request, res: Response)=>{
+export const getCuentaConectada = async (req: Request, res: Response) => {
 
-    const {id} = req.params;
+    const { id } = req.params;
 
-    const cuenta = await stripe.accounts.retrieve(id);
+    if (id) {
+        const cuenta = await stripe.accounts.retrieve(id);
 
-    res.json({
-        cuenta
-    })
+        res.json({
+            cuenta
+        })
+    }else{
+        return res.status(400).json({
+            msg:'No tiene cuenta conectada'
+        })
+    }
+
+
+
+
 }

@@ -15,7 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.createPriceEvento = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 //import Evento from '../models/eventos';
-const stripe = new stripe_1.default('sk_test_51MdWNyH0fhsN0DplHuBpE5C4jNFyPTVJfYz6kxTFeMmaQ94Uqjou6MuH8SwpB82nc56vnTHAyoZjazLTX8Iigk5z000zusfDjr', {
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const key = process.env.STRIPE_SECRET_KEY || '';
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
 const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, void 0, void 0, function* () {
@@ -37,31 +40,43 @@ const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, 
 });
 exports.createPriceEvento = createPriceEvento;
 const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
+    let image = evento.dataValues.imagen;
+    if (!image) {
+        image = process.env.noHayImagenEvento;
+    }
+    console.log(image);
     try {
         const product = yield stripe.products.create({
-            name: evento.evento,
-            description: evento.descripcion,
+            name: evento.dataValues.evento,
+            description: evento.dataValues.descripcion,
+            images: [image]
         });
         return product.id;
     }
     catch (error) {
-        throw new Error('Error al crear el producto para el evento ' + evento.id);
+        throw new Error('Error al crear el producto para el evento ' + evento.dataValues.id);
     }
 });
 exports.createProductEvento = createProductEvento;
 const updateProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
-    if (evento.idProductEvent) {
+    let image = evento.dataValues.imagen;
+    if (image === null) {
+        image = process.env.noHayImagenEvento;
+    }
+    console.log(image);
+    if (evento.dataValues.idProductEvent) {
         try {
-            const existeProd = yield stripe.products.retrieve(evento.idProductEvent);
+            const existeProd = yield stripe.products.retrieve(evento.dataValues.idProductEvent);
             if (existeProd) {
-                const product = yield stripe.products.update(evento.idProductEvent, {
-                    name: evento.evento,
-                    description: evento.descripcion,
+                const product = yield stripe.products.update(evento.dataValues.idProductEvent, {
+                    name: evento.dataValues.evento,
+                    description: evento.dataValues.descripcion,
+                    images: [image]
                 });
             }
         }
         catch (error) {
-            throw new Error('Error al actualizar el producto evento ' + evento.id);
+            throw new Error(`Error al actualizar el producto evento ${evento.dataValues.id}`);
         }
     }
 });

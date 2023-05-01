@@ -5,7 +5,7 @@ import { getEspecialista,
          getEspecialistas, 
          putEspecialista, 
          deleteEspecialista, 
-         patchEspecialista,
+         //patchEspecialista,
          getEspecialistasPagination,
          crearCuentaConectada,
          getCuentaConectada} from '../controllers/especialista.controller';
@@ -23,7 +23,7 @@ router.get('/pagination/:especialidad',[
 ],validarCampos,getEspecialistasPagination);
 
 router.get('/especialista/:id',[
-    check('id').custom(existeUsuario),
+   // check('id').custom(existeUsuario),
 ],validarCampos,getEspecialista)
 
 router.post('/',[
@@ -46,12 +46,12 @@ router.post('/',[
     ] ,validarCampos, postEspecialista);
 
 router.post('/cuenta_conectada/:id',[
-    //validarJWT
+    validarJWT,
     check('id').custom(existeUsuario),
 ],validarCampos,crearCuentaConectada);
 
 router.get('/cuenta_conectada/:id',[
-    //validarJWT
+    validarJWT
     //check('id').custom(existeUsuario),
 ],validarCampos,getCuentaConectada);
 
@@ -73,14 +73,14 @@ router.delete('/:id',[  validarJWT,
     check('id').custom(existeUsuario),
     
 ],validarCampos,deleteEspecialista);
-
+/*
 router.patch('/modificarPlan/:id',[
     validarJWT,
     check('id').custom(existeUsuario),
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
     check('PlaneId').custom(esPlanValido),
 ], validarCampos,patchEspecialista);
-
+*/
 export default router;  
 
 

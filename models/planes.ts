@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
 import Especialista from "./especialista";
-import Sesiones_compra_suscripcion from './sesiones_compra_suscripcion';
 import Sesiones_compra_suscripciones from "./sesiones_compra_suscripcion";
+import Suscripciones from "./suscripciones";
 
 
 const Plan = db.define('Planes',{
@@ -37,5 +37,7 @@ Plan.hasMany(Especialista);
 Especialista.belongsTo(Plan);
 Plan.hasMany(Sesiones_compra_suscripciones);
 Sesiones_compra_suscripciones.belongsTo(Plan);
+Plan.hasMany(Suscripciones);
+Suscripciones.belongsTo(Plan);
 
 export default Plan;

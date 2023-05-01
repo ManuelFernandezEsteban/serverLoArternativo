@@ -17,26 +17,33 @@ const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const dayjs_1 = __importDefault(require("dayjs"));
+const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const planes_1 = __importDefault(require("../models/planes"));
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
 const getSubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const idSubscription = req.params.id;
+    const especialista = req.params.id;
     try {
-        const subscription = yield stripe.subscriptions.retrieve(idSubscription);
-        const { created, current_period_end, current_period_start, status, items } = subscription;
-        const createdAt = dayjs_1.default.unix(created).toDate();
-        const current_period_end_Date = dayjs_1.default.unix(current_period_end).toDate().toLocaleDateString('es-Es');
-        const current_period_start_Date = dayjs_1.default.unix(current_period_start).toDate().toLocaleDateString('es-Es');
-        const tipoSuscripcion = items.data[0].plan.nickname;
-        if (subscription) {
-            return res.json({
-                createdAt, current_period_end_Date, current_period_start_Date, status, tipoSuscripcion
+        const suscripcion = yield suscripciones_1.default.findOne({ where: { EspecialistaId: especialista } });
+        if (!suscripcion) {
+            return res.status(400).json({
+                error: 'El especialista no tiene suscripción'
             });
         }
-        else {
+        const subscription = yield stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription);
+        if (!subscription) {
             return res.status(400).json({
                 error: 'No existe esa suscripcion'
             });
         }
+        const plan = yield planes_1.default.findByPk(suscripcion.dataValues.planeId);
+        const { created, current_period_end, current_period_start, status } = subscription;
+        const createdAt = dayjs_1.default.unix(created).toDate();
+        const current_period_end_Date = dayjs_1.default.unix(current_period_end).toDate().toLocaleDateString('es-Es');
+        const current_period_start_Date = dayjs_1.default.unix(current_period_start).toDate().toLocaleDateString('es-Es');
+        const tipoSuscripcion = plan === null || plan === void 0 ? void 0 : plan.dataValues.nombre;
+        return res.json({
+            createdAt, current_period_end_Date, current_period_start_Date, status, tipoSuscripcion
+        });
     }
     catch (error) {
         console.log(error);
@@ -60,7 +67,6 @@ const deleteSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
             suscripcionEliminada = yield stripe.subscriptions.update(subscription.id, {
                 cancel_at_period_end: true
             });
-            //suscripcionEliminada=await stripe.subscriptions.del(subscription.id)
             return res.json({
                 suscripcionEliminada
             });
@@ -79,105 +85,4 @@ const deleteSubscription = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.deleteSubscription = deleteSubscription;
-/*
-export const webHook = async (req:Request,res:Response)=>{
-
-    let data;
-    let eventType;
-
-    const webHookSecret = process.env.webhook_secret;
-    
-
-    if (webHookSecret){
-        let event;
-        let signature = req.headers['stripe-signature'];
-        try{
-            event= stripe.webhooks.constructEvent(req.body,signature||[],webHookSecret);
-
-
-        }catch(err){
-            console.log('WebHook signature failed');
-            return res.status(400);
-        }
-        data=event.data;
-        eventType=req.body.type;
-
-    }
-
-    switch (eventType) {
-        case 'checkout.session.completed':
-             console.log('payment recibed');
-            break;
-    
-        case 'invoice.paid':
-            
-            break;
-        case 'invoice.payment.failed':
-            break;
-        default:
-    }
-    res.sendStatus(200);
-
-}
-
-export const customerPortal = async (req:Request,res:Response)=>{
-
-    const {sessionId} = req.body;
-    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
-
-    const returnUrl = process.env.DOMAIN;
-
-    const portalSession = await stripe.billingPortal.sessions.create({
-        customer:checkoutSession.customer,
-        return_url:returnUrl
-    })
-    res.redirect(portalSession.url);
-
-}
-
-
-export const createSession = (req:Request,res:Response)=>{
-    
-}
-
-
-
-
-
-
-
-
-/*
-    const stripe = new Stripe(process.env.apiKeyStripe||'',{apiVersion: '2022-11-15',});
-
-    const customer = await stripe.customers.create({
-        name:req.body.nombre,
-        email:req.body.email,
-        payment_method: req.body.paymentMethod,
-        invoice_settings:{
-            default_payment_method:req.body.paymentMethod
-        }
-    });
-    const priceId = req.body.priceId;
-
-    const subscription = await stripe.subscriptions.create({
-        customer:customer.id,
-        items:[{price:priceId}],
-        payment_settings:{
-            payment_method_options:{
-                card:{
-                    request_three_d_secure:'any',
-                },
-            },
-            payment_method_types:['card'],
-            save_default_payment_method:'on_subscription'
-        },
-        expand:['latest_invoice.payment_intent'],
-
-    });
-
-    res.json({
-        clientSecret:subscription.latest_invoice,
-        subscriptionId:subscription.id
-    })*/
 //# sourceMappingURL=subscriptions.controllers.js.map

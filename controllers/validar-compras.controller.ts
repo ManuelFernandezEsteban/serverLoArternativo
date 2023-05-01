@@ -4,8 +4,16 @@ import bcrypt from 'bcryptjs';
 import Compras_eventos_por_finalizar from "../models/compras_eventos_por_finalizar";
 import Cliente from "../models/clientes";
 import Especialista from '../models/especialista';
-import { body } from 'express-validator';
-
+import dotenv from 'dotenv';
+import Stripe from "stripe";
+import Evento from "../models/eventos";
+import Moneda from "../models/monedas";
+import { sendMail } from "../helpers/send-mail";
+import { mailTransferenciaEspecialista } from "../helpers/plantilla-mail";
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2022-11-15'
+});
 export const validarCompraCliente = async (req: Request, res: Response) => {
 
     const token = req.header('token');
@@ -40,17 +48,19 @@ export const validarCompraCliente = async (req: Request, res: Response) => {
         })
         if (cliente.id === clienteBD.id) {
             sesion_compra.set({ ok_cliente: true });
+            let transfer;
             if (sesion_compra.ok_especialista) {
                 if (!sesion_compra.pagada) {
-                    //pagar(guarda);
+                    transfer = await pagar(sesion_compra);
                     sesion_compra.set({ pagada: true });
                 }
             }
             sesion_compra.save();
             res.json({
-                msg: 'evento validado'
+                msg: 'evento validado',
+                transfer
             })
-        }else {
+        } else {
             return res.status(500).json({
                 msg: 'Algo no ha ido bien con su validación'
             })
@@ -113,15 +123,17 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
         }
         if (especialista.id === especialistaBD.id) {
             sesion_compra.set({ ok_especialista: true });
+            let transfer;
             if (sesion_compra.ok_cliente) {
                 if (!sesion_compra.pagada) {
-                    //pagar(guarda);
+                    transfer =  await pagar(sesion_compra);
                     sesion_compra.set({ pagada: true });
                 }
             }
             sesion_compra.save();
             res.json({
-                msg: 'evento validado'
+                msg: 'evento validado',
+                transfer
             })
         } else {
             return res.status(500).json({
@@ -137,4 +149,62 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
         })
     }
 
+}
+
+const pagar = async (sesion_compra: any) => {
+
+    try {
+        const evento = await Evento.findByPk(sesion_compra.EventoId);
+        const especialista = await Especialista.findByPk(sesion_compra.EspecialistaId);
+        if (!especialista){
+            return new Error('El especialista no existe');
+        }
+        if (!evento){
+            return new Error('El evento no existe');
+        }
+        
+        const moneda = await Moneda.findByPk(evento.monedaId);
+        if (!moneda){
+            return new Error('La moneda no existe');
+        }
+        //TODO: calcular comisión en función del tipo de suscripción
+        const amount=evento.precio*100;
+        const transfer = await stripe.transfers.create({
+            amount,
+            currency: moneda.moneda,
+            destination: especialista.cuentaConectada,
+            description:sesion_compra.payment_intent,
+            //transfer_group: 'ORDER_95',
+        });
+        enviarMailPagoEspecialista(sesion_compra,amount,moneda.moneda);
+        return transfer;
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
+const enviarMailPagoEspecialista = async (sesion:any,amount:number,moneda:string) => {
+    
+    try {
+        let especialista = await Especialista.findByPk(sesion.EspecialistaId);
+        let evento = await Evento.findByPk(sesion.EventoId);
+        let cliente = await Cliente.findByPk(sesion.ClienteId);
+        if (!especialista){
+            return new Error('El especialista no existe');
+        }
+        if (!evento){
+            return new Error('El evento no existe');
+        }
+        await sendMail({
+            asunto: `Pago venta del evento ${evento.evento}`,
+            nombreDestinatario: especialista.nombre,
+            mailDestinatario: especialista.email,
+            mensaje: `Hola, ${especialista?.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.evento} a su cuenta.`,
+            html: mailTransferenciaEspecialista(especialista, evento,cliente,amount,moneda),
+        })
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error enviando el email al cliente');
+    }
 }

@@ -4,6 +4,7 @@ import Evento from './eventos';
 import Compras_eventos_por_finalizar from './compras_eventos_por_finalizar';
 import Sesiones_compra_suscripcion from './sesiones_compra_suscripcion';
 import Sesiones_compra_suscripciones from './sesiones_compra_suscripcion';
+import Suscripciones from './suscripciones';
 
 
 
@@ -108,6 +109,9 @@ const Especialista = db.define('Especialistas',{
     },
     stripeId:{
         type:DataTypes.STRING(255)
+    },
+    cuentaConectada:{
+        type:DataTypes.STRING(255)
     }
 },{
     paranoid:true // soft delete
@@ -119,5 +123,9 @@ Especialista.hasMany(Compras_eventos_por_finalizar);
 Compras_eventos_por_finalizar.belongsTo(Especialista);
 Especialista.hasMany(Sesiones_compra_suscripciones);
 Sesiones_compra_suscripciones.belongsTo(Especialista);
+Especialista.hasMany(Suscripciones);
+Suscripciones.belongsTo(Especialista);
+
+
 
 export default Especialista; 

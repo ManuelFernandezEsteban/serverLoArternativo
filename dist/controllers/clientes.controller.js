@@ -42,7 +42,7 @@ const postCliente = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 name: `${body.nombre} ${body.apellidos}`,
                 phone: body.telefono,
             });
-            console.log(customer);
+            //console.log(customer);
             cliente = yield clientes_1.default.create(body);
             cliente.set({ idStripe: customer.id });
             cliente.save();
