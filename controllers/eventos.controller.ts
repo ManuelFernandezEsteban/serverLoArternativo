@@ -181,7 +181,7 @@ export const postEvento = async (req: Request, res: Response) => {
             })
         }
     }
-    const evento = await Evento.create(body);  
+    const evento = await Evento.create(body);   
     if (evento.dataValues.esVendible) {
 
         const idProductEvent = await createProductEvento(evento);
