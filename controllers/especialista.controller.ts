@@ -121,22 +121,22 @@ export const postEspecialista = async (req: Request, res: Response) => {
         await especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
         //especialista.set({ password: '' });
-        const token = generarJWT(especialista.id);
+        const token = generarJWT(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
             if (herramientas.length > 0) {
                 herramientas.forEach(async (herramienta: any) => {
                     const usaHerrmienta = await UsaHerramientas.create({
-                        EspecialistaId: especialista.id,
+                        EspecialistaId: especialista.dataValues.id,
                         HerramientaId: herramienta,
-                        ActividadeId: especialista.ActividadeId
+                        ActividadeId: especialista.dataValues.ActividadeId
                     })
                     await especialista.save();
                 });
             }
         }
-        createFolder(`especialistas/${especialista.id}`);
-        createFolder(`especialistas/${especialista.id}/profile`);
+        createFolder(`especialistas/${especialista.dataValues.id}`);
+        createFolder(`especialistas/${especialista.dataValues.id}/profile`);
         await sendMail({
             asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
             nombreDestinatario: body.nombre,

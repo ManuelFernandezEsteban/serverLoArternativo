@@ -109,22 +109,22 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
         yield especialista.set({ password: bcryptjs_1.default.hashSync(body.password, salt) });
         yield especialista.save();
         //especialista.set({ password: '' });
-        const token = (0, generar_JWT_1.generarJWT)(especialista.id);
+        const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
             if (herramientas.length > 0) {
                 herramientas.forEach((herramienta) => __awaiter(void 0, void 0, void 0, function* () {
                     const usaHerrmienta = yield usa_herramientas_1.default.create({
-                        EspecialistaId: especialista.id,
+                        EspecialistaId: especialista.dataValues.id,
                         HerramientaId: herramienta,
-                        ActividadeId: especialista.ActividadeId
+                        ActividadeId: especialista.dataValues.ActividadeId
                     });
                     yield especialista.save();
                 }));
             }
         }
-        (0, createFolder_1.createFolder)(`especialistas/${especialista.id}`);
-        (0, createFolder_1.createFolder)(`especialistas/${especialista.id}/profile`);
+        (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}`);
+        (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}/profile`);
         yield (0, send_mail_1.sendMail)({
             asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
             nombreDestinatario: body.nombre,
