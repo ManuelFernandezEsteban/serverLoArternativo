@@ -40,11 +40,8 @@ const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, 
 });
 exports.createPriceEvento = createPriceEvento;
 const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
-    let image = evento.dataValues.imagen;
-    if (!image) {
-        image = process.env.noHayImagenEvento;
-    }
-    console.log(image);
+    let image = process.env.ImagenEvento || '';
+    //console.log(image);
     try {
         const product = yield stripe.products.create({
             name: evento.dataValues.evento,
@@ -59,10 +56,7 @@ const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.createProductEvento = createProductEvento;
 const updateProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
-    let image = evento.dataValues.imagen;
-    if (image === null) {
-        image = process.env.noHayImagenEvento;
-    }
+    let image = process.env.ImagenEvento || '';
     console.log(image);
     if (evento.dataValues.idProductEvent) {
         try {

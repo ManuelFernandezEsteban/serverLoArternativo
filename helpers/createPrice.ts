@@ -29,11 +29,9 @@ export const createPriceEvento = async (idProductEvent: string, precio: number, 
 
 export const createProductEvento = async (evento: Model): Promise<string> => {
 
-    let image = evento.dataValues.imagen;
-    if (!image) {
-        image = process.env.noHayImagenEvento
-    }
-    console.log(image);
+    let image = process.env.ImagenEvento||'';
+    
+    //console.log(image);
     try {
         const product = await stripe.products.create({
             name: evento.dataValues.evento,
@@ -47,11 +45,8 @@ export const createProductEvento = async (evento: Model): Promise<string> => {
 }
 
 export const updateProductEvento = async (evento: Model) => {
-    let image = evento.dataValues.imagen;
-    if (image===null) {
-        image = process.env.noHayImagenEvento
-    }
-
+    let image = process.env.ImagenEvento||'';
+    
     console.log(image);
     if (evento.dataValues.idProductEvent) {
         try {
