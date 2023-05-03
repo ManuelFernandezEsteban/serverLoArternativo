@@ -14,10 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.createPriceEvento = void 0;
 const stripe_1 = __importDefault(require("stripe"));
-//import Evento from '../models/eventos';
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const key = process.env.STRIPE_SECRET_KEY || '';
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
@@ -40,13 +38,13 @@ const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, 
 });
 exports.createPriceEvento = createPriceEvento;
 const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
-    let image = process.env.ImagenEvento || '';
+    //let image = process.env.ImagenEvento||'';
     //console.log(image);
     try {
         const product = yield stripe.products.create({
             name: evento.dataValues.evento,
             description: evento.dataValues.descripcion,
-            images: [image]
+            //images: [image]
         });
         return product.id;
     }
@@ -56,8 +54,8 @@ const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.createProductEvento = createProductEvento;
 const updateProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
-    let image = process.env.ImagenEvento || '';
-    console.log(image);
+    //let image = process.env.ImagenEvento||'';
+    //console.log(image);
     if (evento.dataValues.idProductEvent) {
         try {
             const existeProd = yield stripe.products.retrieve(evento.dataValues.idProductEvent);
@@ -65,7 +63,7 @@ const updateProductEvento = (evento) => __awaiter(void 0, void 0, void 0, functi
                 const product = yield stripe.products.update(evento.dataValues.idProductEvent, {
                     name: evento.dataValues.evento,
                     description: evento.dataValues.descripcion,
-                    images: [image]
+                    //                  images:[image]
                 });
             }
         }

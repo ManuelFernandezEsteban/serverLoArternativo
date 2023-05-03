@@ -33,7 +33,7 @@ export const validarCompraCliente = async (req: Request, res: Response) => {
                 msg: 'No existe la sesion de compra'
             })
         }
-        let cliente = await Cliente.findByPk(sesion_compra.ClienteId);
+        let cliente = await Cliente.findByPk(sesion_compra.dataValues.ClienteId);
 
         if (!cliente) {
             return res.status(500).json({
@@ -46,11 +46,11 @@ export const validarCompraCliente = async (req: Request, res: Response) => {
                 email: body.email
             }
         })
-        if (cliente.id === clienteBD.id) {
+        if (cliente.dataValues.id === clienteBD?.dataValues.id) {
             sesion_compra.set({ ok_cliente: true });
             let transfer;
-            if (sesion_compra.ok_especialista) {
-                if (!sesion_compra.pagada) {
+            if (sesion_compra.dataValues.ok_especialista) {
+                if (!sesion_compra.dataValues.pagada) {
                     transfer = await pagar(sesion_compra);
                     sesion_compra.set({ pagada: true });
                 }
@@ -107,7 +107,7 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
             })
         }
 
-        const validPassword = bcrypt.compareSync(body.password, especialistaBD.password);
+        const validPassword = bcrypt.compareSync(body.password, especialistaBD.dataValues.password);
 
         if (!validPassword) {
             return res.status(400).json({
@@ -115,7 +115,7 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
             })
         }
 
-        let especialista = await Especialista.findByPk(sesion_compra.EspecialistaId);
+        let especialista = await Especialista.findByPk(sesion_compra.dataValues.EspecialistaId);
         if (!especialista) {
             return res.status(500).json({
                 msg: 'No existe el especialista'
@@ -124,8 +124,8 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
         if (especialista.id === especialistaBD.id) {
             sesion_compra.set({ ok_especialista: true });
             let transfer;
-            if (sesion_compra.ok_cliente) {
-                if (!sesion_compra.pagada) {
+            if (sesion_compra.dataValues.ok_cliente) {
+                if (!sesion_compra.dataValues.pagada) {
                     transfer =  await pagar(sesion_compra);
                     sesion_compra.set({ pagada: true });
                 }
@@ -163,20 +163,20 @@ const pagar = async (sesion_compra: any) => {
             return new Error('El evento no existe');
         }
         
-        const moneda = await Moneda.findByPk(evento.monedaId);
+        const moneda = await Moneda.findByPk(evento.dataValues.monedaId);
         if (!moneda){
             return new Error('La moneda no existe');
         }
         //TODO: calcular comisión en función del tipo de suscripción
-        const amount=evento.precio*100;
+        const amount=evento.dataValues.precio*100;
         const transfer = await stripe.transfers.create({
             amount,
-            currency: moneda.moneda,
-            destination: especialista.cuentaConectada,
+            currency: moneda.dataValues.moneda,
+            destination: especialista.dataValues.cuentaConectada,
             description:sesion_compra.payment_intent,
             //transfer_group: 'ORDER_95',
         });
-        enviarMailPagoEspecialista(sesion_compra,amount,moneda.moneda);
+        //enviarMailPagoEspecialista(sesion_compra,amount,moneda.moneda);
         return transfer;
     } catch (error) {
         console.log(error);

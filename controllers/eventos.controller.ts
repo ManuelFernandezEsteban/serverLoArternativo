@@ -8,10 +8,11 @@ import Moneda from '../models/monedas';
 import { createPriceEvento, createProductEvento, deleteProductEvento, updateProductEvento } from '../helpers/createPrice';
 import Stripe from "stripe";
 import dayjs from 'dayjs';
-import dotenv from 'dotenv';
+
 import Compras_eventos_por_finalizar from '../models/compras_eventos_por_finalizar';
 import Cliente from '../models/clientes';
 import Suscripciones from '../models/suscripciones';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

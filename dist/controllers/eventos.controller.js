@@ -22,10 +22,10 @@ const monedas_1 = __importDefault(require("../models/monedas"));
 const createPrice_1 = require("../helpers/createPrice");
 const stripe_1 = __importDefault(require("stripe"));
 const dayjs_1 = __importDefault(require("dayjs"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const compras_eventos_por_finalizar_1 = __importDefault(require("../models/compras_eventos_por_finalizar"));
 const clientes_1 = __importDefault(require("../models/clientes"));
 const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'

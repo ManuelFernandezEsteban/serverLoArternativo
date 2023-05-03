@@ -1,10 +1,9 @@
 import { Model } from "sequelize";
 import Stripe from "stripe";
-//import Evento from '../models/eventos';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const key: string = process.env.STRIPE_SECRET_KEY || '';
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -29,14 +28,14 @@ export const createPriceEvento = async (idProductEvent: string, precio: number, 
 
 export const createProductEvento = async (evento: Model): Promise<string> => {
 
-    let image = process.env.ImagenEvento||'';
+    //let image = process.env.ImagenEvento||'';
     
     //console.log(image);
     try {
         const product = await stripe.products.create({
             name: evento.dataValues.evento,
             description: evento.dataValues.descripcion,
-            images: [image]
+            //images: [image]
         });
         return product.id;
     } catch (error) {
@@ -45,9 +44,9 @@ export const createProductEvento = async (evento: Model): Promise<string> => {
 }
 
 export const updateProductEvento = async (evento: Model) => {
-    let image = process.env.ImagenEvento||'';
+    //let image = process.env.ImagenEvento||'';
     
-    console.log(image);
+    //console.log(image);
     if (evento.dataValues.idProductEvent) {
         try {
             const existeProd = await stripe.products.retrieve(evento.dataValues.idProductEvent);
@@ -58,7 +57,7 @@ export const updateProductEvento = async (evento: Model) => {
                     {
                         name: evento.dataValues.evento,
                         description: evento.dataValues.descripcion,
-                        images:[image]
+      //                  images:[image]
                     });
             }
 
