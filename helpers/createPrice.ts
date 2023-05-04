@@ -26,6 +26,20 @@ export const createPriceEvento = async (idProductEvent: string, precio: number, 
     }
 }
 
+export const desactivarPrice = async (idPriceEvent:string) => {
+   
+    try {
+        const price = await stripe.prices.update(idPriceEvent,
+            {
+                active:false
+            }
+        )
+        return price.id;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const createProductEvento = async (evento: Model): Promise<string> => {
 
     //let image = process.env.ImagenEvento||'';

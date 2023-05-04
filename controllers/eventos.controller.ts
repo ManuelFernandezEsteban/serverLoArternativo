@@ -5,7 +5,7 @@ import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
 import { createFolder } from '../helpers/createFolder';
 import Moneda from '../models/monedas';
-import { createPriceEvento, createProductEvento, deleteProductEvento, updateProductEvento } from '../helpers/createPrice';
+import { createPriceEvento, createProductEvento, deleteProductEvento, desactivarPrice, updateProductEvento } from '../helpers/createPrice';
 import Stripe from "stripe";
 import dayjs from 'dayjs';
 
@@ -229,12 +229,23 @@ export const putEvento = async (req: Request, res: Response) => {
         if (evento) {
 
             if (body.esVendible) {
+                if (!evento.dataValues.idProductEvent){
+                    //hay que crear el producto y el precio 
+                    const idProductEvent = await createProductEvento(evento);
+                    const idPriceEvent = await createPriceEvento(idProductEvent, body.precio, body.monedaId);
+                    await evento.update({
+                        idProductEvent,
+                        idPriceEvent
+                    })
+                }
                 const precioAnterior = evento.dataValues.precio;
-                if (precioAnterior != body.precio || !(evento.dataValues.esVendible)) {
-                    const idPriceEvent = await createPriceEvento(evento.dataValues.idProductEvent, evento.dataValues.precio, evento.dataValues.moneda);
+                if (precioAnterior != body.precio) {
+                    let idPriceEvent = await desactivarPrice(evento.dataValues.idPriceEvent);
+                    idPriceEvent = await createPriceEvento(evento.dataValues.idProductEvent, body.precio, body.moneda);
                     await evento.update(
                         { idPriceEvent }
                     )
+                    console.log(idPriceEvent)
                 }
             }
 
@@ -251,7 +262,7 @@ export const putEvento = async (req: Request, res: Response) => {
         }
 
 
-    } catch (error) {
+    } catch (error) { 
         console.log(error)
         return res.status(500).json({
             msg: error

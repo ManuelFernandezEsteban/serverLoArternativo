@@ -204,10 +204,21 @@ const putEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const evento = yield eventos_1.default.findByPk(id);
         if (evento) {
             if (body.esVendible) {
+                if (!evento.dataValues.idProductEvent) {
+                    //hay que crear el producto y el precio 
+                    const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
+                    const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, body.precio, body.monedaId);
+                    yield evento.update({
+                        idProductEvent,
+                        idPriceEvent
+                    });
+                }
                 const precioAnterior = evento.dataValues.precio;
-                if (precioAnterior != body.precio || !(evento.dataValues.esVendible)) {
-                    const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.dataValues.idProductEvent, evento.dataValues.precio, evento.dataValues.moneda);
+                if (precioAnterior != body.precio) {
+                    let idPriceEvent = yield (0, createPrice_1.desactivarPrice)(evento.dataValues.idPriceEvent);
+                    idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.dataValues.idProductEvent, body.precio, body.moneda);
                     yield evento.update({ idPriceEvent });
+                    console.log(idPriceEvent);
                 }
             }
             yield evento.update(body);

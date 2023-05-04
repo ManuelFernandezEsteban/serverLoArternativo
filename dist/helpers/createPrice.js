@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.createPriceEvento = void 0;
+exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.desactivarPrice = exports.createPriceEvento = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -37,6 +37,18 @@ const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, 
     }
 });
 exports.createPriceEvento = createPriceEvento;
+const desactivarPrice = (idPriceEvent) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const price = yield stripe.prices.update(idPriceEvent, {
+            active: false
+        });
+        return price.id;
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.desactivarPrice = desactivarPrice;
 const createProductEvento = (evento) => __awaiter(void 0, void 0, void 0, function* () {
     //let image = process.env.ImagenEvento||'';
     //console.log(image);
