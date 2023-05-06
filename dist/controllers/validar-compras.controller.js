@@ -124,7 +124,7 @@ const validarCompraEspecialista = (req, res) => __awaiter(void 0, void 0, void 0
                 msg: 'No existe el especialista'
             });
         }
-        if (especialista.id === especialistaBD.id) {
+        if (especialista.dataValues.id === especialistaBD.dataValues.id) {
             sesion_compra.set({ ok_especialista: true });
             let transfer;
             if (sesion_compra.dataValues.ok_cliente) {
@@ -195,10 +195,10 @@ const enviarMailPagoEspecialista = (sesion, amount, moneda) => __awaiter(void 0,
             return new Error('El evento no existe');
         }
         yield (0, send_mail_1.sendMail)({
-            asunto: `Pago venta del evento ${evento.evento}`,
-            nombreDestinatario: especialista.nombre,
-            mailDestinatario: especialista.email,
-            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.evento} a su cuenta.`,
+            asunto: `Pago venta del evento ${evento.dataValues.evento}`,
+            nombreDestinatario: especialista.dataValues.nombre,
+            mailDestinatario: especialista.dataValues.email,
+            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.evento} a su cuenta.`,
             html: (0, plantilla_mail_1.mailTransferenciaEspecialista)(especialista, evento, cliente, amount, moneda),
         });
     }

@@ -130,7 +130,7 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
             nombreDestinatario: body.nombre,
             mailDestinatario: body.email,
             mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-            html: (0, plantilla_mail_1.mailRegistro)(especialista.nombre)
+            html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
         });
         res.json({
             token
@@ -191,9 +191,9 @@ const putEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, function
                 if (herramientas.length > 0) {
                     herramientas.forEach((herramienta) => __awaiter(void 0, void 0, void 0, function* () {
                         const usaHerrmienta = yield usa_herramientas_1.default.create({
-                            EspecialistaId: especialista.id,
+                            EspecialistaId: especialista.dataValues.id,
                             HerramientaId: herramienta,
-                            ActividadeId: especialista.ActividadeId
+                            ActividadeId: especialista.dataValues.ActividadeId
                         });
                         yield especialista.save();
                     }));
@@ -303,7 +303,7 @@ const crearConnectedAccount = (especialistaId, callbackUrl) => __awaiter(void 0,
             const account = yield stripe.accounts.create({
                 type: 'express',
                 country: 'ES',
-                email: especialista.email,
+                email: especialista.dataValues.email,
                 capabilities: {
                     card_payments: {
                         requested: true,
@@ -316,7 +316,7 @@ const crearConnectedAccount = (especialistaId, callbackUrl) => __awaiter(void 0,
             });
             console.log(account.id);
             yield especialista.update({ cuentaConectada: account.id });
-            console.log(especialista.id);
+            console.log(especialista.dataValues.id);
             const accountLink = yield stripe.accountLinks.create({
                 account: account.id,
                 refresh_url: callbackUrl,

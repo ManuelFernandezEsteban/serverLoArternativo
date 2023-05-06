@@ -142,7 +142,7 @@ export const postEspecialista = async (req: Request, res: Response) => {
             nombreDestinatario: body.nombre,
             mailDestinatario: body.email,
             mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-            html: mailRegistro(especialista.nombre)
+            html: mailRegistro(especialista.dataValues.nombre)
         })
 
         res.json({
@@ -210,9 +210,9 @@ export const putEspecialista = async (req: Request, res: Response) => {
                 if (herramientas.length > 0) {
                     herramientas.forEach(async (herramienta: any) => {
                         const usaHerrmienta = await UsaHerramientas.create({
-                            EspecialistaId: especialista.id,
+                            EspecialistaId: especialista.dataValues.id,
                             HerramientaId: herramienta,
-                            ActividadeId: especialista.ActividadeId
+                            ActividadeId: especialista.dataValues.ActividadeId
                         })
                         await especialista.save();
                     });
@@ -335,7 +335,7 @@ const crearConnectedAccount = async (especialistaId: string,callbackUrl:string) 
             const account = await stripe.accounts.create({
                 type: 'express',
                 country: 'ES',
-                email: especialista.email,
+                email: especialista.dataValues.email,
                 capabilities: {
                     card_payments: {
                         requested: true,
@@ -349,7 +349,7 @@ const crearConnectedAccount = async (especialistaId: string,callbackUrl:string) 
             })
             console.log(account.id);
             await especialista.update({cuentaConectada:account.id});
-            console.log(especialista.id)
+            console.log(especialista.dataValues.id)
             const accountLink = await stripe.accountLinks.create({
                 account: account.id,
                 refresh_url: callbackUrl,

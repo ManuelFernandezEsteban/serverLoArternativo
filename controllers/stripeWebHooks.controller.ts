@@ -69,7 +69,7 @@ const onDeleteSubscription = async (subscriptionId: string) => {
         });
         if (especialista) {
 
-            await borrarCuentaConectada(especialista.cuentaConectada);
+            await borrarCuentaConectada(especialista.dataValues.cuentaConectada);
 
             especialista.set({ planeId: 1, cuentaConectada: null });
 
@@ -114,8 +114,8 @@ const onCheckoutSesionComplete = async (sesion: any) => {
         const sesion_compra_evento = await Sesiones_compra_eventos.findByPk(sesionReferenceId);        
 
         if (sesion_compra_evento) {
-            const evento = await Evento.findByPk(sesion_compra_evento?.EventoId);
-            const cliente = await Cliente.findByPk(sesion_compra_evento?.ClienteId);
+            const evento = await Evento.findByPk(sesion_compra_evento.dataValues.EventoId);
+            const cliente = await Cliente.findByPk(sesion_compra_evento.dataValues.ClienteId);
             if (!evento) {
                 throw new Error(`Error completando sesion, el evento no se encuentra`);
             }
@@ -129,9 +129,9 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
 
             const compra_por_finalizar = await Compras_eventos_no_finalizadas.create({
-                ClienteId: sesion_compra_evento.ClienteId,
-                EventoId: evento.id,
-                EspecialistaId: evento.EspecialistaId,
+                ClienteId: sesion_compra_evento.dataValues.ClienteId,
+                EventoId: evento.dataValues.id,
+                EspecialistaId: evento.dataValues.EspecialistaId,
                 ok_cliente: false,
                 ok_especialista: false,
                 payment_intent: sesion.payment_intent,
@@ -140,25 +140,25 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             });
 
 
-            console.log('compra por finalizar', compra_por_finalizar.id);
+            console.log('compra por finalizar', compra_por_finalizar.dataValues.id);
 
-            const token = jwt.sign({ sesion_compra: compra_por_finalizar.id },
+            const token = jwt.sign({ sesion_compra: compra_por_finalizar.dataValues.id },
                 process.env.SECRETPRIVATEKEY || '',
                 { expiresIn: '15d' }
             );
             //realizar factura evento comprado
-            if (cliente.idStripe) {
+            if (cliente.dataValues.idStripe) {
                 const date = new Date(Date.now());
                 console.log(date);
                 const factura = await stripe.invoices.create({
                     collection_method: 'send_invoice',
-                    customer: cliente.idStripe,
+                    customer: cliente.dataValues.idStripe,
                     days_until_due: 0
 
                 });
                 const lineaFactura = await stripe.invoiceItems.create({
-                    customer: cliente.idStripe,
-                    price: evento.idPriceEvent,
+                    customer: cliente.dataValues.idStripe,
+                    price: evento.dataValues.idPriceEvent,
                     invoice: factura.id,
                     quantity: 1,
 
@@ -181,7 +181,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.findByPk(sesionReferenceId);
             //console.log('sesion.checkout.complete suscripcion:',sesion);
             if (sesion_compra_suscripcion) {// es una suscripcion
-                const especialista = await Especialista.findByPk(sesion_compra_suscripcion.EspecialistaId);
+                const especialista = await Especialista.findByPk(sesion_compra_suscripcion.dataValues.EspecialistaId);
                 if (!especialista) {
                     throw new Error("Error, el especialista no se encuentra")
                 }
@@ -194,19 +194,19 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                         stripeId: sesion.customer,
                         fecha_pago_actual: dayjs.unix(subscription.current_period_start).toDate(),
                         fecha_fin_suscripcion: dayjs.unix(subscription.current_period_end).toDate(),
-                        planeId: sesion_compra_suscripcion.planeId
+                        planeId: sesion_compra_suscripcion.dataValues.planeId
                     });
                     await especialista.save();
                     await Suscripciones.create({
-                        EspecialistaId:especialista.id,
-                        planeId:sesion_compra_suscripcion.planeId,
+                        EspecialistaId:especialista.dataValues.id,
+                        planeId:sesion_compra_suscripcion.dataValues.planeId,
                         id_stripe_subscription:subscription.id
                     });
 
                 } else {
                     throw new Error('no existe la referencia');
                 }
-                enviarMensajeWebSocket('compra_suscripcion_finalizada',especialista.id);
+                enviarMensajeWebSocket('compra_suscripcion_finalizada',especialista.dataValues.id);
 
             } else {
                 throw new Error('no existe la referencia');
@@ -237,9 +237,9 @@ const enviarMailCompraCliente = async (sesion_compra: any, token: string) => {
         let cliente = await Cliente.findByPk(sesion_compra.ClienteId);
         await sendMail({
             asunto: 'Compra de evento en Nativos Tierra',
-            nombreDestinatario: cliente?.nombre,
-            mailDestinatario: cliente?.email,
-            mensaje: `Hola, ${cliente?.nombre} enviamos información del evento adquirido`,
+            nombreDestinatario: cliente?.dataValues.nombre,
+            mailDestinatario: cliente?.dataValues.email,
+            mensaje: `Hola, ${cliente?.dataValues.nombre} enviamos información del evento adquirido`,
             html: mailCompraCliente(especialista, evento, cliente, link),
         })
     } catch (error) {
@@ -256,9 +256,9 @@ const enviarMailCompraEspecialista = async (sesion_compra: any, token: string) =
         let cliente = await Cliente.findByPk(sesion_compra.ClienteId);
         await sendMail({
             asunto: 'Compra de evento en Nativos Tierra',
-            nombreDestinatario: especialista?.nombre,
-            mailDestinatario: especialista?.email,
-            mensaje: `Hola, ${especialista?.nombre} enviamos información del cliente que ha adquirido su evento ${evento.evento}`,
+            nombreDestinatario: especialista?.dataValues.nombre,
+            mailDestinatario: especialista?.dataValues.email,
+            mensaje: `Hola, ${especialista?.dataValues.nombre} enviamos información del cliente que ha adquirido su evento ${evento.evento}`,
             html: mailCompraEspecialista(especialista, evento, cliente, link),
         })
     } catch (error) {

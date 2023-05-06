@@ -95,7 +95,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
                 planeId: info.plan,
                 completada: false,
             })
-            let config = setupSuscripcion(info, sesion_compra_suscripcion.id, especialista.stripeId, plan.priceId)
+            let config = setupSuscripcion(info, sesion_compra_suscripcion.dataValues.id, especialista.dataValues.stripeId, plan.dataValues.priceId)
             const sesion = await stripe.checkout.sessions.create(config);
             sesion_compra_suscripcion.set({ checkout_stripe: sesion.id });
             await sesion_compra_suscripcion.save();

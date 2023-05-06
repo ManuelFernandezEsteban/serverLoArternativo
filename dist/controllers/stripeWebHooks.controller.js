@@ -74,7 +74,7 @@ const onDeleteSubscription = (subscriptionId) => __awaiter(void 0, void 0, void 
             where: { token_pago: subscriptionId }
         });
         if (especialista) {
-            yield borrarCuentaConectada(especialista.cuentaConectada);
+            yield borrarCuentaConectada(especialista.dataValues.cuentaConectada);
             especialista.set({ planeId: 1, cuentaConectada: null });
             yield especialista.save();
         }
@@ -107,8 +107,8 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
     try {
         const sesion_compra_evento = yield sesion_compra_evento_1.default.findByPk(sesionReferenceId);
         if (sesion_compra_evento) {
-            const evento = yield eventos_1.default.findByPk(sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.EventoId);
-            const cliente = yield clientes_1.default.findByPk(sesion_compra_evento === null || sesion_compra_evento === void 0 ? void 0 : sesion_compra_evento.ClienteId);
+            const evento = yield eventos_1.default.findByPk(sesion_compra_evento.dataValues.EventoId);
+            const cliente = yield clientes_1.default.findByPk(sesion_compra_evento.dataValues.ClienteId);
             if (!evento) {
                 throw new Error(`Error completando sesion, el evento no se encuentra`);
             }
@@ -120,29 +120,29 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             sesion_compra_evento.set({ completada: 1 });
             yield sesion_compra_evento.save();
             const compra_por_finalizar = yield compras_eventos_por_finalizar_1.default.create({
-                ClienteId: sesion_compra_evento.ClienteId,
-                EventoId: evento.id,
-                EspecialistaId: evento.EspecialistaId,
+                ClienteId: sesion_compra_evento.dataValues.ClienteId,
+                EventoId: evento.dataValues.id,
+                EspecialistaId: evento.dataValues.EspecialistaId,
                 ok_cliente: false,
                 ok_especialista: false,
                 payment_intent: sesion.payment_intent,
                 pagada: false,
                 //        token_seguridad:token_seguridad
             });
-            console.log('compra por finalizar', compra_por_finalizar.id);
-            const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
+            console.log('compra por finalizar', compra_por_finalizar.dataValues.id);
+            const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.dataValues.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
             //realizar factura evento comprado
-            if (cliente.idStripe) {
+            if (cliente.dataValues.idStripe) {
                 const date = new Date(Date.now());
                 console.log(date);
                 const factura = yield stripe.invoices.create({
                     collection_method: 'send_invoice',
-                    customer: cliente.idStripe,
+                    customer: cliente.dataValues.idStripe,
                     days_until_due: 0
                 });
                 const lineaFactura = yield stripe.invoiceItems.create({
-                    customer: cliente.idStripe,
-                    price: evento.idPriceEvent,
+                    customer: cliente.dataValues.idStripe,
+                    price: evento.dataValues.idPriceEvent,
                     invoice: factura.id,
                     quantity: 1,
                 });
@@ -162,7 +162,7 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             const sesion_compra_suscripcion = yield sesiones_compra_suscripcion_1.default.findByPk(sesionReferenceId);
             //console.log('sesion.checkout.complete suscripcion:',sesion);
             if (sesion_compra_suscripcion) { // es una suscripcion
-                const especialista = yield especialista_1.default.findByPk(sesion_compra_suscripcion.EspecialistaId);
+                const especialista = yield especialista_1.default.findByPk(sesion_compra_suscripcion.dataValues.EspecialistaId);
                 if (!especialista) {
                     throw new Error("Error, el especialista no se encuentra");
                 }
@@ -173,19 +173,19 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                         stripeId: sesion.customer,
                         fecha_pago_actual: dayjs_1.default.unix(subscription.current_period_start).toDate(),
                         fecha_fin_suscripcion: dayjs_1.default.unix(subscription.current_period_end).toDate(),
-                        planeId: sesion_compra_suscripcion.planeId
+                        planeId: sesion_compra_suscripcion.dataValues.planeId
                     });
                     yield especialista.save();
                     yield suscripciones_1.default.create({
-                        EspecialistaId: especialista.id,
-                        planeId: sesion_compra_suscripcion.planeId,
+                        EspecialistaId: especialista.dataValues.id,
+                        planeId: sesion_compra_suscripcion.dataValues.planeId,
                         id_stripe_subscription: subscription.id
                     });
                 }
                 else {
                     throw new Error('no existe la referencia');
                 }
-                enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.id);
+                enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
             }
             else {
                 throw new Error('no existe la referencia');
@@ -212,9 +212,9 @@ const enviarMailCompraCliente = (sesion_compra, token) => __awaiter(void 0, void
         let cliente = yield clientes_1.default.findByPk(sesion_compra.ClienteId);
         yield (0, send_mail_1.sendMail)({
             asunto: 'Compra de evento en Nativos Tierra',
-            nombreDestinatario: cliente === null || cliente === void 0 ? void 0 : cliente.nombre,
-            mailDestinatario: cliente === null || cliente === void 0 ? void 0 : cliente.email,
-            mensaje: `Hola, ${cliente === null || cliente === void 0 ? void 0 : cliente.nombre} enviamos información del evento adquirido`,
+            nombreDestinatario: cliente === null || cliente === void 0 ? void 0 : cliente.dataValues.nombre,
+            mailDestinatario: cliente === null || cliente === void 0 ? void 0 : cliente.dataValues.email,
+            mensaje: `Hola, ${cliente === null || cliente === void 0 ? void 0 : cliente.dataValues.nombre} enviamos información del evento adquirido`,
             html: (0, plantilla_mail_1.mailCompraCliente)(especialista, evento, cliente, link),
         });
     }
@@ -231,9 +231,9 @@ const enviarMailCompraEspecialista = (sesion_compra, token) => __awaiter(void 0,
         let cliente = yield clientes_1.default.findByPk(sesion_compra.ClienteId);
         yield (0, send_mail_1.sendMail)({
             asunto: 'Compra de evento en Nativos Tierra',
-            nombreDestinatario: especialista === null || especialista === void 0 ? void 0 : especialista.nombre,
-            mailDestinatario: especialista === null || especialista === void 0 ? void 0 : especialista.email,
-            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.nombre} enviamos información del cliente que ha adquirido su evento ${evento.evento}`,
+            nombreDestinatario: especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.nombre,
+            mailDestinatario: especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.email,
+            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.nombre} enviamos información del cliente que ha adquirido su evento ${evento.evento}`,
             html: (0, plantilla_mail_1.mailCompraEspecialista)(especialista, evento, cliente, link),
         });
     }

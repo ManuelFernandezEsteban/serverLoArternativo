@@ -5,8 +5,6 @@ import { generarJWT } from '../helpers/generar-JWT';
 import jwt from 'jsonwebtoken';
 import { sendMail } from "../helpers/send-mail";
 import { mailRecuperacionPassword } from "../helpers/plantilla-mail";
-import Especialistas_Categoria from '../models/usa_herramientas';
-import { Op } from "sequelize";
 import Actividad from "../models/actividades";
 import Plan from "../models/planes";
 import UsaHerramientas from "../models/usa_herramientas";
@@ -29,7 +27,7 @@ export const login = async (req: Request, res: Response) => {
             })
         }
 
-        const validPassword = bcrypt.compareSync(password, especialista.password);
+        const validPassword = bcrypt.compareSync(password, especialista.dataValues.password);
 
         if (!validPassword) {
             return res.status(400).json({
@@ -37,7 +35,7 @@ export const login = async (req: Request, res: Response) => {
             })
         }
 
-        const token = generarJWT(especialista.id);
+        const token = generarJWT(especialista.dataValues.id);
         especialista.set({ password: '' });
 
         res.json({
@@ -97,7 +95,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
     try {
 
-        token = jwt.sign({ especialistaId: especialista.id },
+        token = jwt.sign({ especialistaId: especialista.dataValues.id },
             process.env.SECRETPRIVATEKEY || '',
             { expiresIn: '10m' })
         verificationLink = `${process.env.LINK}${token}`;
@@ -111,10 +109,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
     try {
         await sendMail({
             asunto: 'Recuperación password en portal web Nativos Tierra',
-            nombreDestinatario: especialista.nombre,
-            mailDestinatario: especialista.email,
-            mensaje: `Hola, ${especialista.nombre} le enviamos un link para recuperar su contraseña`,
-            html: mailRecuperacionPassword(especialista.nombre, verificationLink)
+            nombreDestinatario: especialista.dataValues.nombre,
+            mailDestinatario: especialista.dataValues.email,
+            mensaje: `Hola, ${especialista.dataValues.nombre} le enviamos un link para recuperar su contraseña`,
+            html: mailRecuperacionPassword(especialista.dataValues.nombre, verificationLink)
         })
     } catch (error) {
         emailStatus = 'error';

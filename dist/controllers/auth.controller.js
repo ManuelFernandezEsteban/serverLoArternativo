@@ -36,13 +36,13 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 msg: 'Correo / password no son correctos'
             });
         }
-        const validPassword = bcryptjs_1.default.compareSync(password, especialista.password);
+        const validPassword = bcryptjs_1.default.compareSync(password, especialista.dataValues.password);
         if (!validPassword) {
             return res.status(400).json({
                 msg: 'Correo / password no son correctos'
             });
         }
-        const token = (0, generar_JWT_1.generarJWT)(especialista.id);
+        const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         especialista.set({ password: '' });
         res.json({
             especialista,
@@ -93,7 +93,7 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(400).json({ message, email });
     }
     try {
-        token = jsonwebtoken_1.default.sign({ especialistaId: especialista.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '10m' });
+        token = jsonwebtoken_1.default.sign({ especialistaId: especialista.dataValues.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '10m' });
         verificationLink = `${process.env.LINK}${token}`;
     }
     catch (error) {
@@ -104,10 +104,10 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         yield (0, send_mail_1.sendMail)({
             asunto: 'Recuperación password en portal web Nativos Tierra',
-            nombreDestinatario: especialista.nombre,
-            mailDestinatario: especialista.email,
-            mensaje: `Hola, ${especialista.nombre} le enviamos un link para recuperar su contraseña`,
-            html: (0, plantilla_mail_1.mailRecuperacionPassword)(especialista.nombre, verificationLink)
+            nombreDestinatario: especialista.dataValues.nombre,
+            mailDestinatario: especialista.dataValues.email,
+            mensaje: `Hola, ${especialista.dataValues.nombre} le enviamos un link para recuperar su contraseña`,
+            html: (0, plantilla_mail_1.mailRecuperacionPassword)(especialista.dataValues.nombre, verificationLink)
         });
     }
     catch (error) {

@@ -87,7 +87,7 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
                 planeId: info.plan,
                 completada: false,
             });
-            let config = setupSuscripcion(info, sesion_compra_suscripcion.id, especialista.stripeId, plan.priceId);
+            let config = setupSuscripcion(info, sesion_compra_suscripcion.dataValues.id, especialista.dataValues.stripeId, plan.dataValues.priceId);
             const sesion = yield stripe.checkout.sessions.create(config);
             sesion_compra_suscripcion.set({ checkout_stripe: sesion.id });
             yield sesion_compra_suscripcion.save();
