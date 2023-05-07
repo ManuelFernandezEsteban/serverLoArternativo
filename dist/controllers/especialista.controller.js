@@ -19,8 +19,6 @@ const especialista_1 = __importDefault(require("../models/especialista"));
 const planes_1 = __importDefault(require("../models/planes"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const generar_JWT_1 = require("../helpers/generar-JWT");
-const send_mail_1 = require("../helpers/send-mail");
-const plantilla_mail_1 = require("../helpers/plantilla-mail");
 const createFolder_1 = require("../helpers/createFolder");
 const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -108,7 +106,6 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const especialista = yield especialista_1.default.create(body);
         yield especialista.set({ password: bcryptjs_1.default.hashSync(body.password, salt) });
         yield especialista.save();
-        //especialista.set({ password: '' });
         const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
@@ -125,15 +122,9 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
         (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}`);
         (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}/profile`);
-        yield (0, send_mail_1.sendMail)({
-            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-            nombreDestinatario: body.nombre,
-            mailDestinatario: body.email,
-            mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-            html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
-        });
         res.json({
-            token
+            token,
+            especialista
         });
     }
     catch (error) {

@@ -19,9 +19,14 @@ const generar_JWT_1 = require("../helpers/generar-JWT");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
-const actividades_1 = __importDefault(require("../models/actividades"));
-const planes_1 = __importDefault(require("../models/planes"));
 const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
+const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const stripe_1 = __importDefault(require("stripe"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const planes_1 = __importDefault(require("../models/planes"));
+const actividades_1 = __importDefault(require("../models/actividades"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
@@ -29,17 +34,39 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: {
                 email: email
             },
-            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
+            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default, suscripciones_1.default],
         });
         if (!especialista) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
             });
         }
         const validPassword = bcryptjs_1.default.compareSync(password, especialista.dataValues.password);
         if (!validPassword) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
+            });
+        }
+        const suscripcion = yield suscripciones_1.default.findOne({
+            where: { EspecialistaId: especialista.dataValues.id }
+        });
+        if (!suscripcion) {
+            return res.status(400).json({
+                error: 'No tiene suscripción'
+            });
+        }
+        try {
+            const subscription = yield stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription);
+            if (subscription.status === 'canceled') {
+                return res.status(400).json({
+                    error: 'No tiene suscripción activa'
+                });
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return res.status(400).json({
+                error: 'No tiene suscripción'
             });
         }
         const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);

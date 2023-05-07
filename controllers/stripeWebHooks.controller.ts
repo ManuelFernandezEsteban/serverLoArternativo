@@ -10,7 +10,7 @@ import Evento from "../models/eventos";
 import Especialista from '../models/especialista';
 import { sendMail } from "../helpers/send-mail";
 import Cliente from "../models/clientes";
-import { mailCompraCliente, mailCompraEspecialista } from "../helpers/plantilla-mail";
+import { mailCompraCliente, mailCompraEspecialista, mailRegistro } from "../helpers/plantilla-mail";
 import Server from "../models/server";
 import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
 import dayjs from "dayjs";
@@ -41,7 +41,7 @@ export const stripeWebHooks = async (req: Request, res: Response) => {
                 sesion = event.data.object;
                 break;
             case 'payout.paid':
-                sesion=event.data.object;
+                sesion = event.data.object;
                 break;
             default:
                 break;
@@ -111,7 +111,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
     //console.log('sesion.checkout.complete evento:', sesionReferenceId);
 
     try {
-        const sesion_compra_evento = await Sesiones_compra_eventos.findByPk(sesionReferenceId);        
+        const sesion_compra_evento = await Sesiones_compra_eventos.findByPk(sesionReferenceId);
 
         if (sesion_compra_evento) {
             const evento = await Evento.findByPk(sesion_compra_evento.dataValues.EventoId);
@@ -170,13 +170,13 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             await enviarMailCompraCliente(compra_por_finalizar, token);
             await enviarMailCompraEspecialista(compra_por_finalizar, token);
 
-            enviarMensajeWebSocket('sesion_compra_finalizada',sesionReferenceId);
+            enviarMensajeWebSocket('sesion_compra_finalizada', sesionReferenceId);
             console.log('sesion' + sesionReferenceId + ' pagada');
-          /*  server.io.on('connection', cliente => {
-                console.log('cliente conectado ', cliente.id)
-                cliente.emit('sesion_compra_finalizada evento', sesionReferenceId)
-            })*/
-            
+            /*  server.io.on('connection', cliente => {
+                  console.log('cliente conectado ', cliente.id)
+                  cliente.emit('sesion_compra_finalizada evento', sesionReferenceId)
+              })*/
+
         } else {
             const sesion_compra_suscripcion = await Sesiones_compra_suscripciones.findByPk(sesionReferenceId);
             //console.log('sesion.checkout.complete suscripcion:',sesion);
@@ -187,26 +187,53 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 }
                 const subscription = await stripe.subscriptions.retrieve(sesion.subscription);
 
+                
 
                 if (subscription) {
-                    especialista.set({
-                        token_pago: sesion.subscription,
+                    //comprobamos si tenía una suscripción anterior, 
+                    //si es así cancelamos la antigua y modificamos la tabla
+                    const suscripcion = await Suscripciones.findOne({
+                        where: { EspecialistaId: especialista.dataValues.id }
+                    });
+                    if (suscripcion) {
+                        //cancelamos antigua en stripe
+                        try {
+                            //cancelamos antigua en stripe
+                            await stripe.subscriptions.del(suscripcion.dataValues.id_stripe_subscription);
+                            //modificamos la tabla
+                            await suscripcion.update({
+                                EspecialistaId: especialista.dataValues.id,
+                                planeId: sesion_compra_suscripcion.dataValues.planeId,
+                                id_stripe_subscription: subscription.id
+                            });
+
+                        } catch (error) {
+                            console.log(error);
+                            throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción')
+                        }
+                    } else {//en otro caso creamos un nuevo registro en la tabla suscripciones
+                        await Suscripciones.create({
+                            EspecialistaId: especialista.dataValues.id,
+                            planeId: sesion_compra_suscripcion.dataValues.planeId,
+                            id_stripe_subscription: subscription.id
+                        });
+                        await sendMail({
+                            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                            nombreDestinatario: especialista.dataValues.nombre,
+                            mailDestinatario: especialista.dataValues.email,
+                            mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
+                            html: mailRegistro(especialista.dataValues.nombre)
+                        })
+                    }
+                    await especialista.update({
                         stripeId: sesion.customer,
-                        fecha_pago_actual: dayjs.unix(subscription.current_period_start).toDate(),
-                        fecha_fin_suscripcion: dayjs.unix(subscription.current_period_end).toDate(),
                         planeId: sesion_compra_suscripcion.dataValues.planeId
                     });
-                    await especialista.save();
-                    await Suscripciones.create({
-                        EspecialistaId:especialista.dataValues.id,
-                        planeId:sesion_compra_suscripcion.dataValues.planeId,
-                        id_stripe_subscription:subscription.id
-                    });
-
-                } else {
+                }else {
                     throw new Error('no existe la referencia');
                 }
-                enviarMensajeWebSocket('compra_suscripcion_finalizada',especialista.dataValues.id);
+                
+                enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
 
             } else {
                 throw new Error('no existe la referencia');
@@ -219,8 +246,9 @@ const onCheckoutSesionComplete = async (sesion: any) => {
     }
 }
 
-const enviarMensajeWebSocket = (tipoMensaje:string,mensaje:string)=>{
+const enviarMensajeWebSocket = (tipoMensaje: string, mensaje: string) => {
     const server = Server.instance;
+    console.log(tipoMensaje,mensaje);
     server.io.on('connection', cliente => {
         console.log('cliente conectado ', cliente.id)
         cliente.emit(tipoMensaje, mensaje)

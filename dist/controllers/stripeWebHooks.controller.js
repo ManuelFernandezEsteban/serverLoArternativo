@@ -26,7 +26,6 @@ const clientes_1 = __importDefault(require("../models/clientes"));
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
 const server_1 = __importDefault(require("../models/server"));
 const sesiones_compra_suscripcion_1 = __importDefault(require("../models/sesiones_compra_suscripcion"));
-const dayjs_1 = __importDefault(require("dayjs"));
 const suscripciones_1 = __importDefault(require("../models/suscripciones"));
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
@@ -168,18 +167,45 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                 }
                 const subscription = yield stripe.subscriptions.retrieve(sesion.subscription);
                 if (subscription) {
-                    especialista.set({
-                        token_pago: sesion.subscription,
-                        stripeId: sesion.customer,
-                        fecha_pago_actual: dayjs_1.default.unix(subscription.current_period_start).toDate(),
-                        fecha_fin_suscripcion: dayjs_1.default.unix(subscription.current_period_end).toDate(),
-                        planeId: sesion_compra_suscripcion.dataValues.planeId
+                    //comprobamos si tenía una suscripción anterior, 
+                    //si es así cancelamos la antigua y modificamos la tabla
+                    const suscripcion = yield suscripciones_1.default.findOne({
+                        where: { EspecialistaId: especialista.dataValues.id }
                     });
-                    yield especialista.save();
-                    yield suscripciones_1.default.create({
-                        EspecialistaId: especialista.dataValues.id,
-                        planeId: sesion_compra_suscripcion.dataValues.planeId,
-                        id_stripe_subscription: subscription.id
+                    if (suscripcion) {
+                        //cancelamos antigua en stripe
+                        try {
+                            //cancelamos antigua en stripe
+                            yield stripe.subscriptions.del(suscripcion.dataValues.id_stripe_subscription);
+                            //modificamos la tabla
+                            yield suscripcion.update({
+                                EspecialistaId: especialista.dataValues.id,
+                                planeId: sesion_compra_suscripcion.dataValues.planeId,
+                                id_stripe_subscription: subscription.id
+                            });
+                        }
+                        catch (error) {
+                            console.log(error);
+                            throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción');
+                        }
+                    }
+                    else { //en otro caso creamos un nuevo registro en la tabla suscripciones
+                        yield suscripciones_1.default.create({
+                            EspecialistaId: especialista.dataValues.id,
+                            planeId: sesion_compra_suscripcion.dataValues.planeId,
+                            id_stripe_subscription: subscription.id
+                        });
+                        yield (0, send_mail_1.sendMail)({
+                            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                            nombreDestinatario: especialista.dataValues.nombre,
+                            mailDestinatario: especialista.dataValues.email,
+                            mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
+                            html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
+                        });
+                    }
+                    yield especialista.update({
+                        stripeId: sesion.customer,
+                        planeId: sesion_compra_suscripcion.dataValues.planeId
                     });
                 }
                 else {
@@ -199,6 +225,7 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
 });
 const enviarMensajeWebSocket = (tipoMensaje, mensaje) => {
     const server = server_1.default.instance;
+    console.log(tipoMensaje, mensaje);
     server.io.on('connection', cliente => {
         console.log('cliente conectado ', cliente.id);
         cliente.emit(tipoMensaje, mensaje);
