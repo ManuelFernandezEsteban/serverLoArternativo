@@ -5,7 +5,7 @@ import Evento from './eventos';
 import Herramientas from './herramientas';
 import UsaHerramientas from './usa_herramientas';
 
-const Actividad = db.define('Actividades',{
+const Actividades = db.define('Actividades',{
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true
@@ -22,14 +22,14 @@ const Actividad = db.define('Actividades',{
     }
 });
 
-Actividad.hasMany(Especialista );
-Especialista.belongsTo(Actividad);
+Actividades.hasMany(Especialista );
+Especialista.belongsTo(Actividades);
 
-Actividad.hasMany(Evento);
-Evento.belongsTo(Actividad);
+Actividades.hasMany(Evento);
+Evento.belongsTo(Actividades);
 
-Actividad.hasMany(Herramientas);
-Herramientas.belongsTo(Actividad);
+Actividades.hasMany(Herramientas);
+Herramientas.belongsTo(Actividades);
  
 
-export default Actividad;
+export default Actividades;

@@ -168,15 +168,15 @@ const pagar = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () 
             return new Error('La moneda no existe');
         }
         //TODO: calcular comisión en función del tipo de suscripción
-        const amount = evento.dataValues.precio * 100;
+        const comisiones = [5, 10];
+        const amount = evento.dataValues.precio * 100 * (1 - (comisiones[especialista.dataValues.PlaneId - 1] / 100));
         const transfer = yield stripe.transfers.create({
             amount,
             currency: moneda.dataValues.moneda,
             destination: especialista.dataValues.cuentaConectada,
             description: sesion_compra.payment_intent,
-            //transfer_group: 'ORDER_95',
         });
-        //enviarMailPagoEspecialista(sesion_compra,amount,moneda.moneda);
+        enviarMailPagoEspecialista(sesion_compra, amount, moneda.dataValues.moneda);
         return transfer;
     }
     catch (error) {
@@ -198,7 +198,7 @@ const enviarMailPagoEspecialista = (sesion, amount, moneda) => __awaiter(void 0,
             asunto: `Pago venta del evento ${evento.dataValues.evento}`,
             nombreDestinatario: especialista.dataValues.nombre,
             mailDestinatario: especialista.dataValues.email,
-            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.evento} a su cuenta.`,
+            mensaje: `Hola, ${especialista === null || especialista === void 0 ? void 0 : especialista.dataValues.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.dataValues.evento} a su cuenta.`,
             html: (0, plantilla_mail_1.mailTransferenciaEspecialista)(especialista, evento, cliente, amount, moneda),
         });
     }

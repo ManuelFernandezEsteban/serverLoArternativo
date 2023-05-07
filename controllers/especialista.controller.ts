@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-import Actividad from "../models/actividades";
+import Actividades from "../models/actividades";
 import Especialista from '../models/especialista';
-import Plan from "../models/planes";
+import Planes from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
-import { sendMail } from '../helpers/send-mail';
-import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 import { createFolder } from '../helpers/createFolder';
 import UsaHerramientas from '../models/usa_herramientas';
 import dotenv from 'dotenv';
@@ -37,7 +35,7 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
     const { count, rows } = await Especialista.findAndCountAll({
 
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan, UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
         where: {
             actividadeId: especialidad
@@ -61,7 +59,7 @@ export const getEspecialistas = async (req: Request, res: Response) => {
 
     const { rows, count } = await Especialista.findAndCountAll({
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan, UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
         where: {
             actividadeId: especialidad,
@@ -92,7 +90,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan, UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
     });
 
@@ -120,7 +118,7 @@ export const postEspecialista = async (req: Request, res: Response) => {
         const especialista = await Especialista.create(body);
         await especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        //especialista.set({ password: '' });
+        
         const token = generarJWT(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
@@ -136,18 +134,11 @@ export const postEspecialista = async (req: Request, res: Response) => {
             }
         }
         createFolder(`especialistas/${especialista.dataValues.id}`);
-        createFolder(`especialistas/${especialista.dataValues.id}/profile`);
-        await sendMail({
-            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-            nombreDestinatario: body.nombre,
-            mailDestinatario: body.email,
-            mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-            html: mailRegistro(especialista.dataValues.nombre)
-        })
+        createFolder(`especialistas/${especialista.dataValues.id}/profile`);       
 
         res.json({
-
-            token
+            token,
+            especialista
         });
 
     } catch (error) {

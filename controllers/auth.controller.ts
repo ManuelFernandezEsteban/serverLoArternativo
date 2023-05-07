@@ -5,9 +5,18 @@ import { generarJWT } from '../helpers/generar-JWT';
 import jwt from 'jsonwebtoken';
 import { sendMail } from "../helpers/send-mail";
 import { mailRecuperacionPassword } from "../helpers/plantilla-mail";
-import Actividad from "../models/actividades";
-import Plan from "../models/planes";
+
+
 import UsaHerramientas from "../models/usa_herramientas";
+import Suscripciones from "../models/suscripciones";
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+import Planes from "../models/planes";
+import Actividades from "../models/actividades";
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
+
 
 export const login = async (req: Request, res: Response) => {
 
@@ -19,11 +28,11 @@ export const login = async (req: Request, res: Response) => {
             where: {
                 email: email
             },
-            include: [Actividad, Plan,UsaHerramientas],
+            include: [Actividades, Planes, UsaHerramientas, Suscripciones],
         })
         if (!especialista) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
             })
         }
 
@@ -31,10 +40,32 @@ export const login = async (req: Request, res: Response) => {
 
         if (!validPassword) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
             })
         }
 
+        const suscripcion = await Suscripciones.findOne({
+            where: { EspecialistaId: especialista.dataValues.id }
+        })
+        if (!suscripcion) {
+            return res.status(400).json({
+                error: 'No tiene suscripción'
+            })
+        }
+        try {
+            const subscription = await stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription)
+            if (subscription.status === 'canceled') {
+
+                return res.status(400).json({
+                    error: 'No tiene suscripción activa' 
+                })
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                error: 'No tiene suscripción'
+            })
+        }
         const token = generarJWT(especialista.dataValues.id);
         especialista.set({ password: '' });
 
@@ -61,7 +92,7 @@ export const renewToken = async (req: Request, res: Response) => {
         const especialista = await Especialista.findByPk(id, {
 
             attributes: { exclude: ['password'] },
-            include: [Actividad, Plan,UsaHerramientas],
+            include: [Actividades, Planes, UsaHerramientas],
 
         });
 
@@ -85,13 +116,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     let verificationLink: string = '';
     let emailStatus: string = 'OK';
-    let token:string='';
+    let token: string = '';
     const especialista = await Especialista.findOne({
         where: { email: email }
     });
     if (!especialista) {
         emailStatus = 'error'
-        return res.status(400).json({ message,email })
+        return res.status(400).json({ message, email })
     }
     try {
 
@@ -120,28 +151,28 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     }
 
-    try {        
-        await especialista?.set({resetToken:token})
+    try {
+        await especialista?.set({ resetToken: token })
         await especialista?.save();
-        res.json({ message, emailStatus,verificationLink });
+        res.json({ message, emailStatus, verificationLink });
     } catch (error) {
         emailStatus = 'error';
         res.status(500).json({ message: 'Algo no ha ido bien' });
     }
 
-    
+
 
 }
 
 
-export const createNewPassword = async (req: Request, res: Response) => { 
+export const createNewPassword = async (req: Request, res: Response) => {
 
     const { password } = req.body;
     const resetToken = req.header('resetToken');
 
-    if (!(resetToken && password)||(resetToken.trim()==='')) {
+    if (!(resetToken && password) || (resetToken.trim() === '')) {
         return res.status(400).json({
-            message: 'Todos los campos son requeridos',           
+            message: 'Todos los campos son requeridos',
         })
     }
     let especialista;
@@ -157,14 +188,14 @@ export const createNewPassword = async (req: Request, res: Response) => {
     }
     try {
         const salt = bcrypt.genSaltSync();
-        await especialista?.set({ password: bcrypt.hashSync(password, salt),resetToken:null })
+        await especialista?.set({ password: bcrypt.hashSync(password, salt), resetToken: null })
         await especialista?.save();
         res.json({
-            'message': "Contraseña establecida",            
+            'message': "Contraseña establecida",
         })
     } catch (error) {
         return res.status(500).json({
-            'message':'Algo ha ido mal'
+            'message': 'Algo ha ido mal'
         })
     }
 
