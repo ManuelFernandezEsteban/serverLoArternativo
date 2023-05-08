@@ -24,6 +24,7 @@ const eventos_1 = __importDefault(require("../models/eventos"));
 const monedas_1 = __importDefault(require("../models/monedas"));
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
+const planes_1 = __importDefault(require("../models/planes"));
 dotenv_1.default.config();
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
@@ -168,8 +169,11 @@ const pagar = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () 
             return new Error('La moneda no existe');
         }
         //TODO: calcular comisión en función del tipo de suscripción
-        const comisiones = [5, 10];
-        const amount = evento.dataValues.precio * 100 * (1 - (comisiones[especialista.dataValues.PlaneId - 1] / 100));
+        const plan = yield planes_1.default.findByPk(especialista.dataValues.PlaneId);
+        let comision = plan === null || plan === void 0 ? void 0 : plan.dataValues.comision;
+        console.log(comision);
+        const amount = (evento.dataValues.precio * 100) * comision;
+        console.log(amount);
         const transfer = yield stripe.transfers.create({
             amount,
             currency: moneda.dataValues.moneda,

@@ -10,6 +10,7 @@ import Evento from "../models/eventos";
 import Moneda from "../models/monedas";
 import { sendMail } from "../helpers/send-mail";
 import { mailTransferenciaEspecialista } from "../helpers/plantilla-mail";
+import Planes from '../models/planes';
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -169,9 +170,12 @@ const pagar = async (sesion_compra: any) => {
         }
         //TODO: calcular comisión en función del tipo de suscripción
 
-        const comisiones = [5,10]
-
-        const amount=evento.dataValues.precio*100 * (1-(comisiones[especialista.dataValues.PlaneId-1]/100));
+        const plan = await Planes.findByPk(especialista.dataValues.PlaneId);
+        let comision = plan?.dataValues.comision;
+        console.log(comision);       
+        
+        const amount=(evento.dataValues.precio*100) * comision;
+        console.log (amount)
         const transfer = await stripe.transfers.create({
             amount,
             currency: moneda.dataValues.moneda,

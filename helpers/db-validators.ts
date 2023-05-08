@@ -25,8 +25,7 @@ export const esPlanValido = async (PlaneId: number = 0) => {
             throw new Error('No es un plan válido')
         }
 
-        const existePlan = await Plan.findByPk(PlaneId);
-        console.log(PlaneId)
+        const existePlan = await Plan.findByPk(PlaneId);        
         if (!existePlan) {
             throw new Error('No existe un plan con id ' + PlaneId)
         }

@@ -103,7 +103,7 @@ export const getEventosActividad = async (req: Request, res: Response) => {
             model: Especialista,
             attributes: { exclude: ['password'] },
             where: {
-                PlaneId: { [Op.not]: 1 }
+                PlaneId: { [Op.notIn]: [0,1] }
             },
 
         }],
@@ -128,7 +128,7 @@ export const postEvento = async (req: Request, res: Response) => {
     const fecha = new Date(req.body.fecha);
     const { body } = req;
 
-    //console.log(body);
+    console.log('Post Evento ', body.EspecialistaId);
 
 
     if (now > fecha) {

@@ -71,8 +71,11 @@ const onDeleteSubscription = async (subscriptionId: string) => {
 
             await borrarCuentaConectada(especialista.dataValues.cuentaConectada);
 
-            especialista.set({ planeId: 1, cuentaConectada: null });
+            const suscripcion = await Suscripciones.destroy({
+                where: { EspecialistaId: especialista.dataValues.id }
+            })
 
+            especialista.set({ planeId: 0, cuentaConectada: null });
 
             await especialista.save();
         } else {
@@ -187,54 +190,48 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 }
                 const subscription = await stripe.subscriptions.retrieve(sesion.subscription);
 
-                
+                const suscripcionAnterior = await Suscripciones.findOne({ where: { EspecialistaId: especialista.dataValues.id } });
 
-                if (subscription) {
+                if (suscripcionAnterior) {
                     //comprobamos si tenía una suscripción anterior, 
                     //si es así cancelamos la antigua y modificamos la tabla
-                    const suscripcion = await Suscripciones.findOne({
-                        where: { EspecialistaId: especialista.dataValues.id }
-                    });
-                    if (suscripcion) {
-                        //cancelamos antigua en stripe
-                        try {
-                            //cancelamos antigua en stripe
-                            await stripe.subscriptions.del(suscripcion.dataValues.id_stripe_subscription);
-                            //modificamos la tabla
-                            await suscripcion.update({
-                                EspecialistaId: especialista.dataValues.id,
-                                planeId: sesion_compra_suscripcion.dataValues.planeId,
-                                id_stripe_subscription: subscription.id
-                            });
+                    //console.log(subscription);                    
 
-                        } catch (error) {
-                            console.log(error);
-                            throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción')
-                        }
-                    } else {//en otro caso creamos un nuevo registro en la tabla suscripciones
-                        await Suscripciones.create({
+                    //cancelamos antigua en stripe
+                    try {
+                        //cancelamos antigua en stripe
+                        await stripe.subscriptions.del(suscripcionAnterior.dataValues.id_stripe_subscription);
+                        //modificamos la tabla
+                        await suscripcionAnterior.update({
                             EspecialistaId: especialista.dataValues.id,
                             planeId: sesion_compra_suscripcion.dataValues.planeId,
                             id_stripe_subscription: subscription.id
                         });
-                        await sendMail({
-                            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-                            nombreDestinatario: especialista.dataValues.nombre,
-                            mailDestinatario: especialista.dataValues.email,
-                            mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
-                            html: mailRegistro(especialista.dataValues.nombre)
-                        })
-                    }
-                    await especialista.update({
-                        stripeId: sesion.customer,
-                        planeId: sesion_compra_suscripcion.dataValues.planeId
-                    });
-                }else {
-                    throw new Error('no existe la referencia');
-                }
-                
-                enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
 
+                    } catch (error) {
+                        console.log(error);
+                        throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción')
+                    }
+                } else {//en otro caso creamos un nuevo registro en la tabla suscripciones
+                    await Suscripciones.create({
+                        EspecialistaId: especialista.dataValues.id,
+                        planeId: sesion_compra_suscripcion.dataValues.planeId,
+                        id_stripe_subscription: subscription.id
+                    });
+                    await sendMail({
+                        asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                        nombreDestinatario: especialista.dataValues.nombre,
+                        mailDestinatario: especialista.dataValues.email,
+                        mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
+                        html: mailRegistro(especialista.dataValues.nombre)
+                    })
+                }
+                await especialista.update({
+                    stripeId: sesion.customer,
+                    planeId: sesion_compra_suscripcion.dataValues.planeId
+                });
+
+                enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
             } else {
                 throw new Error('no existe la referencia');
             }
@@ -248,7 +245,7 @@ const onCheckoutSesionComplete = async (sesion: any) => {
 
 const enviarMensajeWebSocket = (tipoMensaje: string, mensaje: string) => {
     const server = Server.instance;
-    console.log(tipoMensaje,mensaje);
+    console.log(tipoMensaje, mensaje);
     server.io.on('connection', cliente => {
         console.log('cliente conectado ', cliente.id)
         cliente.emit(tipoMensaje, mensaje)

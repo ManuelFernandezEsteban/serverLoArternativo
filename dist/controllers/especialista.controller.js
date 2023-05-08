@@ -44,7 +44,8 @@ const getEspecialistasPagination = (req, res) => __awaiter(void 0, void 0, void 
         attributes: { exclude: ['password'] },
         include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         where: {
-            actividadeId: especialidad
+            actividadeId: especialidad,
+            planeId: { [sequelize_1.Op.ne]: 0 }
         },
         order: ['createdAt', 'DESC'],
         group: 'PlaneId',
@@ -65,6 +66,7 @@ const getEspecialistas = (req, res) => __awaiter(void 0, void 0, void 0, functio
         include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         where: {
             actividadeId: especialidad,
+            planeId: { [sequelize_1.Op.ne]: 0 }
         },
         //group:['planeId']
         order: [

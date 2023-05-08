@@ -74,7 +74,10 @@ const onDeleteSubscription = (subscriptionId) => __awaiter(void 0, void 0, void 
         });
         if (especialista) {
             yield borrarCuentaConectada(especialista.dataValues.cuentaConectada);
-            especialista.set({ planeId: 1, cuentaConectada: null });
+            const suscripcion = yield suscripciones_1.default.destroy({
+                where: { EspecialistaId: especialista.dataValues.id }
+            });
+            especialista.set({ planeId: 0, cuentaConectada: null });
             yield especialista.save();
         }
         else {
@@ -166,51 +169,45 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                     throw new Error("Error, el especialista no se encuentra");
                 }
                 const subscription = yield stripe.subscriptions.retrieve(sesion.subscription);
-                if (subscription) {
+                const suscripcionAnterior = yield suscripciones_1.default.findOne({ where: { EspecialistaId: especialista.dataValues.id } });
+                if (suscripcionAnterior) {
                     //comprobamos si tenía una suscripción anterior, 
                     //si es así cancelamos la antigua y modificamos la tabla
-                    const suscripcion = yield suscripciones_1.default.findOne({
-                        where: { EspecialistaId: especialista.dataValues.id }
-                    });
-                    if (suscripcion) {
+                    //console.log(subscription);                    
+                    //cancelamos antigua en stripe
+                    try {
                         //cancelamos antigua en stripe
-                        try {
-                            //cancelamos antigua en stripe
-                            yield stripe.subscriptions.del(suscripcion.dataValues.id_stripe_subscription);
-                            //modificamos la tabla
-                            yield suscripcion.update({
-                                EspecialistaId: especialista.dataValues.id,
-                                planeId: sesion_compra_suscripcion.dataValues.planeId,
-                                id_stripe_subscription: subscription.id
-                            });
-                        }
-                        catch (error) {
-                            console.log(error);
-                            throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción');
-                        }
-                    }
-                    else { //en otro caso creamos un nuevo registro en la tabla suscripciones
-                        yield suscripciones_1.default.create({
+                        yield stripe.subscriptions.del(suscripcionAnterior.dataValues.id_stripe_subscription);
+                        //modificamos la tabla
+                        yield suscripcionAnterior.update({
                             EspecialistaId: especialista.dataValues.id,
                             planeId: sesion_compra_suscripcion.dataValues.planeId,
                             id_stripe_subscription: subscription.id
                         });
-                        yield (0, send_mail_1.sendMail)({
-                            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-                            nombreDestinatario: especialista.dataValues.nombre,
-                            mailDestinatario: especialista.dataValues.email,
-                            mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
-                            html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
-                        });
                     }
-                    yield especialista.update({
-                        stripeId: sesion.customer,
-                        planeId: sesion_compra_suscripcion.dataValues.planeId
+                    catch (error) {
+                        console.log(error);
+                        throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción');
+                    }
+                }
+                else { //en otro caso creamos un nuevo registro en la tabla suscripciones
+                    yield suscripciones_1.default.create({
+                        EspecialistaId: especialista.dataValues.id,
+                        planeId: sesion_compra_suscripcion.dataValues.planeId,
+                        id_stripe_subscription: subscription.id
+                    });
+                    yield (0, send_mail_1.sendMail)({
+                        asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                        nombreDestinatario: especialista.dataValues.nombre,
+                        mailDestinatario: especialista.dataValues.email,
+                        mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
+                        html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
                     });
                 }
-                else {
-                    throw new Error('no existe la referencia');
-                }
+                yield especialista.update({
+                    stripeId: sesion.customer,
+                    planeId: sesion_compra_suscripcion.dataValues.planeId
+                });
                 enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
             }
             else {

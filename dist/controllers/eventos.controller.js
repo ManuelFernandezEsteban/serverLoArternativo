@@ -99,7 +99,7 @@ const getEventosActividad = (req, res) => __awaiter(void 0, void 0, void 0, func
                 model: especialista_1.default,
                 attributes: { exclude: ['password'] },
                 where: {
-                    PlaneId: { [sequelize_1.Op.not]: 1 }
+                    PlaneId: { [sequelize_1.Op.notIn]: [0, 1] }
                 },
             }],
         order: [
@@ -119,7 +119,7 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const now = new Date(Date.now());
     const fecha = new Date(req.body.fecha);
     const { body } = req;
-    //console.log(body);
+    console.log('Post Evento ', body.EspecialistaId);
     if (now > fecha) {
         return res.status(401).json({
             msg: 'Fecha invalida'
