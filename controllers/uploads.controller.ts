@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Especialista from "../models/especialista";
 import Evento from "../models/eventos";
 import { deleteFolder } from "../helpers/createFolder";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const avatarEspecialista = async (req:Request,res:Response)=>{   
 

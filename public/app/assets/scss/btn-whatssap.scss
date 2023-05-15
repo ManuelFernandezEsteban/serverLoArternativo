@@ -1,0 +1,22 @@
+#whatsapp {
+    position: fixed;
+    bottom: 300px;
+    right: 20px;
+
+    a {
+        svg {
+            width: 80px;
+            height: 80px;
+            @media (max-width: $breakpoint800){
+                width: 40px;
+                height: 40px;
+            }
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .4));
+            path{
+                fill: $accentColor;
+            }
+            
+        }
+    }
+
+}

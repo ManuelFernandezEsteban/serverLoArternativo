@@ -1,0 +1,57 @@
+.plan-plata,.plan-platino,.plan-oro{
+    
+    padding: 20px;
+    width: 45%;
+    border-radius: 4px;
+    gap: 20px;
+    min-height: 530px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .btn-registro{
+        align-self: stretch;
+    }
+    @media (max-width:800px){
+        width: 100%;
+    }
+  
+}
+.plan-plata{
+    background-color: #C3C8D4;
+}
+.plan-platino{
+    background-color: #9B9693 ;
+}
+.plan-oro{   
+    background-color: #525020; 
+    color: white;
+    border: 2px solid #525020;
+    .btn-registro{
+        border: 2px solid white;
+        background-color: #525020;
+        color: white;
+    }
+    
+}
+
+.wrapper-planes{
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;    
+    gap: 30px;
+    @media (max-width:800px){
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        height: auto;
+       
+    }
+}
+
+.wrp-planes{
+    padding: 20px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    
+}

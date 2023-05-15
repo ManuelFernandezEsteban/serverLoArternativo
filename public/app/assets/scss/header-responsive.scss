@@ -1,5 +1,5 @@
 header {
-    background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, $blueColor 0%, rgba(255, 255, 255, 1) 80%);
+    background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, $blueColor 0%, $backgroundColor 80%);
     width: 100%;
     align-items: center;
     justify-content: space-around;
@@ -190,7 +190,7 @@ h2 {
         position: absolute;
         top: 305px;
         /* change to 8vh */
-        height: 60%;
+        height: 80%;
         /* change to 92vh */
         left: 0px;
         justify-content: space-evenly;
@@ -219,7 +219,11 @@ h2 {
         top: 135px;
     }
 }
-
+.news{
+    @media (max-width:$breakpoint860){
+        display: none;
+    }
+}
 .liMostrado {
     opacity: 1;
     transform: translate(0px)

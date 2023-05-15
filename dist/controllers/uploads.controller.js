@@ -16,6 +16,8 @@ exports.deleteEvento = exports.eventoInfo = exports.eventoImagen = exports.video
 const especialista_1 = __importDefault(require("../models/especialista"));
 const eventos_1 = __importDefault(require("../models/eventos"));
 const createFolder_1 = require("../helpers/createFolder");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const avatarEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idEspecialista = req.especialistaAutenticado;
     const urlImagen = req.urlAvatar;

@@ -49,8 +49,17 @@ export const postUserNews = async (req: Request, res: Response) => {
 
     const { body } = req;
     try {
-        const user = NewsLetter.build(body);
-        user.save();
+        const siExiste = await NewsLetter.findOne({
+            where:{
+                'email':body.email
+            }
+        });
+        if (siExiste){
+            siExiste.update(body);
+        }else{
+            const user = NewsLetter.build(body);
+            user.save();
+        }
         await sendMail({
             asunto: 'Suscripción a newsletter',
             nombreDestinatario: body.nombre,
@@ -58,8 +67,9 @@ export const postUserNews = async (req: Request, res: Response) => {
             mensaje: `Hola, ${body.nombre} su suscripción ha sido completada`,
             html: mailSuscripcion(body.nombre)
         })
+
         res.json({
-            user
+            message:"OK"
         })
 
     } catch (error) {

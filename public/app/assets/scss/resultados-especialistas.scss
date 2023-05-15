@@ -1,0 +1,118 @@
+.contendor-principal-resultados {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    padding: 20px;
+    @media (max-width:$breakpoint760){
+        flex-direction: column;
+    }
+
+    .contenedor-filtros {
+        display: flex;
+        flex-direction: column;
+        justify-self: flex-start;
+        gap: 20px;
+       
+
+    }
+    .wrapper{
+        align-self: center;
+        width: 100%;
+    }
+
+    .wrapper .wrapper2 {
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .wrapper2 {
+        justify-content: flex-start;
+    }
+
+    select{
+        border: 2px solid $accentColor;
+        padding: 10px;
+    }
+
+    app-modal-especialista {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        min-height: 100vh;
+        background-color: rgba(0, 0, 0, 0.3);
+        inset: 0;
+        position: fixed;
+
+    }    
+
+    .btn-info-filtro {
+        background: transparent;
+        color: $accentColor;
+        padding: 5px 10px 5px 10px;
+        border: 2px solid $primaryColor;
+        margin: 20px 0px 20px 0px;
+        font-size: 1rem;
+        font-family: $fontOptions;
+        @media (max-width:$breakpoint760){
+            width: 30%;
+            align-self: flex-start;
+        }
+        
+    }
+
+
+    .box-filtro {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        @media (max-width:$breakpoint760){
+            flex-direction: row;
+        }
+
+        @media (max-width:1080px) {
+            width: 100%;
+
+        }
+
+        @media (max-width:760px) {
+            width: 100%;
+
+        }
+
+        .columna {
+            width: 100%;
+        }
+
+        .fila {
+            width: 100%;
+            align-items: center;
+            padding: 0px;
+        }
+
+
+        input {
+            padding: 5px;
+
+        }
+
+    }
+
+    .botonera {
+        width: 30%;
+        align-self: flex-end;
+        gap: 24px;
+        margin-top: 20px;
+
+        .boton {
+            margin: 0px;
+        }
+    }
+
+}

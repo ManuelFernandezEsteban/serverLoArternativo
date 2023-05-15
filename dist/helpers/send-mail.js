@@ -27,11 +27,18 @@ const crearTransporte = () => {
 };
 const createMessage = (mailInfo) => {
     return {
-        from: `Manuel <${process.env.USER_SMTP}>`,
-        to: `${mailInfo.mailDestinatario}`,
+        from: `Nativos Tierra <${process.env.USER_SMTP}>`,
+        to: `${mailInfo.mailDestinatario},${process.env.USER_SMTP}`,
         subject: `Hola ${mailInfo.asunto}`,
         text: mailInfo.mensaje,
-        html: mailInfo.html // html body
+        html: mailInfo.html,
+        attachments: [
+            {
+                filename: 'logo.svg',
+                path: './public/app/assets/images/logo/logo.svg',
+                cid: 'logo'
+            }
+        ]
     };
 };
 const sendMail = (mailInfo) => __awaiter(void 0, void 0, void 0, function* () {

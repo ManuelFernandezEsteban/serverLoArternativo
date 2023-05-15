@@ -27,7 +27,7 @@ const createFolder = (folder) => {
     };
     s3.putObject(params, (err, data) => {
         if (err)
-            console.log(err, err.stack);
+            console.log('error en el folder', err, err.stack);
         else
             console.log(data);
     });
