@@ -168,7 +168,7 @@ const pagar = async (sesion_compra: any) => {
         
         const moneda = await Moneda.findByPk(evento.dataValues.monedaId);
         if (!moneda){ 
-            return new Error('La moneda no existe');
+            return new Error('La moneda no existe'); 
         }
         //TODO: calcular comisión en función del tipo de suscripción
 
@@ -184,9 +184,9 @@ const pagar = async (sesion_compra: any) => {
         //comisiones stripe por transferencia
         const gasto_tranferencia_especialista = (base*comision_stripe_transferencia)+fijo_stripe_transferencia;
         //comision para nativos tierra
-        const comision_nativos = base-(base*porcentaje_comision);
-        const amount = (base-comision_nativos-gasto_tranferencia_especialista-gasto_venta_evento)*100;          
-        const gasto_gestion = gasto_tranferencia_especialista+gasto_venta_evento
+        const comision_nativos =Math.ceil( base-(base*porcentaje_comision));
+        const amount = Math.ceil((base-comision_nativos-gasto_tranferencia_especialista-gasto_venta_evento)*100);          
+        const gasto_gestion = Math.ceil( gasto_tranferencia_especialista+gasto_venta_evento)
         console.log (amount)
         const transfer = await stripe.transfers.create({
             amount,
