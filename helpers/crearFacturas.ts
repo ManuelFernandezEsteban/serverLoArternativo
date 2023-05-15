@@ -20,12 +20,12 @@ export const crearFactura = async (idStripe:string,days:number=0,precios:string[
 
         });
         precios.forEach(async precio => {
-            const lineaFactura = await stripe.invoiceItems.create({
-            customer: idStripe,
-            price: precio,
-            invoice: factura.id,
-            quantity: 1,
-        })
+                const lineaFactura = await stripe.invoiceItems.create({
+                customer: idStripe,
+                price: precio,
+                invoice: factura.id,
+                quantity: 1,
+            })
         });
         
 
