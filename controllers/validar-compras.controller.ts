@@ -11,6 +11,8 @@ import Moneda from "../models/monedas";
 import { sendMail } from "../helpers/send-mail";
 import { mailTransferenciaEspecialista } from "../helpers/plantilla-mail";
 import Planes from '../models/planes';
+import { crearFactura } from "../helpers/crearFacturas";
+import { createPrice, createPriceEvento } from "../helpers/createPrice";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -170,11 +172,21 @@ const pagar = async (sesion_compra: any) => {
         }
         //TODO: calcular comisión en función del tipo de suscripción
 
+        const comision_stripe_transferencia=0.0025 
+        const comision_stripe_transaccion=0.015
+        const fijo_stripe_transaccion=0.25
+        const fijo_stripe_transferencia = 0.1
         const plan = await Planes.findByPk(especialista.dataValues.PlaneId);
-        let comision = plan?.dataValues.comision;
-        console.log(comision);       
-        
-        const amount=(evento.dataValues.precio*100) * comision;
+        let porcentaje_comision = plan?.dataValues.comision; 
+        //comisiones stripe por venta de envento
+        const base = evento.dataValues.precio;
+        const gasto_venta_evento = (base*comision_stripe_transaccion)+fijo_stripe_transaccion;
+        //comisiones stripe por transferencia
+        const gasto_tranferencia_especialista = (base*comision_stripe_transferencia)+fijo_stripe_transferencia;
+        //comision para nativos tierra
+        const comision_nativos = base-(base*porcentaje_comision);
+        const amount = (base-comision_nativos-gasto_tranferencia_especialista-gasto_venta_evento)*100;          
+        const gasto_gestion = gasto_tranferencia_especialista+gasto_venta_evento
         console.log (amount)
         const transfer = await stripe.transfers.create({
             amount,
@@ -183,10 +195,25 @@ const pagar = async (sesion_compra: any) => {
             description:sesion_compra.payment_intent,
         
         });
-        enviarMailPagoEspecialista(sesion_compra,amount,moneda.dataValues.moneda);
+        const priceComision:string = await createPrice(
+            'prod_Nt7TDoXV22bsE5',
+            comision_nativos,
+            1
+        )
+        const priceTransferencia:string = await createPrice(
+            'prod_Nt7UAN6Ua78MfT',
+            gasto_gestion,
+            1
+        )
+        const lineas = [];
+        lineas.push(priceComision);
+        lineas.push(priceTransferencia);
+        await crearFactura(especialista.dataValues.stripeId,0,lineas,sesion_compra.payment_intent);
+
+        await enviarMailPagoEspecialista(sesion_compra,amount,moneda.dataValues.moneda);
         return transfer;
     } catch (error) {
-        console.log(error);
+        console.log(error);  
     }
 
 }
@@ -208,7 +235,7 @@ const enviarMailPagoEspecialista = async (sesion:any,amount:number,moneda:string
             nombreDestinatario: especialista.dataValues.nombre,
             mailDestinatario: especialista.dataValues.email,
             mensaje: `Hola, ${especialista?.dataValues.nombre}, hemos procedido a realizar la transferencia del importe de la venta del ${evento.dataValues.evento} a su cuenta.`,
-            html: mailTransferenciaEspecialista(especialista, evento,cliente,amount,moneda),
+            html: mailTransferenciaEspecialista(especialista, evento,cliente,amount,moneda) ,
         })
     } catch (error) {
         console.log(error);

@@ -148,7 +148,10 @@ const setupBaseSesionConfig = (info, sesion_compra_eventoId, clienteStripeId) =>
     const config = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${sesion_compra_eventoId}`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
-        payment_method_types: ['card'],
+        payment_method_types: [
+            'card',
+            //'klarna'
+        ],
         mode: 'payment',
         client_reference_id: sesion_compra_eventoId
     };

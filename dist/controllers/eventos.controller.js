@@ -170,7 +170,7 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     if (evento.dataValues.esVendible) {
         const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
         console.log(idProductEvent);
-        const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
+        const idPriceEvent = yield (0, createPrice_1.createPrice)(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
         yield evento.update({
             idProductEvent,
             idPriceEvent

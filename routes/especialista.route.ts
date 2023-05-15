@@ -18,6 +18,7 @@ const router = Router();
 router.get('/:especialidad',[
     check('especialidad').custom( esActividadValida ),
 ],validarCampos,getEspecialistas);
+
 router.get('/pagination/:especialidad',[
     check('especialidad').custom( esActividadValida ),
 ],validarCampos,getEspecialistasPagination);

@@ -204,7 +204,7 @@ const mailTransferenciaEspecialista = (especialista, evento, cliente, cantidad, 
                         <li>Fecha: ${evento.fecha}</li>
                         <li>Precio evento: ${evento.precio} ${moneda}</li>
                         <li>Cliente: ${cliente.nombre} ${cliente.apellidos}</li>
-                        <li>Importe transferencia: ${cantidad / 100} </li>
+                        <li>Importe transferencia: ${cantidad / 100} ${moneda} </li>                        
                     </ul>                    
              ${mailInferior}  
         `;

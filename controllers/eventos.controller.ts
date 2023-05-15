@@ -5,7 +5,7 @@ import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
 import { createFolder } from '../helpers/createFolder';
 import Moneda from '../models/monedas';
-import { createPriceEvento, createProductEvento, deleteProductEvento, desactivarPrice, updateProductEvento } from '../helpers/createPrice';
+import { createPrice, createPriceEvento, createProductEvento, deleteProductEvento, desactivarPrice, updateProductEvento } from '../helpers/createPrice';
 import Stripe from "stripe";
 import dayjs from 'dayjs';
 
@@ -187,7 +187,7 @@ export const postEvento = async (req: Request, res: Response) => {
 
         const idProductEvent = await createProductEvento(evento);
         console.log(idProductEvent);
-        const idPriceEvent = await createPriceEvento(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
+        const idPriceEvent = await createPrice(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
         await evento.update({
             idProductEvent,
             idPriceEvent

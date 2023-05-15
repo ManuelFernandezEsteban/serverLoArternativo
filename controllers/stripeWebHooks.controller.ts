@@ -13,8 +13,12 @@ import Cliente from "../models/clientes";
 import { mailCompraCliente, mailCompraEspecialista, mailRegistro } from "../helpers/plantilla-mail";
 import Server from "../models/server";
 import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
-import dayjs from "dayjs";
+
 import Suscripciones from "../models/suscripciones";
+import { crearFactura, crearFacturaSuscripcion } from "../helpers/crearFacturas";
+import Planes from "../models/planes";
+import dayjs from 'dayjs';
+import { Data } from '../interfaces/checkout-sesion.interface';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -149,27 +153,8 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                 process.env.SECRETPRIVATEKEY || '',
                 { expiresIn: '15d' }
             );
-            //realizar factura evento comprado
-            if (cliente.dataValues.idStripe) {
-                const date = new Date(Date.now());
-                console.log(date);
-                const factura = await stripe.invoices.create({
-                    collection_method: 'send_invoice',
-                    customer: cliente.dataValues.idStripe,
-                    days_until_due: 0
-
-                });
-                const lineaFactura = await stripe.invoiceItems.create({
-                    customer: cliente.dataValues.idStripe,
-                    price: evento.dataValues.idPriceEvent,
-                    invoice: factura.id,
-                    quantity: 1,
-
-                })
-
-                await stripe.invoices.finalizeInvoice(factura.id);
-                await stripe.invoices.sendInvoice(factura.id);
-            }
+            
+            
             await enviarMailCompraCliente(compra_por_finalizar, token);
             await enviarMailCompraEspecialista(compra_por_finalizar, token);
 
@@ -230,7 +215,8 @@ const onCheckoutSesionComplete = async (sesion: any) => {
                     stripeId: sesion.customer,
                     planeId: sesion_compra_suscripcion.dataValues.planeId
                 });
-
+                const plan = await Planes.findByPk(sesion_compra_suscripcion.dataValues.planeId);
+                //crearFacturaSuscripcion(especialista.dataValues.stripeId,0,[plan?.dataValues.priceId]);
                 enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
             } else {
                 throw new Error('no existe la referencia');
