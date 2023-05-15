@@ -179,13 +179,13 @@ const pagar = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () 
         let porcentaje_comision = plan === null || plan === void 0 ? void 0 : plan.dataValues.comision;
         //comisiones stripe por venta de envento
         const base = evento.dataValues.precio;
-        const gasto_venta_evento = (base * comision_stripe_transaccion) + fijo_stripe_transaccion;
+        const gasto_venta_evento = parseFloat(((base * comision_stripe_transaccion) + fijo_stripe_transaccion).toFixed(2));
         //comisiones stripe por transferencia
-        const gasto_tranferencia_especialista = (base * comision_stripe_transferencia) + fijo_stripe_transferencia;
+        const gasto_tranferencia_especialista = parseFloat(((base * comision_stripe_transferencia) + fijo_stripe_transferencia).toFixed(9));
         //comision para nativos tierra
-        const comision_nativos = Math.ceil(base - (base * porcentaje_comision));
-        const amount = Math.ceil((base - comision_nativos - gasto_tranferencia_especialista - gasto_venta_evento) * 100);
-        const gasto_gestion = Math.ceil(gasto_tranferencia_especialista + gasto_venta_evento);
+        const comision_nativos = (base - (base * porcentaje_comision));
+        const amount = ((base - comision_nativos - gasto_tranferencia_especialista - gasto_venta_evento) * 100);
+        const gasto_gestion = (gasto_tranferencia_especialista + gasto_venta_evento);
         console.log(amount);
         const transfer = yield stripe.transfers.create({
             amount,
