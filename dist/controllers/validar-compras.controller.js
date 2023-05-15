@@ -24,6 +24,9 @@ const eventos_1 = __importDefault(require("../models/eventos"));
 const monedas_1 = __importDefault(require("../models/monedas"));
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
+const planes_1 = __importDefault(require("../models/planes"));
+const crearFacturas_1 = require("../helpers/crearFacturas");
+const createPrice_1 = require("../helpers/createPrice");
 dotenv_1.default.config();
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
@@ -168,15 +171,35 @@ const pagar = (sesion_compra) => __awaiter(void 0, void 0, void 0, function* () 
             return new Error('La moneda no existe');
         }
         //TODO: calcular comisión en función del tipo de suscripción
-        const comisiones = [5, 10];
-        const amount = evento.dataValues.precio * 100 * (1 - (comisiones[especialista.dataValues.PlaneId - 1] / 100));
+        const comision_stripe_transferencia = 0.0025;
+        const comision_stripe_transaccion = 0.015;
+        const fijo_stripe_transaccion = 0.25;
+        const fijo_stripe_transferencia = 0.1;
+        const plan = yield planes_1.default.findByPk(especialista.dataValues.PlaneId);
+        let porcentaje_comision = plan === null || plan === void 0 ? void 0 : plan.dataValues.comision;
+        //comisiones stripe por venta de envento
+        const base = evento.dataValues.precio;
+        const gasto_venta_evento = (base * comision_stripe_transaccion) + fijo_stripe_transaccion;
+        //comisiones stripe por transferencia
+        const gasto_tranferencia_especialista = (base * comision_stripe_transferencia) + fijo_stripe_transferencia;
+        //comision para nativos tierra
+        const comision_nativos = base - (base * porcentaje_comision);
+        const amount = (base - comision_nativos - gasto_tranferencia_especialista - gasto_venta_evento) * 100;
+        const gasto_gestion = gasto_tranferencia_especialista + gasto_venta_evento;
+        console.log(amount);
         const transfer = yield stripe.transfers.create({
             amount,
             currency: moneda.dataValues.moneda,
             destination: especialista.dataValues.cuentaConectada,
             description: sesion_compra.payment_intent,
         });
-        enviarMailPagoEspecialista(sesion_compra, amount, moneda.dataValues.moneda);
+        const priceComision = yield (0, createPrice_1.createPrice)('prod_Nt7TDoXV22bsE5', comision_nativos, 1);
+        const priceTransferencia = yield (0, createPrice_1.createPrice)('prod_Nt7UAN6Ua78MfT', gasto_gestion, 1);
+        const lineas = [];
+        lineas.push(priceComision);
+        lineas.push(priceTransferencia);
+        yield (0, crearFacturas_1.crearFactura)(especialista.dataValues.stripeId, 0, lineas, sesion_compra.payment_intent);
+        yield enviarMailPagoEspecialista(sesion_compra, amount, moneda.dataValues.moneda);
         return transfer;
     }
     catch (error) {

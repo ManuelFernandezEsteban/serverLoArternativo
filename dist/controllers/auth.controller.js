@@ -47,28 +47,29 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 error: 'Correo / password no son correctos'
             });
         }
-        const suscripcion = yield suscripciones_1.default.findOne({
+        /*
+        const suscripcion = await Suscripciones.findOne({
             where: { EspecialistaId: especialista.dataValues.id }
-        });
+        })
         if (!suscripcion) {
             return res.status(400).json({
                 error: 'No tiene suscripción'
-            });
+            })
         }
         try {
-            const subscription = yield stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription);
+            const subscription = await stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription)
             if (subscription.status === 'canceled') {
+
                 return res.status(400).json({
                     error: 'No tiene suscripción activa'
-                });
+                })
             }
-        }
-        catch (error) {
-            console.log(error);
+        } catch (error) {
+            console.log(error)
             return res.status(400).json({
                 error: 'No tiene suscripción'
-            });
-        }
+            })
+        }*/
         const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         especialista.set({ password: '' });
         res.json({

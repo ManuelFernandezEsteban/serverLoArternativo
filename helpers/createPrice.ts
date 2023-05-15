@@ -9,8 +9,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
 })
 
-export const createPriceEvento = async (idProductEvent: string, precio: number, moneda: number) => {
+export const createPrice = async (idProductEvent: string, precio: number, moneda: number):Promise<string> => {
     let currency = 'eur';
+    let priceId ='';
     if (moneda === 2) {
         currency = 'usd';
     }
@@ -18,12 +19,14 @@ export const createPriceEvento = async (idProductEvent: string, precio: number, 
         const price = await stripe.prices.create({
             unit_amount: precio * 100,
             currency,
+            tax_behavior: 'inclusive',
             product: idProductEvent
         })
-        return price.id;
+        priceId = price.id;
     } catch (error) {
         console.log(error)
     }
+    return priceId;
 }
 
 export const desactivarPrice = async (idPriceEvent:string) => {

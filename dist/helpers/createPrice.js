@@ -12,15 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.desactivarPrice = exports.createPriceEvento = void 0;
+exports.deleteProductEvento = exports.updateProductEvento = exports.createProductEvento = exports.desactivarPrice = exports.createPrice = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
-const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, void 0, void 0, function* () {
+const createPrice = (idProductEvent, precio, moneda) => __awaiter(void 0, void 0, void 0, function* () {
     let currency = 'eur';
+    let priceId = '';
     if (moneda === 2) {
         currency = 'usd';
     }
@@ -28,15 +29,17 @@ const createPriceEvento = (idProductEvent, precio, moneda) => __awaiter(void 0, 
         const price = yield stripe.prices.create({
             unit_amount: precio * 100,
             currency,
+            tax_behavior: 'inclusive',
             product: idProductEvent
         });
-        return price.id;
+        priceId = price.id;
     }
     catch (error) {
         console.log(error);
     }
+    return priceId;
 });
-exports.createPriceEvento = createPriceEvento;
+exports.createPrice = createPrice;
 const desactivarPrice = (idPriceEvent) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const price = yield stripe.prices.update(idPriceEvent, {

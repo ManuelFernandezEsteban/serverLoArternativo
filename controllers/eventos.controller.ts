@@ -5,7 +5,7 @@ import Especialista from '../models/especialista';
 import Evento from '../models/eventos';
 import { createFolder } from '../helpers/createFolder';
 import Moneda from '../models/monedas';
-import { createPriceEvento, createProductEvento, deleteProductEvento, desactivarPrice, updateProductEvento } from '../helpers/createPrice';
+import { createPrice, createPriceEvento, createProductEvento, deleteProductEvento, desactivarPrice, updateProductEvento } from '../helpers/createPrice';
 import Stripe from "stripe";
 import dayjs from 'dayjs';
 
@@ -103,7 +103,7 @@ export const getEventosActividad = async (req: Request, res: Response) => {
             model: Especialista,
             attributes: { exclude: ['password'] },
             where: {
-                PlaneId: { [Op.not]: 1 }
+                PlaneId: { [Op.notIn]: [0,1] }
             },
 
         }],
@@ -128,7 +128,7 @@ export const postEvento = async (req: Request, res: Response) => {
     const fecha = new Date(req.body.fecha);
     const { body } = req;
 
-    //console.log(body);
+    console.log('Post Evento ', body.EspecialistaId);
 
 
     if (now > fecha) {
@@ -187,7 +187,7 @@ export const postEvento = async (req: Request, res: Response) => {
 
         const idProductEvent = await createProductEvento(evento);
         console.log(idProductEvent);
-        const idPriceEvent = await createPriceEvento(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
+        const idPriceEvent = await createPrice(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
         await evento.update({
             idProductEvent,
             idPriceEvent

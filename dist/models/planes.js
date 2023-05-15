@@ -22,6 +22,9 @@ const Planes = connection_1.default.define('Planes', {
     priceId: {
         type: sequelize_1.DataTypes.STRING(255)
     },
+    comision: {
+        type: sequelize_1.DataTypes.FLOAT
+    },
     createdAt: {
         type: sequelize_1.DataTypes.DATE
     },

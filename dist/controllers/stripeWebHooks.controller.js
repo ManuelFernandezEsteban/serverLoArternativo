@@ -27,6 +27,7 @@ const plantilla_mail_1 = require("../helpers/plantilla-mail");
 const server_1 = __importDefault(require("../models/server"));
 const sesiones_compra_suscripcion_1 = __importDefault(require("../models/sesiones_compra_suscripcion"));
 const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const planes_1 = __importDefault(require("../models/planes"));
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15'
 });
@@ -74,7 +75,10 @@ const onDeleteSubscription = (subscriptionId) => __awaiter(void 0, void 0, void 
         });
         if (especialista) {
             yield borrarCuentaConectada(especialista.dataValues.cuentaConectada);
-            especialista.set({ planeId: 1, cuentaConectada: null });
+            const suscripcion = yield suscripciones_1.default.destroy({
+                where: { EspecialistaId: especialista.dataValues.id }
+            });
+            especialista.set({ planeId: 0, cuentaConectada: null });
             yield especialista.save();
         }
         else {
@@ -130,24 +134,6 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
             });
             console.log('compra por finalizar', compra_por_finalizar.dataValues.id);
             const token = jsonwebtoken_1.default.sign({ sesion_compra: compra_por_finalizar.dataValues.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '15d' });
-            //realizar factura evento comprado
-            if (cliente.dataValues.idStripe) {
-                const date = new Date(Date.now());
-                console.log(date);
-                const factura = yield stripe.invoices.create({
-                    collection_method: 'send_invoice',
-                    customer: cliente.dataValues.idStripe,
-                    days_until_due: 0
-                });
-                const lineaFactura = yield stripe.invoiceItems.create({
-                    customer: cliente.dataValues.idStripe,
-                    price: evento.dataValues.idPriceEvent,
-                    invoice: factura.id,
-                    quantity: 1,
-                });
-                yield stripe.invoices.finalizeInvoice(factura.id);
-                yield stripe.invoices.sendInvoice(factura.id);
-            }
             yield enviarMailCompraCliente(compra_por_finalizar, token);
             yield enviarMailCompraEspecialista(compra_por_finalizar, token);
             enviarMensajeWebSocket('sesion_compra_finalizada', sesionReferenceId);
@@ -166,51 +152,47 @@ const onCheckoutSesionComplete = (sesion) => __awaiter(void 0, void 0, void 0, f
                     throw new Error("Error, el especialista no se encuentra");
                 }
                 const subscription = yield stripe.subscriptions.retrieve(sesion.subscription);
-                if (subscription) {
+                const suscripcionAnterior = yield suscripciones_1.default.findOne({ where: { EspecialistaId: especialista.dataValues.id } });
+                if (suscripcionAnterior) {
                     //comprobamos si tenía una suscripción anterior, 
                     //si es así cancelamos la antigua y modificamos la tabla
-                    const suscripcion = yield suscripciones_1.default.findOne({
-                        where: { EspecialistaId: especialista.dataValues.id }
-                    });
-                    if (suscripcion) {
+                    //console.log(subscription);                    
+                    //cancelamos antigua en stripe
+                    try {
                         //cancelamos antigua en stripe
-                        try {
-                            //cancelamos antigua en stripe
-                            yield stripe.subscriptions.del(suscripcion.dataValues.id_stripe_subscription);
-                            //modificamos la tabla
-                            yield suscripcion.update({
-                                EspecialistaId: especialista.dataValues.id,
-                                planeId: sesion_compra_suscripcion.dataValues.planeId,
-                                id_stripe_subscription: subscription.id
-                            });
-                        }
-                        catch (error) {
-                            console.log(error);
-                            throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción');
-                        }
-                    }
-                    else { //en otro caso creamos un nuevo registro en la tabla suscripciones
-                        yield suscripciones_1.default.create({
+                        yield stripe.subscriptions.del(suscripcionAnterior.dataValues.id_stripe_subscription);
+                        //modificamos la tabla
+                        yield suscripcionAnterior.update({
                             EspecialistaId: especialista.dataValues.id,
                             planeId: sesion_compra_suscripcion.dataValues.planeId,
                             id_stripe_subscription: subscription.id
                         });
-                        yield (0, send_mail_1.sendMail)({
-                            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-                            nombreDestinatario: especialista.dataValues.nombre,
-                            mailDestinatario: especialista.dataValues.email,
-                            mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
-                            html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
-                        });
                     }
-                    yield especialista.update({
-                        stripeId: sesion.customer,
-                        planeId: sesion_compra_suscripcion.dataValues.planeId
+                    catch (error) {
+                        console.log(error);
+                        throw new Error('Error en la sesion de stripe al cancelar la antigua suscripción');
+                    }
+                }
+                else { //en otro caso creamos un nuevo registro en la tabla suscripciones
+                    yield suscripciones_1.default.create({
+                        EspecialistaId: especialista.dataValues.id,
+                        planeId: sesion_compra_suscripcion.dataValues.planeId,
+                        id_stripe_subscription: subscription.id
+                    });
+                    yield (0, send_mail_1.sendMail)({
+                        asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
+                        nombreDestinatario: especialista.dataValues.nombre,
+                        mailDestinatario: especialista.dataValues.email,
+                        mensaje: `Hola, ${especialista.dataValues.nombre} su resgistro ha sido completado`,
+                        html: (0, plantilla_mail_1.mailRegistro)(especialista.dataValues.nombre)
                     });
                 }
-                else {
-                    throw new Error('no existe la referencia');
-                }
+                yield especialista.update({
+                    stripeId: sesion.customer,
+                    planeId: sesion_compra_suscripcion.dataValues.planeId
+                });
+                const plan = yield planes_1.default.findByPk(sesion_compra_suscripcion.dataValues.planeId);
+                //crearFacturaSuscripcion(especialista.dataValues.stripeId,0,[plan?.dataValues.priceId]);
                 enviarMensajeWebSocket('compra_suscripcion_finalizada', especialista.dataValues.id);
             }
             else {

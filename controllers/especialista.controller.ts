@@ -38,7 +38,8 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
         include: [Actividades, Planes, UsaHerramientas],
 
         where: {
-            actividadeId: especialidad
+            actividadeId: especialidad,
+            planeId:{[Op.ne]:0}
         },
         order: ['createdAt', 'DESC'],
         group: 'PlaneId',
@@ -58,11 +59,13 @@ export const getEspecialistas = async (req: Request, res: Response) => {
     const { especialidad } = req.params;
 
     const { rows, count } = await Especialista.findAndCountAll({
+        
         attributes: { exclude: ['password'] },
         include: [Actividades, Planes, UsaHerramientas],
 
         where: {
             actividadeId: especialidad,
+            planeId:{[Op.ne]:0}
 
         },
         //group:['planeId']

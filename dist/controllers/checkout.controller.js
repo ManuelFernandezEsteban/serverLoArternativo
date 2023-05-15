@@ -109,13 +109,27 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.createCheckoutSession = createCheckoutSession;
 const setupSuscripcion = (info, sesion_compra_suscripcion, StripeIdEspecialista, price) => {
     //console.log(info, sesion_compra_suscripcion);
-    const config = setupBaseSesionConfig(info, sesion_compra_suscripcion, StripeIdEspecialista);
+    const config = setupBaseSesionConfigSubscription(info, sesion_compra_suscripcion, StripeIdEspecialista);
     config.mode = 'subscription';
     config.subscription_data = {
         items: [{ plan: price }],
         trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
         trial_period_days: 30,
     };
+    return config;
+};
+const setupBaseSesionConfigSubscription = (info, sesion_compra_suscripcion, clienteStripeId) => {
+    //console.log(info)
+    const config = {
+        success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${info.especialista}`,
+        cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
+        payment_method_types: ['card'],
+        mode: 'payment',
+        client_reference_id: sesion_compra_suscripcion
+    };
+    if (clienteStripeId) {
+        config.customer = clienteStripeId;
+    }
     return config;
 };
 const setupCompraDeEvento = (info, price, sesion_compra_eventoId, clienteStripeId) => {
@@ -134,7 +148,10 @@ const setupBaseSesionConfig = (info, sesion_compra_eventoId, clienteStripeId) =>
     const config = {
         success_url: `${info.callbackUrl}/?resultadoCompra=success&sesion_compra_eventoId=${sesion_compra_eventoId}`,
         cancel_url: `${info.callbackUrl}/?resultadoCompra=failed`,
-        payment_method_types: ['card'],
+        payment_method_types: [
+            'card',
+            //'klarna'
+        ],
         mode: 'payment',
         client_reference_id: sesion_compra_eventoId
     };

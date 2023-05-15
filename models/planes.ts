@@ -19,6 +19,10 @@ const Planes = db.define('Planes',{
     priceId:{
         type:DataTypes.STRING(255)
     },
+    comision:{
+        type:DataTypes.FLOAT
+    }
+    ,
     createdAt:{
         type:DataTypes.DATE
     },

@@ -43,7 +43,7 @@ export const login = async (req: Request, res: Response) => {
                 error: 'Correo / password no son correctos'
             })
         }
-
+        /*
         const suscripcion = await Suscripciones.findOne({
             where: { EspecialistaId: especialista.dataValues.id }
         })
@@ -65,7 +65,7 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({
                 error: 'No tiene suscripción'
             })
-        }
+        }*/
         const token = generarJWT(especialista.dataValues.id);
         especialista.set({ password: '' });
 

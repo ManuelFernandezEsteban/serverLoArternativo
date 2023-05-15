@@ -35,7 +35,6 @@ const esPlanValido = (PlaneId = 0) => __awaiter(void 0, void 0, void 0, function
             throw new Error('No es un plan válido');
         }
         const existePlan = yield planes_1.default.findByPk(PlaneId);
-        console.log(PlaneId);
         if (!existePlan) {
             throw new Error('No existe un plan con id ' + PlaneId);
         }
