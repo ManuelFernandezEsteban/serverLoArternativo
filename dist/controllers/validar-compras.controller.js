@@ -60,12 +60,17 @@ const validarCompraCliente = (req, res) => __awaiter(void 0, void 0, void 0, fun
             }
         });
         if (cliente.dataValues.id === (clienteBD === null || clienteBD === void 0 ? void 0 : clienteBD.dataValues.id)) {
-            sesion_compra.set({ ok_cliente: true });
+            sesion_compra.update({ ok_cliente: true });
             let transfer;
             if (sesion_compra.dataValues.ok_especialista) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer = yield pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }
+                else {
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    });
                 }
             }
             sesion_compra.save();
@@ -128,12 +133,17 @@ const validarCompraEspecialista = (req, res) => __awaiter(void 0, void 0, void 0
             });
         }
         if (especialista.dataValues.id === especialistaBD.dataValues.id) {
-            sesion_compra.set({ ok_especialista: true });
+            sesion_compra.update({ ok_especialista: true });
             let transfer;
             if (sesion_compra.dataValues.ok_cliente) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer = yield pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }
+                else {
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    });
                 }
             }
             sesion_compra.save();

@@ -12,7 +12,7 @@ import { sendMail } from "../helpers/send-mail";
 import { mailTransferenciaEspecialista } from "../helpers/plantilla-mail";
 import Planes from '../models/planes';
 import { crearFactura } from "../helpers/crearFacturas";
-import { createPrice, createPriceEvento } from "../helpers/createPrice";
+import { createPrice } from "../helpers/createPrice";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -50,12 +50,16 @@ export const validarCompraCliente = async (req: Request, res: Response) => {
             }
         })
         if (cliente.dataValues.id === clienteBD?.dataValues.id) {
-            sesion_compra.set({ ok_cliente: true });
+            sesion_compra.update({ ok_cliente: true });
             let transfer;
             if (sesion_compra.dataValues.ok_especialista) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer = await pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }else{
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    })
                 }
             }
             sesion_compra.save();
@@ -125,12 +129,16 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
             })
         }
         if (especialista.dataValues.id === especialistaBD.dataValues.id) {
-            sesion_compra.set({ ok_especialista: true });
+            sesion_compra.update({ ok_especialista: true });
             let transfer;
             if (sesion_compra.dataValues.ok_cliente) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer =  await pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }else{
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    })
                 }
             }
             sesion_compra.save();
