@@ -9,7 +9,7 @@ export const getActividad = async (req:Request,res:Response)=>{
     const actividad = await Actividad.findByPk(id);
     if (actividad){
         res.json({
-            actividad
+            actividad 
         })
     }else{
         res.status(404).json({
