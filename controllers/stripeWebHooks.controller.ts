@@ -15,7 +15,7 @@ import Server from "../models/server";
 import Sesiones_compra_suscripciones from "../models/sesiones_compra_suscripcion";
 
 import Suscripciones from "../models/suscripciones";
-import { crearFactura, crearFacturaSuscripcion } from "../helpers/crearFacturas";
+import { crearFactura } from "../helpers/crearFacturas";
 import Planes from "../models/planes";
 import dayjs from 'dayjs';
 import { Data } from '../interfaces/checkout-sesion.interface';

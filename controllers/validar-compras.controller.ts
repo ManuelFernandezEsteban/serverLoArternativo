@@ -12,7 +12,7 @@ import { sendMail } from "../helpers/send-mail";
 import { mailTransferenciaEspecialista } from "../helpers/plantilla-mail";
 import Planes from '../models/planes';
 import { crearFactura } from "../helpers/crearFacturas";
-import { createPrice, createPriceEvento } from "../helpers/createPrice";
+import { createPrice } from "../helpers/createPrice";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2022-11-15'
@@ -50,12 +50,16 @@ export const validarCompraCliente = async (req: Request, res: Response) => {
             }
         })
         if (cliente.dataValues.id === clienteBD?.dataValues.id) {
-            sesion_compra.set({ ok_cliente: true });
+            sesion_compra.update({ ok_cliente: true });
             let transfer;
             if (sesion_compra.dataValues.ok_especialista) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer = await pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }else{
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    })
                 }
             }
             sesion_compra.save();
@@ -125,12 +129,16 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
             })
         }
         if (especialista.dataValues.id === especialistaBD.dataValues.id) {
-            sesion_compra.set({ ok_especialista: true });
+            sesion_compra.update({ ok_especialista: true });
             let transfer;
             if (sesion_compra.dataValues.ok_cliente) {
                 if (!sesion_compra.dataValues.pagada) {
                     transfer =  await pagar(sesion_compra);
-                    sesion_compra.set({ pagada: true });
+                    sesion_compra.update({ pagada: true });
+                }else{
+                    return res.status(500).json({
+                        msg: 'Evento ya validado'
+                    })
                 }
             }
             sesion_compra.save();
@@ -154,6 +162,8 @@ export const validarCompraEspecialista = async (req: Request, res: Response) => 
 
 }
 
+
+
 const pagar = async (sesion_compra: any) => {
 
     try {
@@ -168,7 +178,7 @@ const pagar = async (sesion_compra: any) => {
         
         const moneda = await Moneda.findByPk(evento.dataValues.monedaId);
         if (!moneda){ 
-            return new Error('La moneda no existe');
+            return new Error('La moneda no existe'); 
         }
         //TODO: calcular comisión en función del tipo de suscripción
 
@@ -180,13 +190,14 @@ const pagar = async (sesion_compra: any) => {
         let porcentaje_comision = plan?.dataValues.comision; 
         //comisiones stripe por venta de envento
         const base = evento.dataValues.precio;
-        const gasto_venta_evento = (base*comision_stripe_transaccion)+fijo_stripe_transaccion;
+        const gasto_venta_evento = parseFloat(((base*comision_stripe_transaccion)+fijo_stripe_transaccion).toFixed(2));
         //comisiones stripe por transferencia
-        const gasto_tranferencia_especialista = (base*comision_stripe_transferencia)+fijo_stripe_transferencia;
+        const gasto_tranferencia_especialista = parseFloat(((base*comision_stripe_transferencia)+fijo_stripe_transferencia).toFixed(2));
         //comision para nativos tierra
-        const comision_nativos = base-(base*porcentaje_comision);
-        const amount = (base-comision_nativos-gasto_tranferencia_especialista-gasto_venta_evento)*100;          
-        const gasto_gestion = gasto_tranferencia_especialista+gasto_venta_evento
+        const comision_nativos =( base-(base*porcentaje_comision));
+        let amount = parseFloat((base-comision_nativos-gasto_tranferencia_especialista-gasto_venta_evento).toFixed(2));          
+        amount = amount*100;
+        const gasto_gestion = ( gasto_tranferencia_especialista+gasto_venta_evento)
         console.log (amount)
         const transfer = await stripe.transfers.create({
             amount,
