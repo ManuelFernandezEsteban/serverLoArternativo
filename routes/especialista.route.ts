@@ -5,8 +5,10 @@ import { getEspecialista,
          getEspecialistas, 
          putEspecialista, 
          deleteEspecialista, 
-         patchEspecialista,
-         getEspecialistasPagination} from '../controllers/especialista.controller';
+         //patchEspecialista,
+         getEspecialistasPagination,
+         crearCuentaConectada,
+         getCuentaConectada} from '../controllers/especialista.controller';
 import { validarCampos } from '../middlewares/validar-campos';
 import { condicionesAceptada, esActividadValida, esPlanValido, existeEmail, existeUsuario, politicaAceptada } from '../helpers/db-validators';
 import { validarJWT } from '../middlewares/validar-JWT';
@@ -16,12 +18,13 @@ const router = Router();
 router.get('/:especialidad',[
     check('especialidad').custom( esActividadValida ),
 ],validarCampos,getEspecialistas);
+
 router.get('/pagination/:especialidad',[
     check('especialidad').custom( esActividadValida ),
 ],validarCampos,getEspecialistasPagination);
 
 router.get('/especialista/:id',[
-    check('id').custom(existeUsuario),
+   // check('id').custom(existeUsuario),
 ],validarCampos,getEspecialista)
 
 router.post('/',[
@@ -43,6 +46,16 @@ router.post('/',[
     check('pais','El país es obligatorio').not().isEmpty()  
     ] ,validarCampos, postEspecialista);
 
+router.post('/cuenta_conectada/:id',[
+    validarJWT,
+    check('id').custom(existeUsuario),
+],validarCampos,crearCuentaConectada);
+
+router.get('/cuenta_conectada/:id',[
+    validarJWT
+    //check('id').custom(existeUsuario),
+],validarCampos,getCuentaConectada);
+
 router.put('/:id',[
     validarJWT,
     check('id').custom(existeUsuario),
@@ -61,14 +74,14 @@ router.delete('/:id',[  validarJWT,
     check('id').custom(existeUsuario),
     
 ],validarCampos,deleteEspecialista);
-
+/*
 router.patch('/modificarPlan/:id',[
     validarJWT,
     check('id').custom(existeUsuario),
     check('PlaneId','El plan es obligatorio').not().isEmpty(),
     check('PlaneId').custom(esPlanValido),
 ], validarCampos,patchEspecialista);
-
+*/
 export default router;  
 
 

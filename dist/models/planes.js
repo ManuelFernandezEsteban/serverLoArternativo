@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../db/connection"));
 const especialista_1 = __importDefault(require("./especialista"));
-const Plan = connection_1.default.define('Planes', {
+const sesiones_compra_suscripcion_1 = __importDefault(require("./sesiones_compra_suscripcion"));
+const suscripciones_1 = __importDefault(require("./suscripciones"));
+const Planes = connection_1.default.define('Planes', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true
@@ -15,6 +17,12 @@ const Plan = connection_1.default.define('Planes', {
         type: sequelize_1.DataTypes.STRING(20)
     },
     precio: {
+        type: sequelize_1.DataTypes.FLOAT
+    },
+    priceId: {
+        type: sequelize_1.DataTypes.STRING(255)
+    },
+    comision: {
         type: sequelize_1.DataTypes.FLOAT
     },
     createdAt: {
@@ -29,7 +37,11 @@ const Plan = connection_1.default.define('Planes', {
 }, {
     paranoid: true // soft delete
 });
-Plan.hasMany(especialista_1.default);
-especialista_1.default.belongsTo(Plan);
-exports.default = Plan;
+Planes.hasMany(especialista_1.default);
+especialista_1.default.belongsTo(Planes);
+Planes.hasMany(sesiones_compra_suscripcion_1.default);
+sesiones_compra_suscripcion_1.default.belongsTo(Planes);
+Planes.hasMany(suscripciones_1.default);
+suscripciones_1.default.belongsTo(Planes);
+exports.default = Planes;
 //# sourceMappingURL=planes.js.map

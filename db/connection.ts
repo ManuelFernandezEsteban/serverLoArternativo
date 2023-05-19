@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
-
+import dotenv from 'dotenv';
+dotenv.config();
 
 const db = new Sequelize('DB-nativos-tierra',
                          'nativos-tierra',
@@ -8,7 +9,7 @@ const db = new Sequelize('DB-nativos-tierra',
     host: 'nativos-tierra-db-do-user-13555636-0.b.db.ondigitalocean.com',
     dialect:'mysql',
     logging:false,
-    port:25060 
+    port:25060
     
 }); 
  

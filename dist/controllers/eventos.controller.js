@@ -12,13 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEvento = exports.putEvento = exports.postEvento = exports.getEventosActividad = exports.getEventosEspecialista = exports.getEvento = void 0;
+exports.getVentasEvento = exports.deleteEvento = exports.putEvento = exports.postEvento = exports.getEventosActividad = exports.getEventosEspecialista = exports.getEvento = void 0;
 const sequelize_1 = require("sequelize");
 const actividades_1 = __importDefault(require("../models/actividades"));
 const especialista_1 = __importDefault(require("../models/especialista"));
 const eventos_1 = __importDefault(require("../models/eventos"));
 const createFolder_1 = require("../helpers/createFolder");
 const monedas_1 = __importDefault(require("../models/monedas"));
+const createPrice_1 = require("../helpers/createPrice");
+const stripe_1 = __importDefault(require("stripe"));
+const dayjs_1 = __importDefault(require("dayjs"));
+const compras_eventos_por_finalizar_1 = __importDefault(require("../models/compras_eventos_por_finalizar"));
+const clientes_1 = __importDefault(require("../models/clientes"));
+const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15'
+});
 const getEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const evento = yield eventos_1.default.findByPk(id, {
@@ -75,20 +86,25 @@ const getEventosActividad = (req, res) => __awaiter(void 0, void 0, void 0, func
     const fecha_inicio = new Date(Date.now());
     const fecha_limite = new Date(Date.now());
     fecha_limite.setDate(fecha_limite.getDate() + 15);
-    console.log(fecha_limite);
+    //console.log(fecha_limite);
     const { count, rows } = yield eventos_1.default.findAndCountAll({
         where: {
             actividadeId: actividad,
-            fecha: { [sequelize_1.Op.lte]: fecha_limite,
-                [sequelize_1.Op.gte]: fecha_inicio },
+            fecha: {
+                [sequelize_1.Op.lte]: fecha_limite,
+                [sequelize_1.Op.gte]: fecha_inicio
+            },
         },
         include: [{
                 model: especialista_1.default,
                 attributes: { exclude: ['password'] },
                 where: {
-                    PlaneId: 2
-                }
+                    PlaneId: { [sequelize_1.Op.notIn]: [0, 1] }
+                },
             }],
+        order: [
+            ['createdAt', 'ASC'],
+        ],
         limit: Number(limit),
         offset: Number(desde)
     });
@@ -103,29 +119,45 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const now = new Date(Date.now());
     const fecha = new Date(req.body.fecha);
     const { body } = req;
-    console.log(body);
+    console.log('Post Evento ', body.EspecialistaId);
     if (now > fecha) {
         return res.status(401).json({
             msg: 'Fecha invalida'
         });
     }
     if (body.ActividadeId != 10) { // especialista para publicar eventos nativos tierra y revista
-        const resultado = yield especialista_1.default.findByPk(body.EspecialistaId, {
-            attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+        const suscripcion = yield suscripciones_1.default.findOne({
+            where: { EspecialistaId: body.EspecialistaId }
         });
-        if ((fecha < (resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_pago_actual)) || (fecha > (resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_fin_suscripcion))) {
-            return res.status(401).json({
-                msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
+        let fecha_inicio_periodo_pago;
+        let fecha_fin_periodo_pago;
+        if (suscripcion) {
+            const suscripcionAStripe = yield stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription);
+            if (suscripcionAStripe.status === 'canceled') {
+                return res.status(400).json({
+                    error: `El especialista con id ${body.EspecialistaId} no tiene una suscripción activa`
+                });
+            }
+            fecha_fin_periodo_pago = dayjs_1.default.unix(suscripcionAStripe.current_period_end).toDate();
+            fecha_inicio_periodo_pago = dayjs_1.default.unix(suscripcionAStripe.current_period_start).toDate();
+            if ((fecha < fecha_inicio_periodo_pago) || (fecha > fecha_fin_periodo_pago)) {
+                return res.status(401).json({
+                    msg: 'La fecha del evento solo puede estar dentro del periodo de suscripción'
+                });
+            }
+        }
+        else {
+            return res.status(400).json({
+                error: `El especialista con id ${body.EspecialistaId} no tiene una suscripción activa`
             });
         }
         const { count } = yield eventos_1.default.findAndCountAll({
             include: [{
-                    model: especialista_1.default,
-                    attributes: ['fecha_pago_actual', 'fecha_fin_suscripcion']
+                    model: especialista_1.default
                 }],
             where: {
                 especialistaId: body.EspecialistaId,
-                fecha: { [sequelize_1.Op.between]: [resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_pago_actual, resultado === null || resultado === void 0 ? void 0 : resultado.dataValues.fecha_fin_suscripcion] },
+                fecha: { [sequelize_1.Op.between]: [fecha_inicio_periodo_pago, fecha_fin_periodo_pago] },
             }
         });
         if (count >= 2) {
@@ -134,9 +166,18 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
     }
+    const evento = yield eventos_1.default.create(body);
+    if (evento.dataValues.esVendible) {
+        const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
+        console.log(idProductEvent);
+        const idPriceEvent = yield (0, createPrice_1.createPrice)(idProductEvent, evento.dataValues.precio, evento.dataValues.monedaId);
+        yield evento.update({
+            idProductEvent,
+            idPriceEvent
+        });
+    }
     try {
-        const evento = yield eventos_1.default.create(body);
-        (0, createFolder_1.createFolder)(`eventos/${evento.id}`);
+        (0, createFolder_1.createFolder)(`eventos/${evento.dataValues.id}`);
         res.json({
             evento
         });
@@ -144,7 +185,7 @@ const postEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg: error
+            msg: error,
         });
     }
 });
@@ -162,7 +203,26 @@ const putEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const evento = yield eventos_1.default.findByPk(id);
         if (evento) {
+            if (body.esVendible) {
+                if (!evento.dataValues.idProductEvent) {
+                    //hay que crear el producto y el precio 
+                    const idProductEvent = yield (0, createPrice_1.createProductEvento)(evento);
+                    const idPriceEvent = yield (0, createPrice_1.createPriceEvento)(idProductEvent, body.precio, body.monedaId);
+                    yield evento.update({
+                        idProductEvent,
+                        idPriceEvent
+                    });
+                }
+                const precioAnterior = evento.dataValues.precio;
+                if (precioAnterior != body.precio) {
+                    let idPriceEvent = yield (0, createPrice_1.desactivarPrice)(evento.dataValues.idPriceEvent);
+                    idPriceEvent = yield (0, createPrice_1.createPriceEvento)(evento.dataValues.idProductEvent, body.precio, body.moneda);
+                    yield evento.update({ idPriceEvent });
+                    console.log(idPriceEvent);
+                }
+            }
             yield evento.update(body);
+            yield (0, createPrice_1.updateProductEvento)(evento);
             res.json({
                 evento
             });
@@ -205,4 +265,37 @@ const deleteEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteEvento = deleteEvento;
+const getVentasEvento = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const compras_eventos_no_finalizadas = yield compras_eventos_por_finalizar_1.default.findAll({
+            include: [
+                {
+                    model: eventos_1.default
+                },
+                {
+                    model: clientes_1.default
+                }
+            ],
+            where: {
+                EventoId: id
+            }
+        });
+        if (compras_eventos_no_finalizadas.length === 0) {
+            return res.status(400).json({
+                error: 'No hay ventas para ese evento'
+            });
+        }
+        res.json({
+            compras_eventos_no_finalizadas
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            error: 'No hay ventas para ese evento'
+        });
+    }
+});
+exports.getVentasEvento = getVentasEvento;
 //# sourceMappingURL=eventos.controller.js.map

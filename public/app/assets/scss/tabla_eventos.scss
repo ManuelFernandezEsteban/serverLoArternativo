@@ -1,0 +1,17 @@
+.tabla,.tabla_ventas{
+    display: grid;
+    padding:10px;
+    place-items: center;
+    grid-template-rows: 1fr;
+    cursor: pointer;
+}
+.tabla_ventas:hover,.tabla:hover{
+    background-color: #ccc;
+}
+
+.tabla{
+    grid-template-columns: 1fr 1fr 1fr 1fr; 
+}
+.tabla_ventas{
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; 
+}

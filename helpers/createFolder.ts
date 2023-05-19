@@ -14,7 +14,7 @@ export const createFolder = (folder: string) => {
         Key: `${folder}/`,
     }
     s3.putObject(params, (err, data) => {
-        if (err) console.log(err, err.stack)
+        if (err) console.log('error en el folder',err, err.stack)
         else console.log(data)
     })
 

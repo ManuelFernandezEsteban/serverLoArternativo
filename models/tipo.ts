@@ -17,4 +17,4 @@ const Tipo = db.define('Tipos_sponsors',{
     }
 });
 
-export default Tipo;
+export default Tipo; 

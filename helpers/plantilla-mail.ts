@@ -59,7 +59,7 @@ const mailSuperior: string = `
     }
         
     </style>
-    <title>Recuperación Password</title>
+    <title>Nativos Tierra</title>
 </head>
 
 <body>
@@ -159,6 +159,70 @@ export const mailRecuperacionPassword = (nombre: string, link: string): string =
                     <p>Hola ${nombre}, pulse en el link para establecer una nueva contraseña</p>
                     <p>El link expira en 10 minutos desde que recibió el mail</p>
                     <a href="${link}">Restablecer contraseña</a>
+             ${mailInferior}  
+        `;
+
+    return mensaje; 
+}
+
+export const mailCompraCliente = (especialista:any,evento:any,cliente:any,link:string): string => {
+    const mensaje =
+        `
+            ${mailSuperior}
+                    <p>Hola ${cliente.nombre}, le enviamos este mail con la información del evento adquirido.</p>
+                    <ul>
+                        <li>Evento: ${evento.evento}</li>
+                        <li>Fecha: ${evento.fecha}</li>
+                        <li>Descripción: ${evento.descripcion}</li>
+                        <li>Dirección: ${evento.direccion}</li>
+                        <li>Localidad: ${evento.localidad} Provincia: ${evento.provincia} CP: ${evento.codigo_postal}</li>
+                        <li>Pais: ${evento.pais}</li> 
+                        <li>Teléfono: ${evento.telefono} Email:${evento.email}</li>
+                        <li>Especialista: ${especialista.nombre} ${especialista.apellidos}</li>
+                    </ul>
+                    <p>Una vez haya realizado el evento le rogamos que pulse el siguiente enlace</p>
+                    <a href="${link}">Evento realizado</a>
+             ${mailInferior}  
+        `;
+
+    return mensaje;
+}
+
+export const mailCompraEspecialista = (especialista:any,evento:any,cliente:any,link:string): string => {
+    const mensaje =
+        `
+            ${mailSuperior}
+                    <p>Hola ${especialista.nombre}, le enviamos este mail con la información del cliente que ha adquirido su evento ${evento.evento}.</p>
+                    <ul>
+                        <li>Evento: ${evento.evento}</li>
+                        <li>Fecha: ${evento.fecha}</li>
+                        <li>Especialista: ${cliente.nombre} ${cliente.apellidos}</li>
+                        <li>Teléfono: ${cliente.telefono} Email:${cliente.email}</li>                        
+                        <li>Dirección: ${cliente.direccion}</li>
+                        <li>Localidad: ${cliente.localidad} Provincia: ${cliente.provincia} CP: ${cliente.codigo_postal}</li>
+                        <li>Pais: ${cliente.pais}</li>                        
+                    </ul>
+                    <p>Una vez haya realizado el evento le rogamos que pulse el siguiente enlace</p>
+                    <a href="${link}">Evento realizado</a>
+             ${mailInferior}  
+        `;
+
+    return mensaje;
+}
+
+export const mailTransferenciaEspecialista = (especialista:any,evento:any,cliente:any,cantidad:number,moneda:string): string => {    
+    
+    const mensaje =
+        `
+            ${mailSuperior}
+                    <p>Hola ${especialista.nombre}, le enviamos este mail con la información de la transferencia enviada a su cuenta por la realizacion del evento ${evento.evento}.</p>
+                    <ul>
+                        <li>Evento: ${evento.evento}</li>
+                        <li>Fecha: ${evento.fecha}</li>
+                        <li>Precio evento: ${evento.precio} ${moneda}</li>
+                        <li>Cliente: ${cliente.nombre} ${cliente.apellidos}</li>
+                        <li>Importe transferencia: ${cantidad/100} ${moneda} </li>                        
+                    </ul>                    
              ${mailInferior}  
         `;
 

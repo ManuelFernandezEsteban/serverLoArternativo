@@ -1,0 +1,109 @@
+import { Model } from "sequelize";
+import Stripe from "stripe";
+import dotenv from 'dotenv';
+dotenv.config();
+
+
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2022-11-15'
+})
+
+export const createPrice = async (idProductEvent: string, precio: number, moneda: number):Promise<string> => {
+    let currency = 'eur';
+    let priceId ='';
+    if (moneda === 2) {
+        currency = 'usd';
+    }
+    try {
+        const price = await stripe.prices.create({
+            unit_amount: precio * 100,
+            currency,
+            tax_behavior: 'inclusive',
+            product: idProductEvent
+        })
+        priceId = price.id;
+    } catch (error) {
+        console.log(error)
+    }
+    return priceId;
+}
+
+export const desactivarPrice = async (idPriceEvent:string) => {
+   
+    try {
+        const price = await stripe.prices.update(idPriceEvent,
+            {
+                active:false
+            }
+        )
+        return price.id;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const createProductEvento = async (evento: Model): Promise<string> => {
+
+    //let image = process.env.ImagenEvento||'';
+    
+    //console.log(image);
+    try {
+        const product = await stripe.products.create({
+            name: evento.dataValues.evento,
+            description: evento.dataValues.descripcion,
+            //images: [image]
+        });
+        return product.id;
+    } catch (error) {
+        throw new Error('Error al crear el producto para el evento ' + evento.dataValues.id)
+    }
+}
+
+export const updateProductEvento = async (evento: Model) => {
+    //let image = process.env.ImagenEvento||'';
+    
+    //console.log(image);
+    if (evento.dataValues.idProductEvent) {
+        try {
+            const existeProd = await stripe.products.retrieve(evento.dataValues.idProductEvent);
+            if (existeProd) {
+                
+                const product = await stripe.products.update(
+                    evento.dataValues.idProductEvent,
+                    {
+                        name: evento.dataValues.evento,
+                        description: evento.dataValues.descripcion,
+      //                  images:[image]
+                    });
+            }
+
+        } catch (error) {
+            throw new Error(`Error al actualizar el producto evento ${evento.dataValues.id}`)
+        }
+    }
+
+}
+
+export const deleteProductEvento = async (idProductEvento: string) => {
+
+    if (idProductEvento) {
+        console.log(idProductEvento)
+        try {
+            const existeProd = await stripe.products.retrieve(idProductEvento);
+            if (existeProd) {
+
+                const product = await stripe.products.del(
+                    idProductEvento
+                );
+            }
+
+
+        } catch (error) {
+            throw new Error('Error al eliminar el producto evento ' + idProductEvento)
+        }
+    }
+
+
+}
+

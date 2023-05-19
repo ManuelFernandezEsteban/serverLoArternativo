@@ -1,16 +1,19 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-import Actividad from "../models/actividades";
+import Actividades from "../models/actividades";
 import Especialista from '../models/especialista';
-import Plan from "../models/planes";
+import Planes from "../models/planes";
 import bcrypt from 'bcryptjs';
 import { generarJWT } from '../helpers/generar-JWT';
-import { sendMail } from '../helpers/send-mail';
-import { mailRegistro, mailPlanOro } from '../helpers/plantilla-mail';
 import { createFolder } from '../helpers/createFolder';
 import UsaHerramientas from '../models/usa_herramientas';
-import Herramientas from '../models/herramientas';
-import { login } from './auth.controller';
+import dotenv from 'dotenv';
+import Stripe from "stripe";
+
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2022-11-15'
+});
 
 
 
@@ -30,19 +33,24 @@ export const getEspecialistasPagination = async (req: Request, res: Response) =>
         }
     }
     const { count, rows } = await Especialista.findAndCountAll({
+
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
         where: {
-            actividadeId: especialidad
+            actividadeId: especialidad,
+            planeId:{[Op.ne]:0}
         },
+        order: ['createdAt', 'DESC'],
+        group: 'PlaneId',
+
         offset: Number(desde),
         limit: Number(limit)
     })
     const especialistas = rows;
 
     res.json({
-        especialistas, 
+        especialistas,
         count
     })
 }
@@ -51,13 +59,23 @@ export const getEspecialistas = async (req: Request, res: Response) => {
     const { especialidad } = req.params;
 
     const { rows, count } = await Especialista.findAndCountAll({
+        
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
         where: {
             actividadeId: especialidad,
-            
-        }
+            planeId:{[Op.ne]:0}
+
+        },
+        //group:['planeId']
+
+        order: [
+            ['planeId', 'DESC'],
+            ['createdAt', 'ASC'],
+
+        ],
+
     })
     const especialistas = rows;
 
@@ -75,7 +93,7 @@ export const getEspecialista = async (req: Request, res: Response) => {
     const especialista = await Especialista.findByPk(id, {
 
         attributes: { exclude: ['password'] },
-        include: [Actividad, Plan,UsaHerramientas],
+        include: [Actividades, Planes, UsaHerramientas],
 
     });
 
@@ -103,34 +121,27 @@ export const postEspecialista = async (req: Request, res: Response) => {
         const especialista = await Especialista.create(body);
         await especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        //especialista.set({ password: '' });
-        const token = generarJWT(especialista.id);
+        
+        const token = generarJWT(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
             if (herramientas.length > 0) {
                 herramientas.forEach(async (herramienta: any) => {
                     const usaHerrmienta = await UsaHerramientas.create({
-                        EspecialistaId: especialista.id,
+                        EspecialistaId: especialista.dataValues.id,
                         HerramientaId: herramienta,
-                        ActividadeId:especialista.ActividadeId
+                        ActividadeId: especialista.dataValues.ActividadeId
                     })
                     await especialista.save();
                 });
             }
         }
-        createFolder(`especialistas/${especialista.id}`);
-        createFolder(`especialistas/${especialista.id}/profile`);
-        await sendMail({
-            asunto: 'Registro como especialista en el Portal Web Nativos Tierra',
-            nombreDestinatario: body.nombre,
-            mailDestinatario: body.email,
-            mensaje: `Hola, ${body.nombre} su resgistro ha sido completado`,
-            html: mailRegistro(especialista.nombre)
-        })
+        createFolder(`especialistas/${especialista.dataValues.id}`);
+        createFolder(`especialistas/${especialista.dataValues.id}/profile`);       
 
         res.json({
-
-            token
+            token,
+            especialista
         });
 
     } catch (error) {
@@ -149,7 +160,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
 
     if (idEspecilistaAutenticado !== id) {
         return res.status(500).json({
-            msg: 'El token no es válido', 
+            msg: 'El token no es válido',
         })
     }
     try {
@@ -181,11 +192,11 @@ export const putEspecialista = async (req: Request, res: Response) => {
             } catch (error) {
                 console.log(error);
                 res.status(500).json({
-                    
+
                     error
                 })
-            } 
-            
+            }
+
             await especialista.update(body)
             await especialista.save();
             const herramientas = body.UsaHerramientas;
@@ -193,9 +204,9 @@ export const putEspecialista = async (req: Request, res: Response) => {
                 if (herramientas.length > 0) {
                     herramientas.forEach(async (herramienta: any) => {
                         const usaHerrmienta = await UsaHerramientas.create({
-                            EspecialistaId: especialista.id,
+                            EspecialistaId: especialista.dataValues.id,
                             HerramientaId: herramienta,
-                            ActividadeId:especialista.ActividadeId
+                            ActividadeId: especialista.dataValues.ActividadeId
                         })
                         await especialista.save();
                     });
@@ -204,7 +215,7 @@ export const putEspecialista = async (req: Request, res: Response) => {
             res.json({ especialista });
 
         } else {
-            
+
             return res.status(404).json({
                 msg: `El id ${id} no se encuentra en la BD`
             })
@@ -247,7 +258,7 @@ export const deleteEspecialista = async (req: Request, res: Response) => {
 
 
 }
-
+/*
 export const patchEspecialista = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { body } = req;
@@ -294,6 +305,76 @@ export const patchEspecialista = async (req: Request, res: Response) => {
             msg: error,
         })
     }
+}
+*/
+export const crearCuentaConectada = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
+    const {callbackUrl} = req.body;
+    const link = await crearConnectedAccount(id,callbackUrl);
+
+    res.json({
+        link
+    })
+
+}
+
+
+const crearConnectedAccount = async (especialistaId: string,callbackUrl:string) => {
+    
+
+    try {
+        const especialista = await Especialista.findByPk(especialistaId);
+        if (especialista) {
+            const account = await stripe.accounts.create({
+                type: 'express',
+                country: 'ES',
+                email: especialista.dataValues.email,
+                capabilities: {
+                    card_payments: {
+                        requested: true,
+                    },
+                    transfers: {
+                        requested: true,
+                    },
+                    
+                },
+                default_currency: 'eur',
+            })
+            console.log(account.id);
+            await especialista.update({cuentaConectada:account.id});
+            console.log(especialista.dataValues.id)
+            const accountLink = await stripe.accountLinks.create({
+                account: account.id,
+                refresh_url: callbackUrl,
+                return_url: callbackUrl,
+                type: 'account_onboarding',
+            });
+            return { accountLink, account: account.id };
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
+export const getCuentaConectada = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
+
+    if (id) {
+        const cuenta = await stripe.accounts.retrieve(id);
+
+        res.json({
+            cuenta
+        })
+    }else{
+        return res.status(400).json({
+            msg:'No tiene cuenta conectada'
+        })
+    }
+
+
 
 
 }
