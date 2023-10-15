@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import Actividad from "../models/actividades";
+import Categoria_actividad from "../models/herramientas";
 
 export const getActividad = async (req:Request,res:Response)=>{
 
@@ -8,7 +9,7 @@ export const getActividad = async (req:Request,res:Response)=>{
     const actividad = await Actividad.findByPk(id);
     if (actividad){
         res.json({
-            actividad
+            actividad 
         })
     }else{
         res.status(404).json({
@@ -21,6 +22,12 @@ export const getActividades = async(req:Request,res:Response)=>{
     
     const actividades = await Actividad.findAll(
         {
+            include:[
+                {
+                    model:Categoria_actividad
+                }
+            ],
+            
             where:
                 {
                     id:{[Op.not]:10}        
@@ -28,6 +35,7 @@ export const getActividades = async(req:Request,res:Response)=>{
         }
     );
     res.json({
-        actividades
+        actividades  
     })
 }
+ 

@@ -19,6 +19,14 @@ const generar_JWT_1 = require("../helpers/generar-JWT");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const send_mail_1 = require("../helpers/send-mail");
 const plantilla_mail_1 = require("../helpers/plantilla-mail");
+const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
+const suscripciones_1 = __importDefault(require("../models/suscripciones"));
+const stripe_1 = __importDefault(require("stripe"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const planes_1 = __importDefault(require("../models/planes"));
+const actividades_1 = __importDefault(require("../models/actividades"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15', });
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
@@ -26,22 +34,43 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: {
                 email: email
             },
-            include: [{
-                    all: true
-                }]
+            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default, suscripciones_1.default],
         });
         if (!especialista) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
             });
         }
-        const validPassword = bcryptjs_1.default.compareSync(password, especialista.password);
+        const validPassword = bcryptjs_1.default.compareSync(password, especialista.dataValues.password);
         if (!validPassword) {
             return res.status(400).json({
-                msg: 'Correo / password no son correctos'
+                error: 'Correo / password no son correctos'
             });
         }
-        const token = (0, generar_JWT_1.generarJWT)(especialista.id);
+        /*
+        const suscripcion = await Suscripciones.findOne({
+            where: { EspecialistaId: especialista.dataValues.id }
+        })
+        if (!suscripcion) {
+            return res.status(400).json({
+                error: 'No tiene suscripción'
+            })
+        }
+        try {
+            const subscription = await stripe.subscriptions.retrieve(suscripcion.dataValues.id_stripe_subscription)
+            if (subscription.status === 'canceled') {
+
+                return res.status(400).json({
+                    error: 'No tiene suscripción activa'
+                })
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                error: 'No tiene suscripción'
+            })
+        }*/
+        const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         especialista.set({ password: '' });
         res.json({
             especialista,
@@ -63,6 +92,7 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const token = yield (0, generar_JWT_1.generarJWT)(id);
         const especialista = yield especialista_1.default.findByPk(id, {
             attributes: { exclude: ['password'] },
+            include: [actividades_1.default, planes_1.default, usa_herramientas_1.default],
         });
         res.json({
             token,
@@ -91,7 +121,7 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(400).json({ message, email });
     }
     try {
-        token = jsonwebtoken_1.default.sign({ especialistaId: especialista.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '10m' });
+        token = jsonwebtoken_1.default.sign({ especialistaId: especialista.dataValues.id }, process.env.SECRETPRIVATEKEY || '', { expiresIn: '10m' });
         verificationLink = `${process.env.LINK}${token}`;
     }
     catch (error) {
@@ -102,10 +132,10 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         yield (0, send_mail_1.sendMail)({
             asunto: 'Recuperación password en portal web Nativos Tierra',
-            nombreDestinatario: especialista.nombre,
-            mailDestinatario: especialista.email,
-            mensaje: `Hola, ${especialista.nombre} le enviamos un link para recuperar su contraseña`,
-            html: (0, plantilla_mail_1.mailRecuperacionPassword)(especialista.nombre, verificationLink)
+            nombreDestinatario: especialista.dataValues.nombre,
+            mailDestinatario: especialista.dataValues.email,
+            mensaje: `Hola, ${especialista.dataValues.nombre} le enviamos un link para recuperar su contraseña`,
+            html: (0, plantilla_mail_1.mailRecuperacionPassword)(especialista.dataValues.nombre, verificationLink)
         });
     }
     catch (error) {
@@ -121,7 +151,6 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         emailStatus = 'error';
         res.status(500).json({ message: 'Algo no ha ido bien' });
     }
-    //res.json({ message, emailStatus })
 });
 exports.forgotPassword = forgotPassword;
 const createNewPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -144,7 +173,7 @@ const createNewPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
     try {
         const salt = bcryptjs_1.default.genSaltSync();
-        yield (especialista === null || especialista === void 0 ? void 0 : especialista.set({ password: bcryptjs_1.default.hashSync(password, salt) }));
+        yield (especialista === null || especialista === void 0 ? void 0 : especialista.set({ password: bcryptjs_1.default.hashSync(password, salt), resetToken: null }));
         yield (especialista === null || especialista === void 0 ? void 0 : especialista.save());
         res.json({
             'message': "Contraseña establecida",

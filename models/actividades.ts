@@ -2,8 +2,10 @@ import { DataTypes } from 'sequelize';
 import db from '../db/connection';
 import Especialista from './especialista';
 import Evento from './eventos';
+import Herramientas from './herramientas';
+import UsaHerramientas from './usa_herramientas';
 
-const Actividad = db.define('Actividades',{
+const Actividades = db.define('Actividades',{
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true
@@ -11,6 +13,7 @@ const Actividad = db.define('Actividades',{
     nombre:{
         type:DataTypes.STRING(20)
     },
+    
     imagen:{
         type:DataTypes.STRING(80)
     },
@@ -19,10 +22,14 @@ const Actividad = db.define('Actividades',{
     }
 });
 
-Actividad.hasMany(Especialista );
-Especialista.belongsTo(Actividad);
+Actividades.hasMany(Especialista );
+Especialista.belongsTo(Actividades);
 
-Actividad.hasMany(Evento);
-Evento.belongsTo(Actividad);
+Actividades.hasMany(Evento);
+Evento.belongsTo(Actividades);
 
-export default Actividad;
+Actividades.hasMany(Herramientas);
+Herramientas.belongsTo(Actividades);
+ 
+
+export default Actividades;

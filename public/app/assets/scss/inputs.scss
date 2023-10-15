@@ -1,10 +1,12 @@
 .inputCurrency{
     position: relative;
 
-    span{
+    select{
         position: absolute;
         top: 10px;
         right: 10px;
+        
+
     }
 }
 
@@ -32,6 +34,10 @@
     gap: 10px;
 }
 
+input::placeholder{
+    color: $secondaryColor;
+    
+}
 
 input {
     border: none;
@@ -41,6 +47,7 @@ input {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 input[type='text'] {
@@ -51,6 +58,7 @@ input[type='text'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 input[type='password'] {
@@ -61,10 +69,12 @@ input[type='password'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+    
 }
 
 input [type='email'] {
     size: 50;
+    
 }
 
 input [type='email'] {
@@ -75,6 +85,7 @@ input [type='email'] {
     font-family: $fontPrimary;
     font-size: $fsRegular;
     outline: none;
+   
 }
 
 /*check box*/

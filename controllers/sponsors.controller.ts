@@ -5,7 +5,7 @@ export const getSponsors= async (req:Request,res:Response)=>{
     
     const {tipo} = req.params;
 
-    const sponsors = await Sponsors.findAll({
+    const sponsors = await Sponsors.findAll({ 
         where:{
             tipo:tipo
         }

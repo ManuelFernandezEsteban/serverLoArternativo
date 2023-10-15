@@ -10,7 +10,7 @@ router.get('/getall', newsletter_controller_1.getAllUserNews);
 router.get('/:id', [], validar_campos_1.validarCampos, newsletter_controller_1.getUserNews);
 router.post('/', [
     (0, express_validator_1.check)('email', 'El correo no es válido').isEmail().trim().escape().normalizeEmail(),
-    (0, express_validator_1.check)('email', 'Email ya registrado').custom(db_validators_1.existeEmailNews),
+    //check('email','Email ya registrado').custom(existeEmailNews),   
     (0, express_validator_1.check)('nombre', 'El nombre es obligatorio').not().isEmpty().trim().escape(),
     (0, express_validator_1.check)('privacidad', 'Debe aceptar la política de privacidad').custom(db_validators_1.politicaAceptada),
 ], validar_campos_1.validarCampos, newsletter_controller_1.postUserNews);

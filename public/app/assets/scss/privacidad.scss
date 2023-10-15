@@ -1,0 +1,29 @@
+.content-proteccion-datos{
+    display: flex;
+    flex-direction: column;
+    padding-left: 200px;
+    padding-right: 200px;
+    p{
+        text-align: justify;
+    }
+    @media (max-width:$breakpointLaptop) {
+        padding-left:100px;
+        padding-right: 100px;
+    }
+    @media (max-width:$breakpoint800) {
+        padding-left:50px;
+        padding-right: 50px;
+    }
+    @media (max-width:$breakpointMovil) {
+        padding:0px;
+    }
+    ul{
+        padding:20px;
+        li{
+            *{
+                padding:0px
+            }
+        }
+    }
+
+}

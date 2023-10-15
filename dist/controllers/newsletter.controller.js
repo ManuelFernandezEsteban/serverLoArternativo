@@ -57,8 +57,18 @@ exports.getAllUserNews = getAllUserNews;
 const postUserNews = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
     try {
-        const user = newsletter_1.default.build(body);
-        user.save();
+        const siExiste = yield newsletter_1.default.findOne({
+            where: {
+                'email': body.email
+            }
+        });
+        if (siExiste) {
+            siExiste.update(body);
+        }
+        else {
+            const user = newsletter_1.default.build(body);
+            user.save();
+        }
         yield (0, send_mail_1.sendMail)({
             asunto: 'Suscripción a newsletter',
             nombreDestinatario: body.nombre,
@@ -67,7 +77,7 @@ const postUserNews = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             html: (0, plantilla_mail_1.mailSuscripcion)(body.nombre)
         });
         res.json({
-            user
+            message: "OK"
         });
     }
     catch (error) {
