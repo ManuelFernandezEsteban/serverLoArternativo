@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const db = new Sequelize('nativos-tierra-db',
+const db = new Sequelize('db-nativos-tierra',
                          'doadmin',
                          'AVNS_D5uJZSMJZOgMrQih1Q0',{
     host: 'nativos-tierra-db-do-user-13555636-0.b.db.ondigitalocean.com',
