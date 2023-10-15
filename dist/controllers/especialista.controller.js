@@ -19,7 +19,6 @@ const especialista_1 = __importDefault(require("../models/especialista"));
 const planes_1 = __importDefault(require("../models/planes"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const generar_JWT_1 = require("../helpers/generar-JWT");
-const createFolder_1 = require("../helpers/createFolder");
 const usa_herramientas_1 = __importDefault(require("../models/usa_herramientas"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const stripe_1 = __importDefault(require("stripe"));
@@ -122,8 +121,8 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 }));
             }
         }
-        (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}`);
-        (0, createFolder_1.createFolder)(`especialistas/${especialista.dataValues.id}/profile`);
+        //createFolder(`especialistas/${especialista.dataValues.id}`);
+        //createFolder(`especialistas/${especialista.dataValues.id}/profile`);       
         res.json({
             token,
             especialista

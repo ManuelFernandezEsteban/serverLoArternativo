@@ -136,8 +136,8 @@ export const postEspecialista = async (req: Request, res: Response) => {
                 });
             }
         }
-        createFolder(`especialistas/${especialista.dataValues.id}`);
-        createFolder(`especialistas/${especialista.dataValues.id}/profile`);       
+        //createFolder(`especialistas/${especialista.dataValues.id}`);
+        //createFolder(`especialistas/${especialista.dataValues.id}/profile`);       
 
         res.json({
             token,
