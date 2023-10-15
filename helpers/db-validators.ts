@@ -21,9 +21,9 @@ export const esActividadValida = async (ActividadeId: number = 0) => {
 
 export const esPlanValido = async (PlaneId: number = 0) => {
     try {
-        if (isNaN(PlaneId)) {
+       /* if (isNaN(PlaneId)) {
             throw new Error('No es un plan válido')
-        }
+        }*/
 
         const existePlan = await Plan.findByPk(PlaneId);        
         if (!existePlan) {

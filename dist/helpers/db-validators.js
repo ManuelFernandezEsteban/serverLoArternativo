@@ -31,9 +31,9 @@ const esActividadValida = (ActividadeId = 0) => __awaiter(void 0, void 0, void 0
 exports.esActividadValida = esActividadValida;
 const esPlanValido = (PlaneId = 0) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (isNaN(PlaneId)) {
-            throw new Error('No es un plan válido');
-        }
+        /* if (isNaN(PlaneId)) {
+             throw new Error('No es un plan válido')
+         }*/
         const existePlan = yield planes_1.default.findByPk(PlaneId);
         if (!existePlan) {
             throw new Error('No existe un plan con id ' + PlaneId);
