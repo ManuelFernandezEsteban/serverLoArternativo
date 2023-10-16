@@ -30,6 +30,7 @@ export const stripeWebHooks = async (req: Request, res: Response) => {
     const firma = req.headers['stripe-signature'];
     try {
         const event = await stripe.webhooks.constructEventAsync(payload, firma!, process.env.STRIPE_WEBHOOK_SECRET!);
+        console.log(event);
         let sesion;
         switch (event.type) {
 

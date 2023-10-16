@@ -36,6 +36,7 @@ const stripeWebHooks = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const firma = req.headers['stripe-signature'];
     try {
         const event = yield stripe.webhooks.constructEventAsync(payload, firma, process.env.STRIPE_WEBHOOK_SECRET);
+        console.log(event);
         let sesion;
         switch (event.type) {
             case 'checkout.session.completed':
