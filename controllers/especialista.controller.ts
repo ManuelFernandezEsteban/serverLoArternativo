@@ -121,8 +121,9 @@ export const postEspecialista = async (req: Request, res: Response) => {
         const especialista = await Especialista.create(body);
         await especialista.set({ password: bcrypt.hashSync(body.password, salt) })
         await especialista.save();
-        
+        //console.log(especialista)
         const token = generarJWT(especialista.dataValues.id);
+        
         const herramientas = body.UsaHerramientas;
         if (herramientas) {
             if (herramientas.length > 0) {

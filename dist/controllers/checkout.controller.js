@@ -72,7 +72,7 @@ const createCheckoutSession = (req, res) => __awaiter(void 0, void 0, void 0, fu
         }
     }
     else if (info.plan) {
-        // console.log(info)
+        console.log(info);
         try {
             const especialista = yield especialista_1.default.findByPk(info.especialista);
             if (!especialista) {

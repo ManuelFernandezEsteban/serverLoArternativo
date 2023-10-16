@@ -107,6 +107,7 @@ const postEspecialista = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const especialista = yield especialista_1.default.create(body);
         yield especialista.set({ password: bcryptjs_1.default.hashSync(body.password, salt) });
         yield especialista.save();
+        //console.log(especialista)
         const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
         const herramientas = body.UsaHerramientas;
         if (herramientas) {

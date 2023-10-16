@@ -71,6 +71,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             })
         }*/
         const token = (0, generar_JWT_1.generarJWT)(especialista.dataValues.id);
+        console.log(token);
         especialista.set({ password: '' });
         res.json({
             especialista,

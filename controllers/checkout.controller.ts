@@ -78,7 +78,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
             }
         }
     } else if (info.plan) {
-       // console.log(info)
+        console.log(info)
 
         try {
             const especialista = await Especialista.findByPk(info.especialista);

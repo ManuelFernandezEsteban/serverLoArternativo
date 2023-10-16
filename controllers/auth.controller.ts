@@ -67,6 +67,7 @@ export const login = async (req: Request, res: Response) => {
             })
         }*/
         const token = generarJWT(especialista.dataValues.id);
+        console.log(token);
         especialista.set({ password: '' });
 
         res.json({
