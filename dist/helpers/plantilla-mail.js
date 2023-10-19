@@ -169,7 +169,7 @@ const mailCompraCliente = (especialista, evento, cliente, link) => {
                         <li>Especialista: ${especialista.nombre} ${especialista.apellidos}</li>
                     </ul>
                     <p>Una vez haya realizado el evento le rogamos que pulse el siguiente enlace</p>
-                    <a href="${link}">Evento realizado</a>
+                    ${link}
              ${mailInferior}  
         `;
     return mensaje;

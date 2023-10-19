@@ -216,6 +216,7 @@ const enviarMensajeWebSocket = (tipoMensaje, mensaje) => {
 };
 const enviarMailCompraCliente = (sesion_compra, token) => __awaiter(void 0, void 0, void 0, function* () {
     const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
+    console.log(link);
     try {
         let especialista = yield especialista_1.default.findByPk(sesion_compra.EspecialistaId);
         let evento = yield eventos_1.default.findByPk(sesion_compra.EventoId);

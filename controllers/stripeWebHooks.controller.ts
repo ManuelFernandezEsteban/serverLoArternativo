@@ -243,6 +243,7 @@ const enviarMensajeWebSocket = (tipoMensaje: string, mensaje: string) => {
 const enviarMailCompraCliente = async (sesion_compra: any, token: string) => {
 
     const link = `${process.env.LINK_VERIFICAR_COMPRAS}${token}`;
+    console.log(link)
     try {
         let especialista = await Especialista.findByPk(sesion_compra.EspecialistaId);
         let evento = await Evento.findByPk(sesion_compra.EventoId);
