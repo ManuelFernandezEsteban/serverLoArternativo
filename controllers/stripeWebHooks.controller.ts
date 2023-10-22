@@ -224,8 +224,8 @@ const onCheckoutSesionComplete = async (sesion: any) => {
             }
         }
     } catch (error) {
-        console.log(error);
-        throw new Error(`Error completando sesion ${error}`);
+        console.log(error); 
+        throw new Error(`Error completando sesion ${error}`); 
 
     }
 }
